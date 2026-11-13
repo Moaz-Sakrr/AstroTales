@@ -75,6 +75,8 @@ export const en = {
     profile: (name: string) => `Visit ${name}'s profile`,
     map: 'Back to the map',
     library: 'My cards',
+    openPack: 'Tap to open your card pack',
+    pack: 'Space card',
   },
   library: { title: 'My cards', back: 'Back', locked: (name: string) => `Meet ${name} to collect this card`, secret: 'Secret card' },
   profile: {

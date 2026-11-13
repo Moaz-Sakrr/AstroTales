@@ -121,6 +121,30 @@ body {
   );
 }
 
+/* Screen change: a dark veil fades off the new screen. No transform, so fixed layers inside screens are unaffected. */
+.screen-in::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  background: var(--color-navy-950);
+  animation: veil 0.45s ease-out forwards;
+}
+@keyframes veil {
+  from { opacity: 1; }
+  to { opacity: 0; visibility: hidden; }
+}
+
+/* Jelly buttons: squash while pressed, wobble back with an overshoot on release */
+.jelly {
+  transition: scale 0.5s cubic-bezier(0.3, 1.9, 0.5, 1), translate 0.15s, box-shadow 0.15s, filter 0.15s, background-color 0.15s, opacity 0.15s;
+}
+.jelly:active:not(:disabled) {
+  scale: 1.07 0.88;
+  transition-duration: 0.08s;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

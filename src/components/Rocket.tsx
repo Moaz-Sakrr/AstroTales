@@ -5,7 +5,7 @@ export default function Rocket({ kind = 'boy', flame = false, legs = false, clas
   return (
     <svg viewBox="0 0 120 300" className={className} aria-hidden="true">
       {legs && (
-        <g stroke="#C9CDD8" strokeWidth="4" strokeLinecap="round">
+        <g className="js-legs" stroke="#C9CDD8" strokeWidth="4" strokeLinecap="round">
           <line x1="30" y1="180" x2="10" y2="226" />
           <line x1="90" y1="180" x2="110" y2="226" />
           <line x1="2" y1="226" x2="18" y2="226" />

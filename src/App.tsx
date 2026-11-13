@@ -31,7 +31,10 @@ export default function App() {
   const Current = screens[screen]
   return (
     <Suspense fallback={<div className="grid min-h-svh place-items-center bg-navy-950 text-text-muted">Loading space…</div>}>
-      <Current key={screen} />
+      {/* keyed wrapper: every screen change plays the same short fade-in from deep space (.screen-in) */}
+      <div key={screen} className="screen-in">
+        <Current />
+      </div>
     </Suspense>
   )
 }

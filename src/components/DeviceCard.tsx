@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import type { CardStyle, Device } from '../content/types'
 import { allDevices, worlds } from '../content/worlds'
 import { tx } from '../content/l10n'
@@ -28,6 +28,18 @@ export default function DeviceCard({ device: d, size = 'lg', interactive = false
   const s = STYLES[d.card.style]
   const [tilt, setTilt] = useState({ x: 0.5, y: 0.5 })
   const number = String(allDevices.indexOf(d) + 1).padStart(2, '0')
+
+  // On phones, tilting the device moves the shine and the tilt (no permission prompt: browsers that need one just skip it).
+  useEffect(() => {
+    if (!interactive || matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const clamp = (n: number) => Math.min(1, Math.max(0, n))
+    const onTilt = (e: DeviceOrientationEvent) => {
+      if (e.gamma === null || e.beta === null) return
+      setTilt({ x: clamp(0.5 + e.gamma / 50), y: clamp(0.5 + (e.beta - 40) / 50) })
+    }
+    addEventListener('deviceorientation', onTilt)
+    return () => removeEventListener('deviceorientation', onTilt)
+  }, [interactive])
   const style = {
     fontSize: size === 'lg' ? 16 : 10,
     '--mx': `${tilt.x * 100}%`,

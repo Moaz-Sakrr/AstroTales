@@ -22,6 +22,7 @@ type Session = {
   travelTo: WorldId | null // Space flies here as soon as it opens
   justLanded: boolean // LevelMap plays the touchdown once
   deviceId: string
+  walkFrom: string | null // device just finished: LevelMap walks the kid from it to the next level, once
 }
 
 type Actions = {
@@ -48,6 +49,7 @@ export const useGame = create<Progress & Session & Actions>()(
       travelTo: null,
       justLanded: false,
       deviceId: 'reflecto',
+      walkFrom: null,
 
       go: (screen) => set({ screen }),
       open: (screen, deviceId) => set((s) => ({ screen, back: s.screen, deviceId: deviceId ?? s.deviceId })),
@@ -59,6 +61,7 @@ export const useGame = create<Progress & Session & Actions>()(
         set((s) => ({
           coins: s.coins + coins,
           done: s.done.includes(deviceId) ? s.done : [...s.done, deviceId],
+          walkFrom: s.done.includes(deviceId) ? null : deviceId,
           screen: 'card',
         })),
       unlockSecret: (deviceId, cost) => {
