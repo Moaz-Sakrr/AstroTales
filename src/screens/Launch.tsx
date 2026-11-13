@@ -31,14 +31,15 @@ export default function Launch() {
         // 1. walk to the rocket and climb in
         tl.from('.js-kid', { x: '-40vw', duration: 1.6, ease: 'power1.inOut' })
           .to('.js-kid', { y: -10, repeat: 5, yoyo: true, duration: 0.13, ease: 'sine.inOut' }, 0)
-          .to('.js-kid', { scale: 0.3, opacity: 0, y: -120, duration: 0.6, ease: 'power2.in' })
+          .to('.js-kid', { x: 110, y: -90, scale: 0.3, opacity: 0, duration: 0.7, ease: 'power2.in' }) // into the hatch
         // 2. countdown
         t.countdown.forEach((n) => tl.call(() => setCount(n)).to({}, { duration: 0.75 }))
         // 3. ignition: flame on, rocket shakes, smoke billows
         tl.call(() => setCount(null))
           .fromTo('.js-flame', { scaleY: 0, opacity: 0 }, { scaleY: 1, opacity: 1, duration: 0.5, ease: 'back.out(3)' })
           .to('.js-rocket', { x: '+=3', repeat: 11, yoyo: true, duration: 0.05 }, '<')
-          .fromTo('.js-puff', { scale: 0.2, opacity: 0.9 }, { scale: 1.6, opacity: 0, x: (i) => (i - 7) * 26, duration: 2.2, stagger: 0.04, ease: 'power2.out' }, '<')
+          .set('.js-puff', { scale: 0.2, opacity: 0.9 }, '<')
+          .to('.js-puff', { scale: 1.6, opacity: 0, x: (i) => (i - 7) * 26, duration: 2.2, stagger: 0.04, ease: 'power2.out' }, '<')
           // 4. liftoff: accelerate up, the sky turns to space, stars appear
           .to('.js-rocket', { y: '-130vh', duration: 2.6, ease: 'power3.in' }, '-=1.6')
           .to('.js-ground', { y: '40vh', duration: 2.6, ease: 'power3.in' }, '<')
@@ -78,7 +79,10 @@ export default function Launch() {
 
       {/* pad top = 38% up a 24%-tall ground strip ≈ 9.1% of the screen, + the 16px pad */}
       <div className="js-rocket absolute bottom-[calc(9.1%+16px)] left-1/2 w-[min(28vw,150px)] -translate-x-1/2">
-        <Rocket kind={kind} flame />
+        {/* the bottom 28.6% of the rocket SVG is room for the flame; sink it so the fins sit on the pad */}
+        <div className="translate-y-[28.6%]">
+          <Rocket kind={kind} flame />
+        </div>
       </div>
 
       <div className="js-kid absolute bottom-[calc(9.1%+16px)] left-[calc(50%-150px)] w-20">
