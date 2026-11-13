@@ -28,9 +28,11 @@ One branch per task (`feat/map`, `content/opportunity`), open a PR, check the Ve
 ## Credits
 
 - Data and media: NASA / NSSDCA (see `docs/SOURCES.md`). No NASA endorsement implied.
+- Device photos: NASA and NASA/JPL-Caltech via images.nasa.gov (public domain). Each photo links to its source in the app.
+- Planet textures: [Solar System Scope](https://www.solarsystemscope.com/textures/) (CC BY 4.0), based on NASA imagery.
 - Voices generated with ElevenLabs.
 - Fonts: Baloo 2 (Google Fonts, OFL).
-- Libraries: React, Vite, Tailwind CSS, GSAP, Howler.js, Zustand.
+- Libraries: React, Vite, Tailwind CSS, GSAP, three.js, Howler.js, Zustand.
 
 ## License
 

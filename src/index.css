@@ -131,3 +131,15 @@ body {
   }
   .shooting-star { display: none; }
 }
+
+/* "play me" ring on the current level */
+@keyframes pulse-ring {
+  0% { box-shadow: 0 8px 0 rgb(0 0 0 / 0.35), 0 0 0 0 rgb(46 196 182 / 0.7); }
+  100% { box-shadow: 0 8px 0 rgb(0 0 0 / 0.35), 0 0 0 22px rgb(46 196 182 / 0); }
+}
+
+/* "speaking" sound-wave bars */
+@keyframes wave {
+  0%, 100% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1); }
+}

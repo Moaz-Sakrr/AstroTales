@@ -165,9 +165,27 @@ cd astrotales && npm install && npm run dev
 
 ---
 
-## 5. The kid's journey (11 screens)
+## 5. The kid's journey
 
-Same journey on mobile and web. The clickable prototype shows all 11.
+> **Updated 13 Nov (team decision): this journey replaces the 11-screen table below.** Prototype on branch `feat/journey-prototype`.
+
+| # | Screen | What happens |
+|---|---|---|
+| 1 | **Home** | Hero + short "what is this" info. One "Start" button. |
+| 2 | **Choose character** | Boy or girl, then a first name (optional, stays on the device). |
+| 3 | **Launch** | The character boards the spaceship and blasts off. |
+| 4 | **Space** | A realistic solar system: all 8 planets in their real order, orbiting the Sun. Moon (by Earth) and Mars are playable; the rest say "coming later". **The most important screen.** |
+| 5 | **Landing** | The ship flies to the chosen world and lands. |
+| 6 | **Level map** | Devices are levels on a winding path (candy-crush style). Next level unlocks after the previous one. Secret levels cost coins. |
+| 7 | **Story** | The device tells its story (StoryView on phones, SceneView on laptops, Section 7). |
+| 8 | **Quiz** | Fact or Cap? on what the device said. +10 coins per right answer, hint + retry on wrong. |
+| 9 | **Card** | A collectible card (trading-card style, a different look per device) is earned. |
+| 10 | **Card library** | Every card the kid has collected. |
+| 11 | **Device profile** | Social-media-style account: real NASA photos, bio, stats, science facts with sources. |
+| 12 | **Next world** | When every device on a world is done, the ship flies to the next world (Moon → Mars). |
+
+### Original 11-screen journey (superseded)
+
 
 | # | Screen | What happens | Notes |
 |---|---|---|---|

@@ -6,6 +6,8 @@ import MoonScene from '../components/MoonScene'
 import Postcard from '../components/Postcard'
 import { en } from '../content/i18n/en'
 import { useMedia } from '../hooks/useMedia'
+import { useGame } from '../store/progress'
+import Button from '../components/Button'
 
 gsap.registerPlugin(useGSAP)
 
@@ -14,6 +16,7 @@ const t = en.landing
 export default function Landing() {
   const root = useRef<HTMLElement>(null)
   const wide = useMedia('(min-width: 1024px)')
+  const go = useGame((s) => s.go)
 
   useGSAP(
     () => {
@@ -77,23 +80,39 @@ export default function Landing() {
           </h1>
           <p className="js-intro max-w-md text-lg leading-relaxed text-text-muted">{t.sub}</p>
           <div className="js-intro flex flex-col items-start gap-3">
-            {/* Wired to Choose Astronaut in Phase 1 (screen switcher). */}
-            <button
-              type="button"
-              className="min-h-12 rounded-full bg-cta px-7 py-3 text-lg font-semibold text-on-cta shadow-[0_5px_0_var(--color-cta-edge)] transition hover:brightness-105 active:translate-y-1 active:shadow-[0_1px_0_var(--color-cta-edge)] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-fact"
-            >
-              {t.cta}
-            </button>
+            <Button onClick={() => go('character')}>{t.cta}</Button>
             <p className="text-sm text-faint">{t.trust}</p>
           </div>
           <Postcard className="js-postcard mt-4" />
         </div>
       </div>
 
-      {/* Phones: scene sits under the content. Wide screens: one screen-tall backdrop pinned to the bottom. */}
-      <div className="relative -mt-16 aspect-[580/700] w-full lg:absolute lg:inset-x-0 lg:bottom-0 lg:mt-0 lg:aspect-auto lg:h-svh">
+      {/* Phones: scene sits under the content. Wide screens: one screen-tall backdrop behind the hero. */}
+      <div className="relative -mt-16 aspect-[580/700] w-full lg:absolute lg:inset-x-0 lg:top-0 lg:mt-0 lg:aspect-auto lg:h-svh">
         <MoonScene wide={wide} />
       </div>
+
+      {/* What the site is about, for kids and grown-ups who scroll before they tap. */}
+      <section className="relative z-10 border-t border-white/10 bg-navy-950/85 px-4 py-14 backdrop-blur-sm sm:px-8 lg:px-16">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t.infoTitle}</h2>
+          <ol className="mt-8 grid gap-6 md:grid-cols-3">
+            {t.steps.map((step, i) => (
+              <li key={step.title} className="flex gap-4 md:flex-col">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-cta text-lg font-bold text-on-cta">{i + 1}</span>
+                <div>
+                  <h3 className="text-lg font-semibold">{step.title}</h3>
+                  <p className="mt-1 leading-relaxed text-text-muted">{step.text}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <div className="mt-10 flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <p className="max-w-xl text-sm leading-relaxed text-faint">{t.grownups}</p>
+            <Button onClick={() => go('character')}>{t.cta}</Button>
+          </div>
+        </div>
+      </section>
     </main>
   )
 }
