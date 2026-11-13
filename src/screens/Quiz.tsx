@@ -149,7 +149,7 @@ export default function Quiz() {
         </div>
 
         {/* the stack */}
-        <div className="relative h-[min(470px,58svh)] w-[min(86vw,460px)]">
+        <div className="relative h-[min(560px,64svh)] w-[min(86vw,460px)]">
           <div className="absolute inset-0 translate-y-3.5 -rotate-[7deg] rounded-[2rem] bg-[#8B6CF0]" aria-hidden="true" />
           <div className="absolute inset-0 translate-y-2 rotate-[5deg] rounded-[2rem] bg-fact" aria-hidden="true" />
           <div
@@ -184,18 +184,15 @@ export default function Quiz() {
               }
             }}
           >
-            {/* the whole photo, never cropped: a blurred copy fills the empty sides */}
-            <div className="relative h-[38%] min-h-32 w-full shrink-0 overflow-hidden bg-ink">
-              <img src={device.photos[0].src} alt="" aria-hidden="true" draggable={false} className="absolute inset-0 h-full w-full scale-110 object-cover opacity-50 blur-md" />
-              <img src={device.photos[0].src} alt="" draggable={false} className="relative h-full w-full object-contain" />
-            </div>
-            <div className="flex flex-1 flex-col gap-3 overflow-y-auto px-6 pb-6 pt-4 sm:px-8">
+            {/* the photo gets most of the card, edge to edge */}
+            <img src={device.photos[0].src} alt="" draggable={false} className="h-[60%] min-h-40 w-full shrink-0 object-cover" />
+            <div className="flex flex-1 flex-col gap-2 overflow-y-auto px-5 pb-4 pt-3 sm:px-7">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-ink/70">{t.says(device.nickname)}</span>
                 <span className="rounded-full bg-ink px-3 py-1 text-sm font-semibold text-paper" aria-label={`Question ${qi + 1} of ${device.quiz.length}`}>{qi + 1} / {device.quiz.length}</span>
               </div>
-              <p className={`text-[1.7rem] font-semibold leading-tight sm:text-[2.35rem] ${result === 'right' ? 'text-ink/60' : ''}`}>{tx(card.statement)}</p>
-              {result === 'right' && <p className="text-lg leading-snug">{tx(card.why)}</p>}
+              <p className={`text-[1.4rem] font-semibold leading-tight sm:text-[1.9rem] ${result === 'right' ? 'text-ink/60' : ''}`}>{tx(card.statement)}</p>
+              {result === 'right' && <p className="text-base leading-snug sm:text-lg">{tx(card.why)}</p>}
               {showHint && result !== 'right' && (
                 <p className="flex items-start gap-2 rounded-2xl bg-cta/25 p-3 text-base leading-snug">
                   <svg viewBox="0 0 20 20" className="mt-0.5 h-5 w-5 shrink-0 text-cta-edge" aria-hidden="true"><path d="M7 16h6M8 18h4M10 2a6 6 0 0 0-3.5 10.9V14h7v-1.1A6 6 0 0 0 10 2z" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinejoin="round" /></svg>
@@ -206,7 +203,7 @@ export default function Quiz() {
 
             {/* rubber stamp on a right answer */}
             {result === 'right' && (
-              <div className="absolute right-4 top-[19%] -rotate-12 rounded-xl border-[5px] border-fact-ink bg-paper/90 px-3.5 py-1 text-center font-display leading-none text-fact-ink">
+              <div className="absolute right-4 top-[calc(60%-5.5rem)] -rotate-12 rounded-xl border-[5px] border-fact-ink bg-paper/90 px-3.5 py-1 text-center font-display leading-none text-fact-ink">
                 <span className="block text-3xl font-extrabold">{answerLabel.toUpperCase()}</span>
                 <span className="block text-sm font-bold">{t.gotIt}</span>
               </div>
