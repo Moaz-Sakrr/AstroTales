@@ -43,6 +43,7 @@ export type Device = {
   story: StoryCard[] // exactly 4
   quiz: QuizCard[] // exactly 3
   photos: Photo[]
+  model3d?: string // NASA 3D model under public/models/, e.g. '/models/ingenuity.glb'. No 3D tab without it.
   // The design team's card art (public/images/cards/<id>.jpg), or a generated card until the art exists.
   card:
     | { image: string }

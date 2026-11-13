@@ -88,6 +88,16 @@ export const en = {
     science: 'The science',
     source: 'Source',
     replay: 'Hear my story again',
+    model: '3D',
+  },
+  ar: {
+    button: 'See it in your room',
+    scan: 'Scan with your phone camera to see me in your room',
+    qr: 'QR code that opens this machine on your phone',
+    credit: '3D model: NASA',
+    loading: 'Loading 3D model…',
+    error: "The 3D model didn't load. Try again later.",
+    open: 'Open AstroTales',
   },
   mini: {
     skip: 'Skip game',

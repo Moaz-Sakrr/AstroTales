@@ -45,6 +45,7 @@ export const opportunity: Device = {
     nasaPhoto('opportunity-2.jpg', 'PIA04413', "NASA artist's picture of a rover like me on Mars.", JPL),
     nasaPhoto('opportunity-1.jpg', 'PIA22222', 'My first selfie, taken with my own arm camera.', JPL),
   ],
+  model3d: '/models/mer.glb',
   card: { image: '/images/cards/opportunity.jpg' },
   miniGame: 'dust',
   verified: false,
@@ -87,6 +88,7 @@ export const ingenuity: Device = {
     nasaPhoto('ingenuity-1.jpg', 'PIA24542', 'Perseverance took a selfie with me in Jezero Crater. I am the small helicopter on the left.', JPL),
     nasaPhoto('ingenuity-2.jpg', 'PIA23882', 'Me on Earth, before the trip.', JPL),
   ],
+  model3d: '/models/ingenuity.glb',
   card: { image: '/images/cards/ingenuity.jpg' },
   verified: false,
 }
@@ -169,6 +171,7 @@ export const spirit: Device = {
     { statement: L('A broken wheel helped me find clues of water.'), isFact: true, why: L('It dragged and scraped up bright, silica-rich soil.'), hint: L('Remember my lucky accident.') },
   ],
   photos: [nasaPhoto('spirit-1.jpg', 'PIA05040', 'My first look at Mars, right after landing. That is my deck and my deflated airbags.', JPL)],
+  model3d: '/models/mer.glb',
   card: { image: '/images/cards/spirit.jpg' },
   verified: false,
 }
@@ -210,6 +213,7 @@ export const insight: Device = {
     nasaPhoto('insight-1.jpg', 'PIA22876', 'My first selfie on Mars, December 2018. Clean solar panels!', JPL),
     nasaPhoto('insight-2.jpg', 'PIA25287', 'My last selfie, 2022. See how dusty I got?', JPL),
   ],
+  model3d: '/models/insight.glb',
   card: { image: '/images/cards/insight.jpg' },
   verified: false,
 }
@@ -252,6 +256,7 @@ export const viking1: Device = {
     nasaPhoto('viking1-1.jpg', 'PIA00381', 'The first photo ever taken on the surface of Mars, July 20, 1976. That is my footpad!', JPL),
     nasaPhoto('viking1-2.jpg', 'PIA00563', 'My first color picture of Mars.', JPL),
   ],
+  model3d: '/models/viking.glb',
   card: { image: '/images/cards/viking1.jpg' },
   verified: false,
 }

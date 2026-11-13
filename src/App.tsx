@@ -10,9 +10,16 @@ import MiniGame from './screens/minigames/MiniGame'
 import CardReward from './screens/CardReward'
 import Library from './screens/Library'
 import Profile from './screens/Profile'
+import { deviceById } from './content/worlds'
+import { en } from './content/i18n/en'
 
 // three.js is big: only download it when the kid reaches space.
 const Space = lazy(() => import('./screens/Space'))
+const ArView = lazy(() => import('./screens/ArView'))
+
+// ?ar=<id> comes from the QR on a laptop. Only a known device with a model counts; anything else starts the app as normal.
+const arParam = new URLSearchParams(location.search).get('ar')
+const arDevice = arParam && Object.hasOwn(deviceById, arParam) && deviceById[arParam].model3d ? deviceById[arParam] : null
 
 const screens: Record<Screen, ComponentType> = {
   home: Landing,
@@ -31,6 +38,13 @@ const screens: Record<Screen, ComponentType> = {
 export default function App() {
   const screen = useGame((s) => s.screen)
   const Current = screens[screen]
+  if (arDevice) {
+    return (
+      <Suspense fallback={<div className="grid min-h-svh place-items-center bg-navy-950 text-text-muted">{en.ar.loading}</div>}>
+        <ArView device={arDevice} />
+      </Suspense>
+    )
+  }
   return (
     <Suspense fallback={<div className="grid min-h-svh place-items-center bg-navy-950 text-text-muted">Loading space…</div>}>
       <Current key={screen} />
