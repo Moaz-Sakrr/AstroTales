@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Button from '../components/Button'
 import Astronaut from '../components/Astronaut'
+import DeviceModel from '../components/DeviceModel'
 import { deviceById, worlds } from '../content/worlds'
 import { tx } from '../content/l10n'
 import { en } from '../content/i18n/en'
@@ -13,8 +14,9 @@ const coord = (v: number, pos: string, neg: string) => `${Math.abs(v).toFixed(2)
 export default function Profile() {
   const device = deviceById[useGame((s) => s.deviceId)]
   const { go, back, playDevice, character } = useGame.getState()
-  const [tab, setTab] = useState<'photos' | 'science'>('photos')
+  const [tab, setTab] = useState<'photos' | 'science' | 'model'>('photos')
   const d = device
+  const tabs: ('photos' | 'science' | 'model')[] = d.model3d ? ['photos', 'science', 'model'] : ['photos', 'science']
 
   return (
     <main className="min-h-svh bg-navy-950 pb-12">
@@ -71,7 +73,7 @@ export default function Profile() {
         </section>
 
         <div role="tablist" className="mt-6 flex border-b border-white/10">
-          {(['photos', 'science'] as const).map((k) => (
+          {tabs.map((k) => (
             <button
               key={k}
               type="button"
@@ -85,7 +87,9 @@ export default function Profile() {
           ))}
         </div>
 
-        {tab === 'photos' ? (
+        {tab === 'model' ? (
+          <DeviceModel device={d} className="h-[65svh] p-4" />
+        ) : tab === 'photos' ? (
           <ul className="grid gap-4 p-4 sm:grid-cols-2">
             {d.photos.map((p) => (
               <li key={p.src} className="overflow-hidden rounded-2xl bg-surface/60">

@@ -43,6 +43,7 @@ export const near: Device = {
     { statement: L("I started orbiting Eros on Valentine's Day."), isFact: true, why: L('February 14, 2000.'), hint: L('What day is February 14?') },
   ],
   photos: [nasaPhoto('near-1.jpg', 'PIA18177', "NASA artist's picture of me arriving at asteroid Eros.", JPL)],
+  model3d: '/models/near.glb',
   card: { image: '/images/cards/near.jpg' },
   verified: false,
 }
@@ -84,6 +85,7 @@ export const dawn: Device = {
     nasaPhoto('dawn-1.jpg', 'PIA19167', 'Dwarf planet Ceres, as I saw it on my way in.', JPL),
     nasaPhoto('dawn-2.jpg', 'KSC-07PD-0859', 'Me being prepared for launch at Kennedy Space Center, 2007.'),
   ],
+  model3d: '/models/dawn.glb',
   card: { image: '/images/cards/dawn.jpg' },
   verified: false,
 }
@@ -122,6 +124,7 @@ export const pioneer10: Device = {
     { statement: L('I carry a picture message for anyone who finds me.'), isFact: true, why: L('A plaque showing people and where I came from.'), hint: L('What is on my plaque?') },
   ],
   photos: [nasaPhoto('pioneer10-1.jpg', 'ARC-1972-AC72-2135', 'Me being built, before my launch in 1972.', 'NASA Ames')],
+  model3d: '/models/pioneer10.glb',
   card: { image: '/images/cards/pioneer10.jpg' },
   verified: false,
 }
@@ -164,6 +167,7 @@ export const kepler: Device = {
     nasaPhoto('kepler-1.jpg', 'PIA11825', "NASA artist's picture of me in space.", JPL),
     nasaPhoto('kepler-2.jpg', 'PIA11188', 'Me in a clean room before launch.', JPL),
   ],
+  model3d: '/models/kepler.glb',
   card: { image: '/images/cards/kepler.jpg' },
   miniGame: 'transit',
   verified: false,

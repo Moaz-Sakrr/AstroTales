@@ -88,6 +88,7 @@ export const eagle: Device = {
     nasaPhoto('eagle-1.jpg', 'as11-40-5927', 'Me on the Moon, July 1969. Gold foil and all.'),
     nasaPhoto('eagle-2.jpg', 'as11-40-5902', 'Buzz Aldrin walking near my leg.'),
   ],
+  model3d: '/models/lunar-module.glb',
   card: { image: '/images/cards/eagle.jpg' },
   miniGame: 'lander',
   verified: false,
@@ -131,6 +132,7 @@ export const falcon: Device = {
     nasaPhoto('falcon-1.jpg', 'as15-86-11603', 'Jim Irwin working at the Moon car, Apollo 15.'),
     nasaPhoto('falcon-2.jpg', 'as15-86-11602', 'The Moon car parked at Hadley–Apennine.'),
   ],
+  model3d: '/models/lunar-module.glb',
   card: { image: '/images/cards/falcon.jpg' },
   verified: false,
 }
