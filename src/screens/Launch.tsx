@@ -4,7 +4,6 @@ import { useGSAP } from '@gsap/react'
 import Rocket from '../components/Rocket'
 import Astronaut from '../components/Astronaut'
 import Starfield from '../components/Starfield'
-import { suits } from '../content/suits'
 import { en } from '../content/i18n/en'
 import { useGame } from '../store/progress'
 
@@ -81,12 +80,12 @@ export default function Launch() {
       <div className="js-rocket absolute bottom-[calc(9.1%+16px)] left-1/2 w-[min(28vw,150px)] -translate-x-1/2">
         {/* the bottom 28.6% of the rocket SVG is room for the flame; sink it so the fins sit on the pad */}
         <div className="translate-y-[28.6%]">
-          <Rocket kind={kind} flame />
+          <Rocket flame />
         </div>
       </div>
 
       <div className="js-kid absolute bottom-[calc(9.1%+16px)] left-[calc(50%-150px)] w-20">
-        <Astronaut suit={suits.classic} kind={kind} width={80} />
+        <Astronaut kind={kind} pose="threeq" width={80} />
       </div>
 
       {count && (

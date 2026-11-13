@@ -7,8 +7,7 @@ export type WorldId = 'moon' | 'mars' | 'deep'
 
 export type StoryCard = {
   kicker: L10n // small label, e.g. "POV: you are a mirror on the Moon"
-  line: L10n // what the device says (≤ 20 words)
-  audio?: Record<Lang, string> // '/audio/en/reflecto/0.mp3' once voice-over exists
+  line: L10n // what the device says (≤ 20 words). Voice: public/audio/{lang}/{deviceId}/{cardIndex}.mp3
 }
 
 export type Fact = { text: L10n; source: string } // source = NSSDCA / NASA URL

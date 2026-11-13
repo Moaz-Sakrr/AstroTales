@@ -1,5 +1,6 @@
 import { useState, type ComponentType } from 'react'
 import Button from '../../components/Button'
+import CharacterFace from '../../components/CharacterFace'
 import { deviceById } from '../../content/worlds'
 import type { MiniGameId } from '../../content/types'
 import { en } from '../../content/i18n/en'
@@ -23,6 +24,7 @@ const GAMES: Record<MiniGameId, ComponentType<GameProps>> = {
 export default function MiniGame() {
   const device = deviceById[useGame((s) => s.deviceId)]
   const go = useGame((s) => s.go)
+  const character = useGame((s) => s.character)
   const kind = device.miniGame!
   const text = en.mini[kind]
   const [phase, setPhase] = useState<'intro' | 'play' | 'won'>('intro')
@@ -49,7 +51,8 @@ export default function MiniGame() {
 
       {phase !== 'play' && (
         <div className="absolute inset-0 z-30 grid place-items-center bg-navy-950/55 p-4 backdrop-blur-[3px]">
-          <section className="w-full max-w-md animate-[pop_0.45s_cubic-bezier(.2,1.4,.4,1)] rounded-3xl bg-navy-900/95 p-6 text-center shadow-2xl ring-1 ring-white/10">
+          <section className="relative w-full max-w-md animate-[pop_0.45s_cubic-bezier(.2,1.4,.4,1)] rounded-3xl bg-navy-900/95 p-6 text-center shadow-2xl ring-1 ring-white/10">
+            <CharacterFace kind={character} mood={phase === 'won' ? 'laugh' : 'determined'} className="absolute -top-8 right-6 h-16 w-16 ring-4 ring-cta" />
             <img src={device.photos[0].src} alt="" className="mx-auto -mt-14 mb-3 h-20 w-20 rounded-full object-cover ring-4 ring-cta" />
             <h1 className="text-3xl font-bold tracking-tight">{phase === 'won' ? en.mini.won : text.title}</h1>
             <p className="mt-3 text-lg leading-relaxed text-text-muted">{phase === 'won' ? text.fact : text.howTo}</p>

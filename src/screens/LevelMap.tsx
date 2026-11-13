@@ -5,7 +5,6 @@ import Button from '../components/Button'
 import CoinBadge, { Coin } from '../components/CoinBadge'
 import Rocket from '../components/Rocket'
 import Astronaut from '../components/Astronaut'
-import { suits } from '../content/suits'
 import { worlds } from '../content/worlds'
 import type { Device } from '../content/types'
 import { en } from '../content/i18n/en'
@@ -17,8 +16,9 @@ const t = en.level
 // Level spots in % of the map, zigzagging bottom → top like a candy-crush path, for any number of levels.
 const ZIGZAG = [28, 70, 34, 66, 30, 68]
 const spotsFor = (n: number) => Array.from({ length: n }, (_, i) => ({ x: ZIGZAG[i % ZIGZAG.length], y: 86 - i * (72 / Math.max(n - 1, 1)) }))
-// The secret sits level with the last stop, on the other side, so it never overlaps the path.
-const secretSpotFor = (last: { x: number; y: number }) => ({ x: last.x < 50 ? 74 : 26, y: Math.max(last.y - 5, 9) })
+// The secret sits beside the last stop, on the other side, so it never overlaps the path. A bit lower, not higher:
+// its stack (button + label + coin price) is taller, and higher up it would slide under the header on a phone.
+const secretSpotFor = (last: { x: number; y: number }) => ({ x: last.x < 50 ? 74 : 26, y: last.y + 6 })
 const PILL = 'flex min-h-11 shrink-0 items-center gap-1 rounded-full bg-black/40 px-3 font-semibold text-text backdrop-blur-sm hover:bg-black/60 focus-visible:outline-3 focus-visible:outline-fact'
 
 export default function LevelMap() {
@@ -101,7 +101,7 @@ export default function LevelMap() {
           return (
             <div key={d.id} className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center" style={{ left: `${spots[i].x}%`, top: `${spots[i].y}%` }}>
               {s === 'current' && (
-                <Astronaut suit={suits.classic} kind={character} width={44} className="absolute -left-12 bottom-6 motion-safe:animate-bounce" />
+                <Astronaut kind={character} pose="threeq" width={44} className="absolute -left-12 bottom-6 motion-safe:animate-bounce" />
               )}
               <LevelButton device={d} index={i + 1} state={s} onClick={() => (s === 'done' ? open('profile', d.id) : s === 'current' ? playDevice(d.id) : undefined)} />
             </div>
@@ -135,7 +135,7 @@ export default function LevelMap() {
       {landing && (
         <div className="js-landing pointer-events-none absolute inset-0 z-20 grid place-items-center">
           <div className="js-lander relative w-28">
-            <Rocket kind={character} flame legs />
+            <Rocket flame legs />
           </div>
           {Array.from({ length: 7 }, (_, i) => (
             <span key={i} className="js-dust absolute left-1/2 top-[62%] -ml-8 h-16 w-16 rounded-full bg-[#CFCFD8]/70 opacity-0 blur-sm" />
@@ -176,7 +176,7 @@ function LevelButton({ device, index, state, onClick }: { device: Device; index?
           </span>
         )}
       </button>
-      <span className="mt-2 rounded-full bg-black/50 px-3 py-0.5 text-sm font-semibold backdrop-blur-sm">{state === 'secret' ? en.level.secret : device.nickname}</span>
+      <span className="mt-2 whitespace-nowrap rounded-full bg-black/50 px-3 py-0.5 text-sm font-semibold backdrop-blur-sm">{state === 'secret' ? en.level.secret : device.nickname}</span>
     </>
   )
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 // Reveals `text` one character at a time. `finish()` shows the whole line at once (tap to skip).
-// shortcut: even speed; switch to ElevenLabs per-character timings once the voice files exist.
+// shortcut: even speed stretched over the clip length; use ElevenLabs per-character timings if words drift.
 export function useTypewriter(text: string, msPerChar = 32) {
   const [count, setCount] = useState(0)
   useEffect(() => {

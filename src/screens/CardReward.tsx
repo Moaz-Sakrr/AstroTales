@@ -4,6 +4,8 @@ import { useGSAP } from '@gsap/react'
 import Starfield from '../components/Starfield'
 import Button from '../components/Button'
 import DeviceCard from '../components/DeviceCard'
+import Astronaut from '../components/Astronaut'
+import CharacterFace from '../components/CharacterFace'
 import { deviceById } from '../content/worlds'
 import { en } from '../content/i18n/en'
 import { useGame } from '../store/progress'
@@ -14,7 +16,7 @@ const t = en.card
 export default function CardReward() {
   const root = useRef<HTMLElement>(null)
   const device = deviceById[useGame((s) => s.deviceId)]
-  const { go, open } = useGame.getState()
+  const { go, open, character } = useGame.getState()
 
   useGSAP(
     () => {
@@ -33,6 +35,9 @@ export default function CardReward() {
     <main ref={root} className="space-sky relative flex min-h-svh flex-col items-center justify-center gap-6 overflow-hidden px-4 py-8 text-center">
       <Starfield />
       <div className="js-ray pointer-events-none absolute left-1/2 top-1/2 h-[140vmax] w-[140vmax] -translate-x-1/2 -translate-y-1/2 bg-[repeating-conic-gradient(rgb(255_201_60/0.12)_0_8deg,transparent_8deg_24deg)]" />
+      {/* the kid cheers: full body beside the card on wide screens, a happy face above the title on phones */}
+      <Astronaut kind={character} pose="jump" width={170} className="js-text pointer-events-none absolute bottom-6 left-[8%] hidden md:block" />
+      <CharacterFace kind={character} mood="excited" className="js-text relative h-16 w-16 ring-4 ring-cta md:hidden" />
       <h1 className="js-text relative text-3xl font-bold tracking-tight sm:text-4xl">{t.earned(device.nickname)}</h1>
       <div className="js-card relative">
         <DeviceCard device={device} interactive />

@@ -1,5 +1,7 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Starfield from '../components/Starfield'
+import CharacterFace from '../components/CharacterFace'
+import { preloadCharacter } from '../content/characters'
 import Button from '../components/Button'
 import { Coin } from '../components/CoinBadge'
 import { deviceById } from '../content/worlds'
@@ -16,6 +18,8 @@ export default function Quiz() {
   const deviceId = useGame((s) => s.deviceId)
   const completeDevice = useGame((s) => s.completeDevice)
   const go = useGame((s) => s.go)
+  const character = useGame((s) => s.character)
+  useEffect(() => preloadCharacter(character), [character])
   const device = deviceById[deviceId]
   const [qi, setQi] = useState(0)
   const [result, setResult] = useState<'right' | 'wrong' | null>(null)
@@ -60,9 +64,13 @@ export default function Quiz() {
           <span className="hidden sm:inline">{t.back}</span>
         </button>
         <h1 className="font-display text-3xl font-extrabold leading-none sm:text-5xl">{t.title}</h1>
-        <p className="flex min-h-11 items-center gap-1.5 justify-self-end rounded-full bg-black/30 px-4 font-display text-xl font-extrabold text-cta" aria-label={`${earned} coins earned`}>
-          <Coin className="h-6 w-6" /> <span className="tabular-nums">{earned}</span>
-        </p>
+        <div className="flex items-center gap-2 justify-self-end">
+          {/* the kid reacts to each answer */}
+          <CharacterFace kind={character} mood={result === 'right' ? 'laugh' : result === 'wrong' ? 'worried' : 'curious'} className="h-11 w-11 ring-2 ring-cta" />
+          <p className="flex min-h-11 items-center gap-1.5 rounded-full bg-black/30 px-4 font-display text-xl font-extrabold text-cta" aria-label={`${earned} coins earned`}>
+            <Coin className="h-6 w-6" /> <span className="tabular-nums">{earned}</span>
+          </p>
+        </div>
       </header>
 
       <div className="relative z-10 flex w-full max-w-5xl flex-1 items-center justify-center py-6">

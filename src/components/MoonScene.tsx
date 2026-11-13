@@ -1,5 +1,5 @@
 import Astronaut from './Astronaut'
-import { suits } from '../content/suits'
+import { useGame } from '../store/progress'
 
 // Landing scene on a 1440×900 canvas, lit from the left.
 // Wide screens see all of it behind the text; phones see a crop around the astronaut, Reflecto and Earth.
@@ -16,6 +16,7 @@ const ROCKS = [[640, 760, 10], [1190, 830, 7], [860, 690, 6], [1420, 865, 12], [
 const SURFACE = 'M0 680 C 300 640 620 660 900 648 C 1120 640 1300 630 1440 642'
 
 export default function MoonScene({ wide }: { wide: boolean }) {
+  const kind = useGame((s) => s.character)
   return (
     <svg
       viewBox={wide ? '0 0 1440 900' : '860 200 580 700'}
@@ -165,7 +166,7 @@ export default function MoonScene({ wide }: { wide: boolean }) {
         {/* astronaut + its shadow */}
         <ellipse className="js-astro-shadow" cx="958" cy="712" rx="44" ry="8" fill="#000" opacity="0.22" />
         <g className="js-astronaut">
-          <Astronaut suit={suits.classic} x={870} y={474} width={170} />
+          <Astronaut kind={kind} pose="point" x={870} y={458} width={170} />
         </g>
 
         {/* Reflecto, Apollo 11 laser ranging retroreflector, right by the boots */}

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Button from '../components/Button'
+import Astronaut from '../components/Astronaut'
 import { deviceById, worlds } from '../content/worlds'
 import { tx } from '../content/l10n'
 import { en } from '../content/i18n/en'
@@ -11,7 +12,7 @@ const coord = (v: number, pos: string, neg: string) => `${Math.abs(v).toFixed(2)
 // The device's "social media account": real NASA photos + sourced science.
 export default function Profile() {
   const device = deviceById[useGame((s) => s.deviceId)]
-  const { go, back, playDevice } = useGame.getState()
+  const { go, back, playDevice, character } = useGame.getState()
   const [tab, setTab] = useState<'photos' | 'science'>('photos')
   const d = device
 
@@ -25,7 +26,10 @@ export default function Profile() {
       </header>
 
       <div className="mx-auto max-w-2xl">
-        <div className="h-36 bg-cover bg-center sm:h-48 sm:rounded-b-3xl" style={{ backgroundImage: `linear-gradient(transparent, rgb(8 21 43 / .6)), url(${worlds[d.world].texture})` }} />
+        <div className="relative h-36 bg-cover bg-center sm:h-48 sm:rounded-b-3xl" style={{ backgroundImage: `linear-gradient(transparent, rgb(8 21 43 / .6)), url(${worlds[d.world].texture})` }}>
+          {/* the kid visiting the device */}
+          <Astronaut kind={character} width={80} className="absolute bottom-2 right-4 sm:right-8" />
+        </div>
 
         <section className="px-4">
           <div className="-mt-14 flex items-end justify-between gap-3">

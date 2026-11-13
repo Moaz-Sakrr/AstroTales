@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
+import { Howl } from 'howler'
 import Starfield from '../components/Starfield'
 import Astronaut from '../components/Astronaut'
 import Button from '../components/Button'
-import { suits } from '../content/suits'
+import CharacterFace from '../components/CharacterFace'
+import { preloadCharacter, REACTIONS } from '../content/characters'
 import { deviceById, worlds } from '../content/worlds'
 import { tx } from '../content/l10n'
 import { en } from '../content/i18n/en'
@@ -21,7 +23,18 @@ export default function Story() {
   const device = deviceById[deviceId]
   const [i, setI] = useState(0)
   const card = device.story[i]
-  const { shown, done, finish } = useTypewriter(tx(card.line))
+  const [msPerChar, setMsPerChar] = useState(32)
+  const { shown, done, finish } = useTypewriter(tx(card.line), msPerChar)
+
+  // Play this card's voice; stretch the typing over the clip so text and voice end together.
+  useEffect(() => {
+    const voice = new Howl({ src: [`/audio/en/${device.id}/${i}.mp3`] })
+    voice.once('load', () => setMsPerChar((voice.duration() * 1000) / tx(card.line).length))
+    voice.play()
+    return () => void voice.unload()
+  }, [device.id, i, card])
+  const reaction = REACTIONS[i % REACTIONS.length] // how the kid reacts to this card
+  useEffect(() => preloadCharacter(character), [character])
 
   const next = () => (!done ? finish() : i < device.story.length - 1 ? setI(i + 1) : go('quiz'))
   const back = () => i > 0 && setI(i - 1)
@@ -75,7 +88,10 @@ export default function Story() {
           {close}
         </div>
         <div className="relative z-10 flex flex-1 flex-col items-center justify-center gap-4 px-6">
-          {portrait('h-56 w-56')}
+          <div className="relative">
+            {portrait('h-56 w-56')}
+            <CharacterFace kind={character} mood={reaction.mood} className="absolute -bottom-3 -left-5 h-20 w-20 ring-4 ring-cta" />
+          </div>
           <p className="rounded-full bg-black/40 px-4 py-1 text-sm font-semibold text-cta">{tx(card.kicker)}</p>
         </div>
         <div className="relative z-10 m-3 rounded-3xl bg-paper p-5 text-ink shadow-2xl">
@@ -96,8 +112,9 @@ export default function Story() {
       <div className="absolute inset-x-[-10%] bottom-0 h-[42%] rounded-[50%_50%_0_0/18%_18%_0_0] bg-cover bg-center shadow-[inset_0_20px_40px_rgb(0_0_0/0.4)]" style={{ backgroundImage: `url(${worlds[device.world].texture})` }} />
       <div className="absolute right-4 top-4 z-10">{close}</div>
 
-      <div className="absolute bottom-[30%] left-[10%] w-[min(18vw,200px)]">
-        <Astronaut suit={suits.classic} kind={character} width={200} className="h-auto w-full" />
+      <div className="absolute bottom-[33%] left-[10%] w-[min(18vw,200px)]">
+        <Astronaut kind={character} pose={reaction.pose} width={200} className="h-auto w-full" />
+        <CharacterFace kind={character} mood={reaction.mood} className="absolute -left-8 -top-2 h-[min(8vw,80px)] w-[min(8vw,80px)] ring-4 ring-cta" />
       </div>
       <div className="absolute bottom-[33%] right-[12%]">{portrait('h-[min(26vw,280px)] w-[min(26vw,280px)]')}</div>
 

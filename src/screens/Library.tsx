@@ -1,6 +1,7 @@
 import Starfield from '../components/Starfield'
 import Button from '../components/Button'
 import DeviceCard from '../components/DeviceCard'
+import CharacterFace from '../components/CharacterFace'
 import { allDevices, worlds } from '../content/worlds'
 import { en } from '../content/i18n/en'
 import { useGame } from '../store/progress'
@@ -9,7 +10,9 @@ const t = en.library
 
 export default function Library() {
   const done = useGame((s) => s.done)
+  const character = useGame((s) => s.character)
   const { go, open, back } = useGame.getState()
+  const collected = allDevices.filter((d) => done.includes(d.id)).length
 
   return (
     <main className="space-sky relative min-h-svh overflow-x-hidden px-4 py-5 sm:px-8">
@@ -17,7 +20,10 @@ export default function Library() {
       <header className="relative z-10 mx-auto flex max-w-5xl items-center justify-between">
         <Button variant="ghost" className="min-h-11 px-4 text-base" onClick={() => go(back === 'profile' ? 'level' : back)}>{t.back}</Button>
         <h1 className="text-3xl font-bold tracking-tight">{t.title}</h1>
-        <p className="min-w-16 text-right font-semibold text-text-muted">{allDevices.filter((d) => done.includes(d.id)).length}/{allDevices.length}</p>
+        <p className="flex min-w-16 items-center justify-end gap-2 font-semibold text-text-muted">
+          <CharacterFace kind={character} mood={collected === allDevices.length ? 'excited' : 'happy'} className="h-10 w-10 ring-2 ring-cta" />
+          {collected}/{allDevices.length}
+        </p>
       </header>
 
       {Object.values(worlds).map((w) => (
