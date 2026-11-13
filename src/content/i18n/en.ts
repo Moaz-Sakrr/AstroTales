@@ -67,6 +67,9 @@ export const en = {
     finish: 'Collect my card',
     coins: (n: number) => `+${n} coins`,
     swipe: 'Swipe left for Cap, right for Fact',
+    back: 'Back to the map',
+    says: (name: string) => `${name} says…`,
+    gotIt: 'you got it!',
   },
   card: {
     earned: (name: string) => `You earned ${name}'s card!`,
