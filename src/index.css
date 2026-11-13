@@ -34,6 +34,15 @@
   --color-on-cta: var(--color-navy-900);
   --color-fact: var(--color-teal);
   --color-cap: var(--color-flag);
+  --color-galaxy: #8B6CF0;
+  --color-live: #22C55E;
+  --color-live-ink: #15803D; /* "still working" text on paper */
+  --color-fact-ink: #136B63; /* teal text on paper (4.5:1) */
+  --color-cap-ink: #B83232; /* red text on paper */
+  --color-fact-edge: #1E8C82;
+  --color-cap-edge: #B83232;
+  --color-paper-edge: #C9B48A;
+  --color-paper-flap: #F3E2BE;
 
   --font-sans: "Lexend", system-ui, sans-serif;
   --font-hand: "Gochi Hand", "Comic Sans MS", cursive; /* the devices' own handwriting */
@@ -121,7 +130,102 @@ body {
   );
 }
 
+/* Gentle bobbing for planets and floating things */
+.float-slow { animation: bob 7s ease-in-out infinite; }
+.float-mid { animation: bob 5s ease-in-out infinite 0.6s; }
+.float-fast { animation: bob 3.6s ease-in-out infinite 1.2s; }
+@keyframes bob {
+  50% { transform: translateY(-10px) rotate(2deg); }
+}
+
+.comet {
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, #9FE3FF);
+  opacity: 0;
+  animation: comet 14s linear 2s infinite;
+}
+@keyframes comet {
+  0% { transform: translate(0, 0) rotate(24deg); opacity: 0; }
+  2% { opacity: 1; }
+  10% { transform: translate(520px, 230px) rotate(24deg); opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* Ingenuity rotors: squash on X to fake a spinning blade in 2D */
+.rotor { animation: rotor 0.18s linear infinite; }
+.rotor-rev { animation-direction: reverse; animation-duration: 0.22s; }
+@keyframes rotor {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(0.15); }
+}
+
+/* Pulsing ring around the "up next" flag */
+.pulse-ring { animation: pulse-ring 1.8s ease-out infinite; }
+@keyframes pulse-ring {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+.shake { animation: shake 0.45s ease-in-out; }
+@keyframes shake {
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
+/* Device glow while it is "speaking" */
+.speaking { filter: drop-shadow(0 0 18px rgb(46 196 182 / 0.75)); }
+
+/* Holographic shine on collectible cards. --mx/--my follow the pointer (set in HoloCard). */
+.holo {
+  background:
+    linear-gradient(115deg, transparent 20%, rgb(255 255 255 / 0.55) var(--shine, 45%), transparent 70%),
+    linear-gradient(135deg, rgb(255 143 177 / 0.35), rgb(159 227 255 / 0.35), rgb(255 201 60 / 0.35), rgb(139 108 240 / 0.35));
+  background-size: 200% 200%, 100% 100%;
+  background-position: var(--mx, 50%) var(--my, 50%), 0 0;
+  mix-blend-mode: soft-light;
+  animation: holo 5s ease-in-out infinite;
+}
+@keyframes holo {
+  50% { --shine: 60%; background-position: 80% 20%, 0 0; }
+}
+
+/* Stars rushing past during flight */
+.warp-line {
+  position: absolute;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, transparent, #fff);
+}
+
+.warp-fall {
+  top: -20vh;
+  animation: warp 0.7s linear infinite;
+}
+@keyframes warp {
+  to { transform: translateY(140vh); }
+}
+
+.screen-in { animation: screen-in 0.35s ease-out; }
+@keyframes screen-in {
+  from { opacity: 0; }
+}
+
+.typing-caret::after {
+  content: '';
+  display: inline-block;
+  width: 0.5ch;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.12em;
+  background: currentColor;
+  animation: caret 0.9s steps(1) infinite;
+}
+@keyframes caret {
+  50% { opacity: 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .float-slow, .float-mid, .float-fast, .comet, .rotor, .holo, .pulse-ring { animation: none !important; }
   *,
   *::before,
   *::after {

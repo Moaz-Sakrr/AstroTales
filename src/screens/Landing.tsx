@@ -4,8 +4,12 @@ import { useGSAP } from '@gsap/react'
 import Starfield from '../components/Starfield'
 import MoonScene from '../components/MoonScene'
 import Postcard from '../components/Postcard'
+import Planets from '../components/Planets'
+import Button from '../components/Button'
 import { en } from '../content/i18n/en'
 import { useMedia } from '../hooks/useMedia'
+import { useProgress } from '../store/progress'
+import { sfx } from '../audio/sfx'
 
 gsap.registerPlugin(useGSAP)
 
@@ -14,6 +18,12 @@ const t = en.landing
 export default function Landing() {
   const root = useRef<HTMLElement>(null)
   const wide = useMedia('(min-width: 1024px)')
+  const { character, go } = useProgress()
+  // The first tap also wakes up audio (browsers block sound until the user interacts).
+  const start = (screen: 'avatar' | 'map') => {
+    sfx.whoosh()
+    go(screen)
+  }
 
   useGSAP(
     () => {
@@ -28,6 +38,7 @@ export default function Landing() {
           .from('.js-ground', { y: 240, duration: 2.2 }, 0)
           .from('.js-earth', { scale: 0.5, opacity: 0, svgOrigin: '1290 300', duration: 1.6 }, 0.3)
           .from('.js-intro', { y: 24, opacity: 0, stagger: 0.12, duration: 0.9 }, 0.7)
+          .from('.js-planet', { scale: 0, opacity: 0, stagger: 0.12, duration: 1, ease: 'back.out(1.6)' }, 0.5)
           .from('.js-postcard', { y: 90, rotation: 9, opacity: 0, duration: 1.1, ease: 'back.out(1.4)' }, 1.2)
           .from('.js-laser', { strokeDashoffset: (_i: number, el: Element) => Number(el.getAttribute('stroke-dasharray')), duration: 1, ease: 'power2.in' }, 2)
           .from('.laser-pulse', { opacity: 0, duration: 0.4 }, 3)
@@ -60,6 +71,7 @@ export default function Landing() {
   return (
     <main ref={root} className="space-sky relative min-h-svh overflow-hidden">
       <Starfield />
+      <Planets />
 
       <div className="relative z-10 mx-auto flex max-w-7xl flex-col px-4 pb-6 sm:px-8 lg:min-h-svh lg:px-16">
         <header className="js-intro flex items-center gap-2 py-5">
@@ -77,13 +89,14 @@ export default function Landing() {
           </h1>
           <p className="js-intro max-w-md text-lg leading-relaxed text-text-muted">{t.sub}</p>
           <div className="js-intro flex flex-col items-start gap-3">
-            {/* Wired to Choose Astronaut in Phase 1 (screen switcher). */}
-            <button
-              type="button"
-              className="min-h-12 rounded-full bg-cta px-7 py-3 text-lg font-semibold text-on-cta shadow-[0_5px_0_var(--color-cta-edge)] transition hover:brightness-105 active:translate-y-1 active:shadow-[0_1px_0_var(--color-cta-edge)] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-fact"
-            >
-              {t.cta}
-            </button>
+            {character ? (
+              <div className="flex flex-wrap gap-3">
+                <Button onClick={() => start('map')}>{t.continue}</Button>
+                <Button variant="ghost" onClick={() => start('avatar')}>{t.change}</Button>
+              </div>
+            ) : (
+              <Button onClick={() => start('avatar')}>{t.cta}</Button>
+            )}
             <p className="text-sm text-faint">{t.trust}</p>
           </div>
           <Postcard className="js-postcard mt-4" />
