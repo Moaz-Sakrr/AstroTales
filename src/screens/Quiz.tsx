@@ -184,7 +184,11 @@ export default function Quiz() {
               }
             }}
           >
-            <img src={device.photos[0].src} alt="" draggable={false} className="h-[30%] min-h-28 w-full shrink-0 object-cover" />
+            {/* the whole photo, never cropped: a blurred copy fills the empty sides */}
+            <div className="relative h-[38%] min-h-32 w-full shrink-0 overflow-hidden bg-ink">
+              <img src={device.photos[0].src} alt="" aria-hidden="true" draggable={false} className="absolute inset-0 h-full w-full scale-110 object-cover opacity-50 blur-md" />
+              <img src={device.photos[0].src} alt="" draggable={false} className="relative h-full w-full object-contain" />
+            </div>
             <div className="flex flex-1 flex-col gap-3 overflow-y-auto px-6 pb-6 pt-4 sm:px-8">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-ink/70">{t.says(device.nickname)}</span>
@@ -202,7 +206,7 @@ export default function Quiz() {
 
             {/* rubber stamp on a right answer */}
             {result === 'right' && (
-              <div className="absolute right-4 top-[13%] -rotate-12 rounded-xl border-[5px] border-fact-ink bg-paper/90 px-3.5 py-1 text-center font-display leading-none text-fact-ink">
+              <div className="absolute right-4 top-[19%] -rotate-12 rounded-xl border-[5px] border-fact-ink bg-paper/90 px-3.5 py-1 text-center font-display leading-none text-fact-ink">
                 <span className="block text-3xl font-extrabold">{answerLabel.toUpperCase()}</span>
                 <span className="block text-sm font-bold">{t.gotIt}</span>
               </div>
