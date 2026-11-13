@@ -26,6 +26,7 @@ export default function Quiz() {
   const [result, setResult] = useState<'right' | 'wrong' | null>(null)
   const [firstTry, setFirstTry] = useState(true)
   const [earned, setEarned] = useState(0)
+  const [hintOpen, setHintOpen] = useState(false) // the Hint button shows the hint before answering
   const [shownCoins, setShownCoins] = useState(0) // counter in the header; counts up when the flying coins land
   const [lean, setLean] = useState<-1 | 0 | 1>(0) // which way the card is being dragged (shows the Fact / Cap tag)
   const start = useRef<number | null>(null)
@@ -77,7 +78,7 @@ export default function Quiz() {
   }
 
   const answer = (saysFact: boolean) => {
-    if (result || busy.current) return
+    if (result === 'right' || busy.current) return
     const right = saysFact === card.isFact
     const pays = right && firstTry
     const total = earned + (pays ? COINS_PER_ANSWER : 0)
@@ -114,99 +115,136 @@ export default function Quiz() {
     setQi(qi + 1)
     setResult(null)
     setFirstTry(true)
+    setHintOpen(false)
     if (!reducedMotion()) gsap.fromTo(cardEl.current, { y: 40, opacity: 0, scale: 0.95 }, { y: 0, opacity: 1, scale: 1, duration: 0.4, ease: 'back.out(1.6)' })
   }
 
+  const showHint = hintOpen || result === 'wrong'
+  const answerLabel = card.isFact ? t.fact : t.cap
+
+  // Design "C · Card Stack": a stack of cards, the top one holds the question; round Cap / Fact buttons below.
   return (
-    <main className="space-sky relative flex min-h-svh flex-col items-center overflow-hidden px-4 py-5">
+    <main className="relative flex min-h-svh flex-col items-center overflow-hidden bg-[radial-gradient(50%_60%_at_50%_55%,var(--color-navy-700)_0%,var(--color-navy-900)_70%)] px-4 pb-6 pt-3 sm:px-10">
       <Starfield />
-      <header className="relative z-10 flex w-full max-w-3xl items-center justify-between">
-        <button type="button" onClick={() => go('level')} className="min-h-11 rounded-full px-3 text-text-muted hover:text-text">{en.story.close}</button>
-        <div className="flex gap-2" aria-label={`Card ${qi + 1} of ${device.quiz.length}`}>
-          {device.quiz.map((_, k) => (
-            <span key={k} className={`h-3 w-3 rounded-full ${k < qi || (k === qi && result === 'right') ? 'bg-fact' : k === qi ? 'bg-white' : 'bg-white/25'}`} />
-          ))}
-        </div>
-        <p className="js-quiz-coins flex items-center gap-1.5 font-bold text-cta"><Coin /> <span ref={coinTarget} className="tabular-nums">+{shownCoins}</span></p>
+      <header className="relative z-10 grid w-full max-w-5xl grid-cols-[1fr_auto_1fr] items-center">
+        <button type="button" onClick={() => go('level')} aria-label={t.back} className="flex min-h-11 items-center gap-2 justify-self-start rounded-full px-3 text-text-muted hover:text-text">
+          <svg viewBox="0 0 20 20" className="h-5 w-5" aria-hidden="true"><path d="M12 4l-6 6 6 6" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" /></svg>
+          <span className="hidden sm:inline">{t.back}</span>
+        </button>
+        <h1 className="font-display text-3xl font-extrabold leading-none sm:text-5xl">{t.title}</h1>
+        <p className="js-quiz-coins flex min-h-11 items-center gap-1.5 justify-self-end rounded-full bg-black/30 px-4 font-display text-xl font-extrabold text-cta" aria-label={`${shownCoins} coins earned`}>
+          <Coin className="h-6 w-6" /> <span ref={coinTarget} className="tabular-nums">{shownCoins}</span>
+        </p>
       </header>
 
-      <h1 className="relative z-10 mt-6 text-4xl font-bold tracking-tight sm:text-5xl">{t.title}</h1>
-      <p className="relative z-10 mt-1 text-text-muted">{device.nickname} asks:</p>
-
-      <div className="relative z-10 mt-8 flex w-full max-w-3xl flex-1 flex-col items-center gap-6 md:flex-row md:items-center md:justify-center">
-        <AnswerButton kind="cap" onClick={() => answer(false)} disabled={!!result} className="hidden md:flex" />
-
-        <div
-          ref={cardEl}
-          className={`relative w-full max-w-sm touch-pan-y select-none overflow-hidden rounded-3xl bg-paper p-7 text-ink shadow-2xl transition-shadow ${
-            result === 'right' ? 'ring-8 ring-fact' : result === 'wrong' ? 'ring-8 ring-cap' : ''
-          }`}
-          onPointerDown={(e) => {
-            if (result || busy.current) return
-            start.current = e.clientX
-            e.currentTarget.setPointerCapture(e.pointerId)
-          }}
-          onPointerMove={(e) => {
-            if (start.current === null) return
-            // the card leans the way it's dragged
-            const x = e.clientX - start.current
-            dragX.current = x
-            gsap.set(e.currentTarget, { x, rotation: x / 18 })
-            const l = x > 30 ? 1 : x < -30 ? -1 : 0
-            if (l !== lean) setLean(l)
-          }}
-          onPointerUp={(e) => {
-            if (start.current === null) return
-            start.current = null
-            const x = dragX.current
-            dragX.current = 0
-            if (x > SWIPE) answer(true)
-            else if (x < -SWIPE) answer(false)
-            else {
-              setLean(0)
-              gsap.to(e.currentTarget, { x: 0, rotation: 0, duration: 0.35, ease: 'back.out(2)' })
-            }
-          }}
-        >
-          <span className="js-red pointer-events-none absolute inset-0 bg-cap opacity-0" aria-hidden="true" />
-          {lean !== 0 && (
-            <span className={`absolute top-4 rounded-lg px-3 py-1 text-lg font-bold ${lean > 0 ? 'right-4 bg-fact text-navy-900' : 'left-4 bg-cap text-white'}`}>{lean > 0 ? t.fact : t.cap}</span>
-          )}
-          <p className="relative pt-8 font-hand text-3xl leading-snug">{tx(card.statement)}</p>
-          <p className="relative mt-6 flex items-center gap-2 text-sm text-ink/60">
-            <img src={device.photos[0].src} alt="" className="h-7 w-7 rounded-full object-cover" /> {device.nickname}
-          </p>
+      <div className="relative z-10 flex w-full max-w-5xl flex-1 items-center justify-center py-6">
+        {/* swipe direction cues (wide screens) */}
+        <div className="absolute left-[6%] top-1/2 hidden -translate-y-1/2 flex-col items-center gap-1 font-display text-3xl font-extrabold text-[#FF8A8A] opacity-85 md:flex" aria-hidden="true">
+          <svg viewBox="0 0 20 20" className="h-11 w-11"><path d="M12 4l-6 6 6 6" stroke="currentColor" strokeWidth="2.4" fill="none" strokeLinecap="round" /></svg>
+          {t.cap.toUpperCase()}
+        </div>
+        <div className="absolute right-[6%] top-1/2 hidden -translate-y-1/2 flex-col items-center gap-1 font-display text-3xl font-extrabold text-[#5FE0D2] opacity-85 md:flex" aria-hidden="true">
+          <svg viewBox="0 0 20 20" className="h-11 w-11"><path d="M8 4l6 6-6 6" stroke="currentColor" strokeWidth="2.4" fill="none" strokeLinecap="round" /></svg>
+          {t.fact.toUpperCase()}
         </div>
 
-        <AnswerButton kind="fact" onClick={() => answer(true)} disabled={!!result} className="hidden md:flex" />
+        {/* the stack */}
+        <div className="relative h-[min(470px,58svh)] w-[min(86vw,460px)]">
+          <div className="absolute inset-0 translate-y-3.5 -rotate-[7deg] rounded-[2rem] bg-[#8B6CF0]" aria-hidden="true" />
+          <div className="absolute inset-0 translate-y-2 rotate-[5deg] rounded-[2rem] bg-fact" aria-hidden="true" />
+          <div
+            ref={cardEl}
+            className={`absolute inset-0 flex touch-pan-y select-none flex-col overflow-hidden rounded-[2rem] bg-paper text-ink shadow-[0_24px_50px_rgb(0_0_0/0.45)] transition-shadow ${
+              result === 'right' ? 'ring-[6px] ring-fact' : result === 'wrong' ? 'ring-[6px] ring-cap' : ''
+            }`}
+            onPointerDown={(e) => {
+              if (result === 'right' || busy.current) return
+              start.current = e.clientX
+              e.currentTarget.setPointerCapture(e.pointerId)
+            }}
+            onPointerMove={(e) => {
+              if (start.current === null) return
+              // the card leans the way it's dragged
+              const x = e.clientX - start.current
+              dragX.current = x
+              gsap.set(e.currentTarget, { x, rotation: x / 18 })
+              const l = x > 30 ? 1 : x < -30 ? -1 : 0
+              if (l !== lean) setLean(l)
+            }}
+            onPointerUp={(e) => {
+              if (start.current === null) return
+              start.current = null
+              const x = dragX.current
+              dragX.current = 0
+              if (x > SWIPE) answer(true)
+              else if (x < -SWIPE) answer(false)
+              else {
+                setLean(0)
+                gsap.to(e.currentTarget, { x: 0, rotation: 0, duration: 0.35, ease: 'back.out(2)' })
+              }
+            }}
+          >
+            <img src={device.photos[0].src} alt="" draggable={false} className="h-[30%] min-h-28 w-full shrink-0 object-cover" />
+            <div className="flex flex-1 flex-col gap-3 overflow-y-auto px-6 pb-6 pt-4 sm:px-8">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-ink/70">{t.says(device.nickname)}</span>
+                <span className="rounded-full bg-ink px-3 py-1 text-sm font-semibold text-paper" aria-label={`Question ${qi + 1} of ${device.quiz.length}`}>{qi + 1} / {device.quiz.length}</span>
+              </div>
+              <p className={`text-[1.7rem] font-semibold leading-tight sm:text-[2.35rem] ${result === 'right' ? 'text-ink/60' : ''}`}>{tx(card.statement)}</p>
+              {result === 'right' && <p className="text-lg leading-snug">{tx(card.why)}</p>}
+              {showHint && result !== 'right' && (
+                <p className="flex items-start gap-2 rounded-2xl bg-cta/25 p-3 text-base leading-snug">
+                  <svg viewBox="0 0 20 20" className="mt-0.5 h-5 w-5 shrink-0 text-cta-edge" aria-hidden="true"><path d="M7 16h6M8 18h4M10 2a6 6 0 0 0-3.5 10.9V14h7v-1.1A6 6 0 0 0 10 2z" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinejoin="round" /></svg>
+                  <span>{result === 'wrong' && <strong>{t.wrong} </strong>}<strong>{t.hint}:</strong> {tx(card.hint)}</span>
+                </p>
+              )}
+            </div>
 
-        <div className="flex w-full max-w-sm gap-3 md:hidden">
-          <AnswerButton kind="cap" onClick={() => answer(false)} disabled={!!result} className="flex flex-1" />
-          <AnswerButton kind="fact" onClick={() => answer(true)} disabled={!!result} className="flex flex-1" />
+            {/* rubber stamp on a right answer */}
+            {result === 'right' && (
+              <div className="absolute right-4 top-[13%] -rotate-12 rounded-xl border-[5px] border-fact-ink bg-paper/90 px-3.5 py-1 text-center font-display leading-none text-fact-ink">
+                <span className="block text-3xl font-extrabold">{answerLabel.toUpperCase()}</span>
+                <span className="block text-sm font-bold">{t.gotIt}</span>
+              </div>
+            )}
+
+            <span className="js-red pointer-events-none absolute inset-0 bg-cap opacity-0" aria-hidden="true" />
+            {lean !== 0 && (
+              <span className={`absolute top-4 -rotate-6 rounded-lg px-3 py-1 font-display text-2xl font-extrabold ${lean > 0 ? 'right-4 bg-fact text-navy-900' : 'left-4 bg-cap text-white'}`}>{lean > 0 ? t.fact.toUpperCase() : t.cap.toUpperCase()}</span>
+            )}
+          </div>
         </div>
-        {!result && <p className="text-sm text-faint md:hidden">{t.swipe}</p>}
       </div>
 
-      {result && (
-        <section role="status" className={`relative z-10 mt-6 w-full max-w-xl rounded-3xl p-5 ${result === 'right' ? 'bg-fact/20 ring-2 ring-fact' : 'bg-cap/15 ring-2 ring-cap'}`}>
-          {result === 'right' ? (
-            <>
-              <p className="flex items-center gap-3 text-2xl font-bold">
-                {t.right}
-                {firstTry && <span className="flex items-center gap-1 text-cta motion-safe:animate-bounce"><Coin /> {t.coins(COINS_PER_ANSWER)}</span>}
+      <div className="relative z-10 flex min-h-28 w-full max-w-md flex-col items-center justify-center gap-3" aria-live="polite">
+        {result === 'right' ? (
+          <>
+            {firstTry && (
+              <p className="flex items-center gap-2 font-display text-3xl font-extrabold text-cta">
+                <Coin className="h-9 w-9" /> {t.coins(COINS_PER_ANSWER)}
               </p>
-              <p className="mt-1 text-lg">{tx(card.why)}</p>
-              <Button className="mt-4" onClick={advance}>{last ? t.finish : t.next}</Button>
-            </>
-          ) : (
-            <>
-              <p className="text-2xl font-bold">{t.wrong}</p>
-              <p className="mt-1 text-lg"><span className="font-semibold">{t.hint}:</span> {tx(card.hint)}</p>
-              <Button className="mt-4" onClick={() => setResult(null)}>{t.tryAgain}</Button>
-            </>
-          )}
-        </section>
-      )}
+            )}
+            <Button className="w-full font-display text-xl font-extrabold sm:w-auto sm:min-w-64" onClick={advance}>{last ? t.finish : t.next}</Button>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center gap-6 sm:gap-9">
+              <RoundAnswer kind="cap" onClick={() => answer(false)} />
+              <button
+                type="button"
+                onClick={() => setHintOpen(true)}
+                disabled={showHint}
+                className="jelly flex min-h-14 items-center gap-2 rounded-full border-2 border-white/25 bg-white/5 px-5 text-lg text-text hover:bg-white/10 disabled:opacity-40"
+              >
+                <svg viewBox="0 0 20 20" className="h-5 w-5 text-cta" aria-hidden="true"><path d="M7 16h6M8 18h4M10 2a6 6 0 0 0-3.5 10.9V14h7v-1.1A6 6 0 0 0 10 2z" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinejoin="round" /></svg>
+                {t.hint}
+              </button>
+              <RoundAnswer kind="fact" onClick={() => answer(true)} />
+            </div>
+            <p className="text-sm text-faint md:hidden">{t.swipe}</p>
+          </>
+        )}
+      </div>
 
       {/* flying coins */}
       <div ref={fx} className="pointer-events-none fixed inset-0 z-50" aria-hidden="true" />
@@ -214,21 +252,21 @@ export default function Quiz() {
   )
 }
 
-function AnswerButton({ kind, onClick, disabled, className = '' }: { kind: 'fact' | 'cap'; onClick: () => void; disabled: boolean; className?: string }) {
+// Big round answer button: red ✕ for Cap, teal ✓ for Fact.
+function RoundAnswer({ kind, onClick }: { kind: 'fact' | 'cap'; onClick: () => void }) {
   const fact = kind === 'fact'
   return (
     <button
       type="button"
       onClick={onClick}
-      disabled={disabled}
-      className={`jelly min-h-14 items-center justify-center gap-2 rounded-2xl px-7 text-xl font-bold transition hover:brightness-110 active:translate-y-1 disabled:opacity-40 md:h-28 md:w-28 md:flex-col md:rounded-full ${
-        fact ? 'bg-fact text-navy-900 shadow-[0_5px_0_#1A8F84]' : 'bg-cap text-white shadow-[0_5px_0_#B5302F]'
-      } ${className}`}
+      aria-label={fact ? t.fact : t.cap}
+      className={`jelly flex h-20 w-20 items-center justify-center rounded-full text-ink active:translate-y-1 sm:h-26 sm:w-26 ${
+        fact ? 'bg-fact shadow-[0_8px_0_var(--color-fact-edge)]' : 'bg-cap shadow-[0_8px_0_var(--color-cap-edge)]'
+      }`}
     >
-      <svg viewBox="0 0 20 20" className="h-6 w-6" aria-hidden="true">
+      <svg viewBox="0 0 20 20" className="h-10 w-10 sm:h-12 sm:w-12" aria-hidden="true">
         {fact ? <path d="M4 10.5l4 4 8-9" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" /> : <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />}
       </svg>
-      {fact ? t.fact : t.cap}
     </button>
   )
 }

@@ -31,12 +31,16 @@
   --color-text-muted: var(--color-muted);
   --color-cta: var(--color-coin);
   --color-cta-edge: var(--color-coin-dark);
+  --color-fact-ink: #136B63; /* teal text on paper (passes 4.5:1) */
+  --color-fact-edge: #1E8C82;
+  --color-cap-edge: #B83232;
   --color-on-cta: var(--color-navy-900);
   --color-fact: var(--color-teal);
   --color-cap: var(--color-flag);
 
   --font-sans: "Lexend", system-ui, sans-serif;
   --font-hand: "Gochi Hand", "Comic Sans MS", cursive; /* the devices' own handwriting */
+  --font-display: "Baloo 2", "Lexend", system-ui, sans-serif; /* chunky game titles and labels */
 }
 
 html,
