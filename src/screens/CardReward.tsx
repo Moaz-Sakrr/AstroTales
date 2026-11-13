@@ -43,9 +43,10 @@ export default function CardReward() {
         <DeviceCard device={device} interactive />
       </div>
       <p className="js-text relative text-text-muted">{t.note}</p>
-      <div className="js-text relative flex flex-wrap justify-center gap-3">
-        <Button onClick={() => open('profile', device.id)}>{t.profile(device.nickname)}</Button>
-        <Button variant="ghost" onClick={() => go('level')}>{t.map}</Button>
+      {/* phones: two full-width buttons stacked under the thumb */}
+      <div className="js-text relative flex w-full max-w-sm flex-col gap-3 sm:w-auto sm:max-w-none sm:flex-row sm:flex-wrap sm:justify-center">
+        <Button className="w-full sm:w-auto" onClick={() => open('profile', device.id)}>{t.profile(device.nickname)}</Button>
+        <Button variant="ghost" className="w-full sm:w-auto" onClick={() => go('level')}>{t.map}</Button>
       </div>
     </main>
   )

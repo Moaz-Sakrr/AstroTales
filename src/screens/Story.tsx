@@ -89,7 +89,7 @@ export default function Story() {
         </div>
         <div className="relative z-10 flex flex-1 flex-col items-center justify-center gap-4 px-6">
           <div className="relative">
-            {portrait('h-56 w-56')}
+            {portrait('h-[min(64vw,16rem)] w-[min(64vw,16rem)]')}
             <CharacterFace kind={character} mood={reaction.mood} className="absolute -bottom-3 -left-5 h-20 w-20 ring-4 ring-cta" />
           </div>
           <p className="rounded-full bg-black/40 px-4 py-1 text-sm font-semibold text-cta">{tx(card.kicker)}</p>
@@ -97,6 +97,14 @@ export default function Story() {
         <div className="relative z-10 m-3 rounded-3xl bg-paper p-5 text-ink shadow-2xl">
           <div className="mb-1 flex items-center gap-2 text-airmail-red">{wave}</div>
           <p className="min-h-[5.5rem] font-hand text-2xl leading-snug" aria-live="polite">{shown}</p>
+          {/* tells the kid the page is waiting for a tap, only once the line is fully typed */}
+          <p className={`mt-2 flex items-center justify-between text-sm font-semibold text-ink/60 transition-opacity ${done ? 'opacity-100' : 'opacity-0'}`} aria-hidden="true">
+            <span>{i + 1} / {device.story.length}</span>
+            <span className="flex items-center gap-1 text-airmail-blue">
+              {i < device.story.length - 1 ? t.tapNext : t.tapQuiz}
+              <svg viewBox="0 0 20 20" className="h-4 w-4 motion-safe:animate-pulse"><path d="M8 4l6 6-6 6" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" /></svg>
+            </span>
+          </p>
         </div>
         {/* tap zones: left = back, right = next */}
         <button type="button" onClick={back} aria-label={t.back} className="absolute inset-y-24 left-0 z-20 w-1/3" />

@@ -22,7 +22,9 @@ const ICONS: Record<CardStyle, string> = {
   secret: 'M10 2l2.2 5 5.3.5-4 3.6 1.2 5.3L10 13.6 5.3 16.4l1.2-5.3-4-3.6 5.3-.5z',
 }
 
-type Props = { device: Device; size?: 'lg' | 'sm'; interactive?: boolean }
+type Props = { device: Device; size?: 'lg' | 'sm' | 'xs'; interactive?: boolean }
+// The whole card is drawn in em, so one font size scales it: lg 260px, sm 162px, xs 104px (3 per row on a phone).
+const FONT = { lg: 16, sm: 10, xs: 6.4 }
 
 export default function DeviceCard(props: Props) {
   return 'image' in props.device.card ? <HoloCard {...props} src={props.device.card.image} /> : <GeneratedCard {...props} />
@@ -32,7 +34,7 @@ export default function DeviceCard(props: Props) {
 function HoloCard({ device: d, size = 'lg', interactive = false, src }: Props & { src: string }) {
   const [p, setP] = useState<{ x: number; y: number } | null>(null)
   const style = {
-    fontSize: size === 'lg' ? 16 : 10,
+    fontSize: FONT[size],
     ...(p && { '--mx': `${p.x * 100}%`, '--my': `${p.y * 100}%` }),
     transform: interactive && p ? `perspective(900px) rotateY(${(p.x - 0.5) * 18}deg) rotateX(${(0.5 - p.y) * 18}deg) scale(1.02)` : undefined,
   } as CSSProperties
@@ -63,7 +65,7 @@ function GeneratedCard({ device: d, size = 'lg', interactive = false }: Props) {
   const [tilt, setTilt] = useState({ x: 0.5, y: 0.5 })
   const number = String(allDevices.indexOf(d) + 1).padStart(2, '0')
   const style = {
-    fontSize: size === 'lg' ? 16 : 10,
+    fontSize: FONT[size],
     '--mx': `${tilt.x * 100}%`,
     transform: interactive ? `perspective(800px) rotateY(${(tilt.x - 0.5) * 16}deg) rotateX(${(0.5 - tilt.y) * 16}deg)` : undefined,
   } as CSSProperties

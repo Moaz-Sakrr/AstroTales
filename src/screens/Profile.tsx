@@ -32,9 +32,9 @@ export default function Profile() {
         </div>
 
         <section className="px-4">
-          <div className="-mt-14 flex items-end justify-between gap-3">
-            <img src={d.photos[0].src} alt={d.name} className="h-28 w-28 rounded-full object-cover ring-4 ring-navy-950" />
-            <Button variant="ghost" className="mb-1 min-h-11 px-4 text-base" onClick={() => playDevice(d.id)}>{t.replay}</Button>
+          <div className="-mt-12 flex items-end justify-between gap-3 sm:-mt-14">
+            <img src={d.photos[0].src} alt={d.name} className="h-24 w-24 rounded-full object-cover ring-4 ring-navy-950 sm:h-28 sm:w-28" />
+            <Button variant="ghost" className="mb-1 min-h-11 px-4 text-base max-sm:hidden" onClick={() => playDevice(d.id)}>{t.replay}</Button>
           </div>
 
           <h1 className="mt-3 flex flex-wrap items-center gap-2 text-2xl font-bold">
@@ -47,6 +47,8 @@ export default function Profile() {
           <p className="text-text-muted">@{d.handle}</p>
           <p className="text-sm text-faint">{d.name}</p>
           <p className="mt-3 text-lg leading-relaxed">{tx(d.bio)}</p>
+          {/* phones: the replay button gets its own full-width row instead of squeezing beside the photo */}
+          <Button variant="ghost" className="mt-4 w-full sm:hidden" onClick={() => playDevice(d.id)}>{t.replay}</Button>
 
           <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-text-muted">
             <li className="flex items-center gap-1.5">
@@ -70,7 +72,7 @@ export default function Profile() {
           </dl>
         </section>
 
-        <div role="tablist" className="mt-6 flex border-b border-white/10">
+        <div role="tablist" className="mt-6 flex border-b border-white/10 bg-navy-950 max-sm:sticky max-sm:top-[61px] max-sm:z-10">
           {(['photos', 'science'] as const).map((k) => (
             <button
               key={k}
