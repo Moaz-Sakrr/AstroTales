@@ -32,7 +32,8 @@ export default function Profile() {
         </div>
 
         <section className="px-4">
-          <div className="-mt-12 flex items-end justify-between gap-3 sm:-mt-14">
+          {/* relative z-10: the avatar must sit above the cover (the cover is positioned for the kid inside it) */}
+          <div className="relative z-10 -mt-12 flex items-end justify-between gap-3 sm:-mt-14">
             <img src={d.photos[0].src} alt={d.name} className="h-24 w-24 rounded-full object-cover ring-4 ring-navy-950 sm:h-28 sm:w-28" />
             <Button variant="ghost" className="mb-1 min-h-11 px-4 text-base max-sm:hidden" onClick={() => playDevice(d.id)}>{t.replay}</Button>
           </div>
