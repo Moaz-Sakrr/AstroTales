@@ -3,6 +3,8 @@
 export type Lang = 'en'
 export type L10n = Record<Lang, string>
 
+export type WorldId = 'moon' | 'mars' | 'secret'
+
 export type StoryCard = {
   kicker: L10n // small label, e.g. "POV: you are a mirror on the Moon"
   line: L10n // what the device says (≤ 20 words)
@@ -22,14 +24,15 @@ export type QuizCard = {
 
 export type Device = {
   id: string // 'reflecto'
-  world: 'moon' | 'mars' | 'secret'
+  world: WorldId
   name: string // 'Apollo 11 Laser Ranging Retroreflector'
   nickname: string // 'Reflecto'
   handle: string // 'reflecto.on.moon'
   nssdcaId?: string // '1969-059C'
   location: { label: string; lat: number; lon: number } // real coordinates
   mapPos: { x: number; y: number } // % position on our map image
-  status: L10n
+  live: boolean // true = still in use / still talking to Earth
+  status: L10n // 'Still in use by scientists' / 'Last seen: June 10, 2018'
   bio: L10n
   stats: { value: string; label: L10n }[] // 3 stats
   science: Fact[]
@@ -37,6 +40,14 @@ export type Device = {
   quiz: QuizCard[] // exactly 3
   miniGame?: 'laser' | 'dust' | 'fly' | 'drive'
   model3d?: string // '/models/opportunity.glb' (stretch)
-  collectible: { power: L10n; superpower: L10n; distanceHome: string }
+  collectible: { power: L10n; superpower: L10n; distanceHome: string; rarity: 1 | 2 | 3 }
   credits: string[] // image/model credits, e.g. 'NASA/JPL-Caltech'
+}
+
+export type World = {
+  id: WorldId
+  name: L10n
+  unlockCoins: number // total coins earned needed to open this world (0 = open)
+  devices: string[] // device ids in level order
+  distance: Fact // how far it is from Earth, sourced
 }
