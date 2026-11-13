@@ -165,5 +165,6 @@ export const kepler: Device = {
     nasaPhoto('kepler-2.jpg', 'PIA11188', 'Me in a clean room before launch.', JPL),
   ],
   card: { image: '/images/cards/kepler.jpg' },
+  miniGame: 'transit',
   verified: false,
 }

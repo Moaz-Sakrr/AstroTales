@@ -6,6 +6,7 @@ import Launch from './screens/Launch'
 import LevelMap from './screens/LevelMap'
 import Story from './screens/Story'
 import Quiz from './screens/Quiz'
+import MiniGame from './screens/minigames/MiniGame'
 import CardReward from './screens/CardReward'
 import Library from './screens/Library'
 import Profile from './screens/Profile'
@@ -21,6 +22,7 @@ const screens: Record<Screen, ComponentType> = {
   level: LevelMap,
   story: Story,
   quiz: Quiz,
+  mini: MiniGame,
   card: CardReward,
   library: Library,
   profile: Profile,

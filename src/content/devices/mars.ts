@@ -46,6 +46,7 @@ export const opportunity: Device = {
     nasaPhoto('opportunity-1.jpg', 'PIA22222', 'My first selfie, taken with my own arm camera.', JPL),
   ],
   card: { image: '/images/cards/opportunity.jpg' },
+  miniGame: 'dust',
   verified: false,
 }
 

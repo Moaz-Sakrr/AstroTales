@@ -22,7 +22,9 @@ export type QuizCard = {
 
 export type Photo = { src: string; caption: L10n; credit: string; source: string }
 
-export type CardStyle = 'light' | 'thrust' | 'wheels' | 'dust' | 'air' | 'secret'
+export type MiniGameId = 'laser' | 'dust' | 'transit' | 'lander'
+
+export type CardStyle ='light' | 'thrust' | 'wheels' | 'dust' | 'air' | 'secret'
 
 export type Device = {
   id: string
@@ -52,5 +54,6 @@ export type Device = {
         power: L10n
         superpower: L10n
       }
+  miniGame?: MiniGameId // played after the quiz, before the card
   verified: boolean // true once the content team checked every fact against its source
 }

@@ -1,9 +1,9 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import type { WorldId } from '../content/types'
-import { worlds } from '../content/worlds'
+import { deviceById, worlds } from '../content/worlds'
 
-export type Screen = 'home' | 'character' | 'launch' | 'space' | 'level' | 'story' | 'quiz' | 'card' | 'library' | 'profile'
+export type Screen = 'home' | 'character' | 'launch' | 'space' | 'level' | 'story' | 'quiz' | 'mini' | 'card' | 'library' | 'profile'
 export type Character = 'boy' | 'girl'
 
 type Progress = {
@@ -59,7 +59,7 @@ export const useGame = create<Progress & Session & Actions>()(
         set((s) => ({
           coins: s.coins + coins,
           done: s.done.includes(deviceId) ? s.done : [...s.done, deviceId],
-          screen: 'card',
+          screen: deviceById[deviceId].miniGame ? 'mini' : 'card', // mini-game sits between quiz and card
         })),
       unlockSecret: (deviceId, cost) => {
         if (get().coins < cost) return false

@@ -47,6 +47,7 @@ export const reflecto: Device = {
     nasaPhoto('reflecto-1.jpg', 'as11-40-5948', 'Buzz Aldrin by the Apollo 11 experiments. I sit behind the seismometer, left of center. Eagle waits in the back.'),
   ],
   card: { style: 'light', type: 'Light', stat: { value: '100', label: 'Prisms' }, power: L('Bounces any laser straight home'), superpower: L('Works for 50+ years with no batteries') },
+  miniGame: 'laser',
   verified: false,
 }
 
@@ -88,6 +89,7 @@ export const eagle: Device = {
     nasaPhoto('eagle-2.jpg', 'as11-40-5902', 'Buzz Aldrin walking near my leg.'),
   ],
   card: { image: '/images/cards/eagle.jpg' },
+  miniGame: 'lander',
   verified: false,
 }
 

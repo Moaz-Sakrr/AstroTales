@@ -177,3 +177,9 @@ body {
   background: radial-gradient(circle at var(--mx) var(--my), rgb(255 255 255 / 0.6), rgb(255 255 255 / 0.08) 35%, transparent 60%);
   mix-blend-mode: overlay;
 }
+
+/* mini-game panels pop in */
+@keyframes pop {
+  from { transform: scale(0.85); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
