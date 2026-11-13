@@ -4,6 +4,8 @@
 **Challenge:** *Abandoned but not Forgotten: Storytelling about NASA's Discarded Equipment on the Moon and Mars*
 **Prototype (clickable, mobile + web):** https://claude.ai/artifact/Eq9G8em2vaFof9QgHbxNmM
 
+> **Decision (13 Nov):** the MVP is **English only**. Egyptian Arabic moved to stretch (Section 13). Content keeps the `{ en: … }` shape so Arabic can be added later without rewriting files.
+
 > This file is the single source of truth for the team and for Claude Code.
 > Read it top to bottom once. Then work through **Section 12 (Build Order)**.
 > When something here conflicts with a chat message, update this file first, then build.
@@ -159,7 +161,7 @@ cd astrotales && npm install && npm run dev
 4. **Instant feedback.** Every quiz answer shows right/wrong immediately, with a hint and a retry. Never lock the kid out.
 5. **No dark patterns.** No endless feed, no streak guilt, no loot boxes / random rewards, no ads, no real money, no personal data. Rewards are **earned, not random**.
 6. **A natural ending.** The mission ends and sends the kid back to the real world ("look at the Moon tonight").
-7. **Slang: one touch, not a costume.** "Fact or Cap?" (Egyptian: **"حقيقة ولا فتي؟"**) is the only slang feature. No brainrot memes.
+7. **Slang: one touch, not a costume.** "Fact or Cap?" is the only slang feature. No brainrot memes.
 
 ---
 
@@ -169,7 +171,7 @@ Same journey on mobile and web. The clickable prototype shows all 11.
 
 | # | Screen | What happens | Notes |
 |---|---|---|---|
-| 1 | **Launch** | Logo, "Let's go", language toggle (English / مصري) | The tap unlocks audio (browsers block autoplay). |
+| 1 | **Launch** | Logo, "Let's go" | The tap unlocks audio (browsers block autoplay). |
 | 2 | **Choose astronaut** | Boy or Girl · 4 suits · optional first name | Classic + Mars suits free; Ocean = 30 coins; Galaxy = 50 coins. Name is optional, first name only, never sent anywhere. |
 | 3 | **Map** | Moon map with red flags at **real** landing sites. Mars tab locked until 50 coins. | Use real NASA imagery + coordinates. Visited flags show "visited". |
 | 4 | **Flight** | Astronaut flies to the flag (≈2.4 s) | GSAP MotionPath. |
@@ -234,7 +236,7 @@ Use this as the pattern. **Every fact below must be re-checked against NSSDCA/NA
 - First person, short sentences, ≤ 20 words per card.
 - One idea per card. 4 cards per device.
 - Card 1 = hook ("look down", "guess what"). Card 4 = invitation to the mini-mission.
-- Write English first, then Egyptian Arabic (not MSA). Keep device names in English.
+- English only for the MVP (Arabic is stretch, Section 13).
 
 ---
 
@@ -276,8 +278,8 @@ Other screens just re-flow: map + device list side by side on web; quiz buttons 
 Rules: never pure black; one bright accent per screen; text contrast ≥ 4.5:1; touch targets ≥ 44 px; real `<button>` elements; `aria-label` on icon-only buttons.
 
 ### 8.2 Type
-- **Baloo 2** (Latin) + **Baloo Bhaijaan 2** (Arabic) — same family, Google Fonts.
-- Arabic UI uses `dir="rtl"` on the root.
+- Font: being re-chosen (see UI options). Placeholder: **Baloo 2** (Google Fonts).
+- If Arabic is added later: pick a font with an Arabic twin and set `dir="rtl"` on the root.
 
 ### 8.3 Characters
 - 2 astronauts: **Boy** (the team's finished design: curly hair, astronaut helmet) and **Girl** (draw in the same style: curly puffs).
@@ -311,8 +313,7 @@ Rules: never pure black; one bright accent per screen; text contrast ≥ 4.5:1; 
   - Opportunity: old, wise, tired but proud.
   - Ingenuity: tiny, excited, giggly.
   - Narrator (if any): warm, friendly.
-- **Languages:** English is the main track (judges are global). Egyptian Arabic is the second track (our local impact). If time runs out, Egyptian only for the devices shown in the demo.
-- **Test first:** generate 3 Egyptian lines and check the accent. If v3 drifts into MSA or mispronounces, the narrator is recorded by the team and only devices use AI voices.
+- **Language:** English only for the MVP. Egyptian Arabic voice is stretch (Section 13).
 - **Free plan:** ≈10,000 credits/month (≈10 min of speech), non-commercial, **attribution required** → "Voices by ElevenLabs" in credits. Split generation across team accounts.
 - **Audio files:** MP3, 64–96 kbps, one file per card: `public/audio/{lang}/{deviceId}/{cardIndex}.mp3`.
 - **Never** clone a real child's voice.
@@ -337,7 +338,7 @@ No Next.js, no backend, no database, no login.
 ### 10.2 State (Zustand, persisted to localStorage)
 ```ts
 type Progress = {
-  lang: 'en' | 'ar-EG'
+  lang: 'en'                   // add 'ar-EG' if Arabic ships
   character: 'boy' | 'girl'
   suit: 'classic' | 'mars' | 'ocean' | 'galaxy'
   name: string                 // optional, first name only, stays on device
@@ -358,7 +359,7 @@ astrotales/
 │  ├─ CHALLENGE.md               # challenge Details tab, pasted
 │  └─ SOURCES.md                 # every NASA/NSSDCA link we used
 ├─ public/
-│  ├─ audio/{en,ar-EG}/{deviceId}/{0..3}.mp3
+│  ├─ audio/en/{deviceId}/{0..3}.mp3
 │  ├─ images/maps/{moon,mars}.webp
 │  ├─ images/devices/{deviceId}.webp
 │  └─ models/{deviceId}.glb      # stretch (AR)
@@ -367,7 +368,7 @@ astrotales/
    │  ├─ devices/{deviceId}.ts   # one file per device (schema in Section 11)
    │  ├─ worlds.ts               # moon, mars, secret places
    │  ├─ suits.ts
-   │  └─ i18n/{en,ar-EG}.ts      # UI strings
+   │  └─ i18n/en.ts             # UI strings
    ├─ store/progress.ts          # Zustand store
    ├─ hooks/useIsWide.ts         # matchMedia('(min-width: 768px)')
    ├─ audio/player.ts            # Howler wrapper + unlock on first tap
@@ -410,7 +411,7 @@ Keep it simple: one `screen` value in the store (`'launch' | 'avatar' | 'map' | 
 
 ```ts
 // src/content/types.ts
-export type Lang = 'en' | 'ar-EG'
+export type Lang = 'en' // add 'ar-EG' later: TS then flags every missing string
 export type L10n = Record<Lang, string>
 
 export type StoryCard = {
@@ -484,7 +485,6 @@ export type Device = {
 11. SceneView (web) using the same data. `useIsWide` switch at 768 px.
 12. Add Eagle + Lunar Rover (Moon), Opportunity + Ingenuity (Mars), 1 secret place.
 13. Mars unlock at 50 coins, suit unlocks, secret place unlock.
-14. Egyptian Arabic strings + RTL + Egyptian audio (at least for demo devices).
 
 **Phase 3 — Polish**
 15. Real NASA map imagery, device art, sound effects, reduced-motion, accessibility pass.
@@ -494,11 +494,11 @@ export type Device = {
 **Phase 4 — Stretch (only if Phase 1–3 are done):** Section 13.
 
 ### 12.3 Content checklist per device
-- [ ] 4 story cards (EN + AR)
-- [ ] 3 quiz cards (EN + AR) with why + hint
+- [ ] 4 story cards
+- [ ] 3 quiz cards with why + hint
 - [ ] 3 stats, bio, status, science facts **with source URLs**
 - [ ] Real coordinates + map position
-- [ ] Audio for each card (EN, then AR)
+- [ ] Audio for each card
 - [ ] Art (and 3D model if AR)
 - [ ] Credits filled
 
@@ -515,6 +515,7 @@ export type Device = {
 | **Sounds of Mars** | Real Perseverance recordings (wind, Ingenuity flying) as Mars ambience | Low | Impact |
 | **Leave a message for future explorers** | Kid designs a mission patch + one line; downloadable | Medium | Impact |
 | **Challenge a friend** | Share link with the same quiz encoded in the URL ("Can you beat 3/3?") | Low–Medium | Impact |
+| **Egyptian Arabic** (UI + story + voice) | Add `ar-EG` to `Lang`, fill every string, RTL, Arabic font, Egyptian voice (test 3 lines first: v3 may drift into MSA) | Medium | Impact |
 | **Classroom mode** (pitch only) | Web version on a projector + printable worksheet | Pitch slide | Impact |
 
 ### 13.1 AR quick guide
@@ -562,7 +563,6 @@ Add: "Built for the device in the kid's hand — Stories on phones, a game scene
 | Wrong facts (Validity) | Every fact has a source URL. Content person verifies. No AI-written facts without a source. |
 | Story vs facts confusion | Story = device's voice. Envelope = sourced science. |
 | Audio autoplay blocked | Start on a tap (Launch screen). Unlock Howler on first interaction. |
-| Egyptian voice quality | Test 3 lines early. Fallback: team-recorded narrator. |
 | ElevenLabs credits run out | Generate once, offline. Split across team accounts. English first. |
 | Kid gets stuck on the quiz | Hint + unlimited retries. Never lock progress. |
 | Slow on cheap phones | WebP images, compressed audio, lazy-load models, < 3 MB per GLB. |
@@ -579,7 +579,7 @@ Add: "Built for the device in the kid's hand — Stories on phones, a game scene
 - [ ] Full 11-screen journey works on a real phone **and** a laptop.
 - [ ] 3 Moon devices + 2 Mars devices + 1 secret place, each with 4 story cards, a sourced envelope, 3 quiz cards.
 - [ ] Coins unlock Mars, suits and the secret place; progress survives a page refresh.
-- [ ] English voice for all cards; Egyptian for at least the demo devices.
+- [ ] English voice for all cards.
 - [ ] Every fact has a NASA/NSSDCA link; credits page complete.
 - [ ] 30 s demo with English subtitles, hosted publicly.
 - [ ] Repo public, Apache 2.0, README with how to run + credits.
@@ -591,7 +591,7 @@ Add: "Built for the device in the kid's hand — Stories on phones, a game scene
 - [ ] **NASA media/models:** credit NASA (and JPL-Caltech where listed). Do **not** imply NASA endorsement. Do **not** use the NASA logo/insignia.
 - [ ] **NSSDCA / NASA pages:** linked in every envelope and in `docs/SOURCES.md`.
 - [ ] **Voices:** "Voices generated with ElevenLabs" (free plan requires attribution).
-- [ ] **Fonts:** Baloo 2, Baloo Bhaijaan 2 (Google Fonts, OFL).
+- [ ] **Fonts:** final font (Google Fonts, OFL).
 - [ ] **Music/SFX:** royalty-free only, with license links.
 - [ ] **Code libraries:** list in README (all MIT/Apache-compatible).
 - [ ] **Our code:** Apache 2.0.
@@ -606,8 +606,8 @@ Everything is static content. Progress lives in the kid's browser. No backend = 
 **Why two story views instead of one responsive layout?**
 A 9:16 Stories card looks lost on a laptop, and a game scene is cramped on a phone. One content file feeds both, so it's two layouts, not two products.
 
-**Why English first if we're in Egypt?**
-Global judges and the project page are English. Egyptian Arabic is our local-impact feature and is cheap to add because the text is short.
+**Why English only if we're in Egypt?**
+Global judges and the project page are English, and one language halves the content and voice work. Egyptian Arabic is a stretch feature: cheap to add later because the text is short and the data shape already supports it.
 
 **Can we use ChatGPT/Claude to write the device facts?**
 Use AI to help *write* the story lines, but every **fact** must be checked against NSSDCA or a NASA page and stored with its source URL.

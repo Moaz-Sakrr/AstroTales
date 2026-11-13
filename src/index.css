@@ -18,12 +18,7 @@
   --color-muted: #B9C4E0;
   --color-faint: #8E9BC0;
 
-  --font-sans: "Baloo 2", "Baloo Bhaijaan 2", system-ui, sans-serif;
-}
-
-/* Arabic gets its own family first so glyph metrics match */
-[dir="rtl"] {
-  font-family: "Baloo Bhaijaan 2", "Baloo 2", system-ui, sans-serif;
+  --font-sans: "Baloo 2", system-ui, sans-serif;
 }
 
 html,

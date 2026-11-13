@@ -29,7 +29,7 @@ One branch per task (`feat/map`, `content/opportunity`), open a PR, check the Ve
 
 - Data and media: NASA / NSSDCA (see `docs/SOURCES.md`). No NASA endorsement implied.
 - Voices generated with ElevenLabs.
-- Fonts: Baloo 2, Baloo Bhaijaan 2 (Google Fonts, OFL).
+- Fonts: Baloo 2 (Google Fonts, OFL).
 - Libraries: React, Vite, Tailwind CSS, GSAP, Howler.js, Zustand.
 
 ## License

@@ -3,6 +3,7 @@
 - Read docs/PROJECT_PLAN.md before any task. It is the spec.
 - Stack: Vite + React + TypeScript + Tailwind v4 + GSAP + Howler + Zustand. No backend, no router, no Next.js.
 - Design tokens live in `src/index.css` (`@theme`): use `bg-space`, `text-coin`, `bg-fact`, etc. Don't hard-code hex in components.
+- English only for now (Arabic is stretch). Still write text as `{ en: '...' }` (the `L10n` type) so Arabic can be added later.
 - Content lives in src/content/**. Never hard-code story text, facts or UI strings inside components.
 - Every fact in content must have a `source` URL (NSSDCA or NASA). Never invent facts.
 - Two story views share one data model: StoryView (< 768px) and SceneView (>= 768px).

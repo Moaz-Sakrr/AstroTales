@@ -1,5 +1,6 @@
 // Data model for all content — docs/PROJECT_PLAN.md §11.
-export type Lang = 'en' | 'ar-EG'
+// English only for the MVP. To add Arabic: add 'ar-EG' here and TS flags every missing string.
+export type Lang = 'en'
 export type L10n = Record<Lang, string>
 
 export type StoryCard = {
