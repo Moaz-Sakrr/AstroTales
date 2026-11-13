@@ -56,12 +56,13 @@ export default function MiniGame() {
             <img src={device.photos[0].src} alt="" className="mx-auto -mt-14 mb-3 h-20 w-20 rounded-full object-cover ring-4 ring-cta" />
             <h1 className="text-3xl font-bold tracking-tight">{phase === 'won' ? en.mini.won : text.title}</h1>
             <p className="mt-3 text-lg leading-relaxed text-text-muted">{phase === 'won' ? text.fact : text.howTo}</p>
-            <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
               {phase === 'won' ? (
                 <>
-                  <Button onClick={() => go('card')}>{en.mini.collect}</Button>
+                  <Button className="w-full sm:w-auto" onClick={() => go('card')}>{en.mini.collect}</Button>
                   <Button
                     variant="ghost"
+                    className="w-full sm:w-auto"
                     onClick={() => {
                       setRound((r) => r + 1)
                       setPhase('play')
@@ -71,7 +72,7 @@ export default function MiniGame() {
                   </Button>
                 </>
               ) : (
-                <Button onClick={() => setPhase('play')}>{en.mini.start}</Button>
+                <Button className="w-full sm:w-auto" onClick={() => setPhase('play')}>{en.mini.start}</Button>
               )}
             </div>
           </section>

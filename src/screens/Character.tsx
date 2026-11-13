@@ -16,7 +16,7 @@ export default function Character() {
     <main className="space-sky relative grid min-h-svh place-items-center overflow-hidden px-4 py-10">
       <Starfield />
       <form
-        className="relative z-10 flex w-full max-w-2xl flex-col items-center gap-8"
+        className="relative z-10 flex w-full max-w-2xl flex-col items-center gap-7 sm:gap-8"
         onSubmit={(e) => {
           e.preventDefault()
           setCharacter(kind, name)
@@ -54,7 +54,7 @@ export default function Character() {
           <p className="text-sm text-faint">{t.nameNote}</p>
         </div>
 
-        <Button type="submit">{t.go}</Button>
+        <Button type="submit" className="w-full max-w-sm sm:w-auto">{t.go}</Button>
       </form>
     </main>
   )

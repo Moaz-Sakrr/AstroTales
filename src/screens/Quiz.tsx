@@ -58,16 +58,17 @@ export default function Quiz() {
   return (
     <main className="relative flex min-h-svh flex-col items-center overflow-hidden bg-[radial-gradient(50%_60%_at_50%_55%,var(--color-navy-700)_0%,var(--color-navy-900)_70%)] px-4 pb-6 pt-3 sm:px-10">
       <Starfield />
-      <header className="relative z-10 grid w-full max-w-5xl grid-cols-[1fr_auto_1fr] items-center">
-        <button type="button" onClick={() => go('level')} aria-label={t.back} className="flex min-h-11 items-center gap-2 justify-self-start rounded-full px-3 text-text-muted hover:text-text">
+      {/* phones: a flex row (title shrinks to fit beside the face + coins); wider: centered title in a 3-column grid */}
+      <header className="relative z-10 flex w-full max-w-5xl items-center gap-1 sm:grid sm:grid-cols-[1fr_auto_1fr] sm:gap-0">
+        <button type="button" onClick={() => go('level')} aria-label={t.back} className="flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-2 justify-self-start rounded-full text-text-muted hover:text-text sm:px-3">
           <svg viewBox="0 0 20 20" className="h-5 w-5" aria-hidden="true"><path d="M12 4l-6 6 6 6" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" /></svg>
           <span className="hidden sm:inline">{t.back}</span>
         </button>
-        <h1 className="font-display text-3xl font-extrabold leading-none sm:text-5xl">{t.title}</h1>
-        <div className="flex items-center gap-2 justify-self-end">
+        <h1 className="min-w-0 flex-1 truncate text-center font-display text-[1.65rem] font-extrabold leading-none sm:text-5xl">{t.title}</h1>
+        <div className="flex shrink-0 items-center gap-1.5 justify-self-end sm:gap-2">
           {/* the kid reacts to each answer */}
-          <CharacterFace kind={character} mood={result === 'right' ? 'laugh' : result === 'wrong' ? 'worried' : 'curious'} className="h-11 w-11 ring-2 ring-cta" />
-          <p className="flex min-h-11 items-center gap-1.5 rounded-full bg-black/30 px-4 font-display text-xl font-extrabold text-cta" aria-label={`${earned} coins earned`}>
+          <CharacterFace kind={character} mood={result === 'right' ? 'laugh' : result === 'wrong' ? 'worried' : 'curious'} className="h-10 w-10 ring-2 ring-cta sm:h-11 sm:w-11" />
+          <p className="flex min-h-11 items-center gap-1.5 rounded-full bg-black/30 px-3 font-display text-xl font-extrabold text-cta sm:px-4" aria-label={`${earned} coins earned`}>
             <Coin className="h-6 w-6" /> <span className="tabular-nums">{earned}</span>
           </p>
         </div>

@@ -79,7 +79,7 @@ export default function LevelMap() {
         </button>
         <h1 className="truncate rounded-full bg-black/40 px-3 py-1.5 text-lg font-bold backdrop-blur-sm sm:px-4 sm:text-xl">{world.name}</h1>
         <div className="flex items-center gap-2">
-          <button type="button" onClick={() => open('library')} className={PILL}>{t.cards}</button>
+          <button type="button" onClick={() => open('library')} className={`${PILL} ${complete ? '' : 'max-md:hidden'}`}>{t.cards}</button>
           <CoinBadge />
         </div>
       </header>
@@ -122,6 +122,21 @@ export default function LevelMap() {
           )
         })}
       </div>
+
+      {/* phones: the next step sits under the thumb (laptops keep the header pill and tap the map) */}
+      {!complete && (
+        <nav className="relative z-10 flex items-center gap-3 bg-gradient-to-t from-navy-950 via-navy-950/85 to-transparent px-4 pb-5 pt-6 md:hidden">
+          <button type="button" onClick={() => open('library')} className={`${PILL} min-h-12 px-4`}>
+            <svg viewBox="0 0 20 20" className="h-5 w-5" aria-hidden="true"><rect x="3" y="4" width="9" height="13" rx="1.5" stroke="currentColor" strokeWidth="1.8" fill="none" /><path d="M14 6l3 1-3 11-2-.5" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinejoin="round" /></svg>
+            {t.cards}
+          </button>
+          {current >= 0 && (
+            <Button className="min-w-0 flex-1" onClick={() => playDevice(levels[current].id)}>
+              <span className="truncate">{t.play(levels[current].nickname)}</span>
+            </Button>
+          )}
+        </nav>
+      )}
 
       {msg && <p role="status" className="absolute inset-x-4 bottom-24 z-10 mx-auto max-w-md rounded-2xl bg-navy-900/95 p-3 text-center font-semibold">{msg}</p>}
 

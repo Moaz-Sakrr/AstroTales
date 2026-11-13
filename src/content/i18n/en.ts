@@ -46,6 +46,7 @@ export const en = {
   level: {
     back: 'Back to space',
     cards: 'Cards',
+    play: (name: string) => `Play: ${name}`,
     secret: 'Secret level',
     unlock: (cost: number) => `Unlock for ${cost} coins`,
     needCoins: (n: number) => `You need ${n} more coins. Earn them by answering quizzes.`,
@@ -54,7 +55,7 @@ export const en = {
     allDone: 'Mission complete! Tonight, look up at the real Moon and remember who is waiting there.',
     touchdown: 'Touchdown!',
   },
-  story: { next: 'Next', back: 'Back', close: 'Back to the map', speaking: 'Speaking' },
+  story: { next: 'Next', back: 'Back', close: 'Back to the map', speaking: 'Speaking', tapNext: 'Tap to continue', tapQuiz: 'Tap for the quiz' },
   quiz: {
     title: 'Fact or Cap?',
     fact: 'Fact',
@@ -78,7 +79,7 @@ export const en = {
     map: 'Back to the map',
     library: 'My cards',
   },
-  library: { title: 'My cards', back: 'Back', locked: (name: string) => `Meet ${name} to collect this card`, secret: 'Secret card' },
+  library: { title: 'My cards', back: 'Back', locked: (name: string) => `Meet ${name} to collect this card`, secret: 'Secret card', progress: (n: number, total: number) => `${n} of ${total} cards collected` },
   profile: {
     back: 'Back',
     badge: 'Real NASA machine',
