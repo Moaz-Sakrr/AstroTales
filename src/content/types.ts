@@ -3,7 +3,7 @@
 export type Lang = 'en'
 export type L10n = Record<Lang, string>
 
-export type WorldId = 'moon' | 'mars'
+export type WorldId = 'moon' | 'mars' | 'deep'
 
 export type StoryCard = {
   kicker: L10n // small label, e.g. "POV: you are a mirror on the Moon"
@@ -32,7 +32,7 @@ export type Device = {
   nickname: string
   handle: string
   nssdcaId?: string
-  location: { label: string; lat: number; lon: number }
+  location: { label: string; lat?: number; lon?: number } // no coordinates for things flying through space
   joined: string // date it arrived, shown like "Joined July 1969"
   status: L10n
   active: boolean // still working today?
@@ -42,12 +42,15 @@ export type Device = {
   story: StoryCard[] // exactly 4
   quiz: QuizCard[] // exactly 3
   photos: Photo[]
-  card: {
-    style: CardStyle
-    type: string // shown on the card, e.g. "Light"
-    stat: { value: string; label: string } // big number top-right
-    power: L10n
-    superpower: L10n
-  }
+  // The design team's card art (public/images/cards/<id>.jpg), or a generated card until the art exists.
+  card:
+    | { image: string }
+    | {
+        style: CardStyle
+        type: string // shown on the card, e.g. "Light"
+        stat: { value: string; label: string } // big number top-right
+        power: L10n
+        superpower: L10n
+      }
   verified: boolean // true once the content team checked every fact against its source
 }

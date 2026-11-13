@@ -143,3 +143,33 @@ body {
   0%, 100% { transform: scaleY(0.3); }
   50% { transform: scaleY(1); }
 }
+
+/* ---- Holographic trading card ----
+   --mx/--my = pointer position over the card (0–100%). Registered so the idle shimmer can animate them. */
+@property --mx { syntax: '<percentage>'; inherits: true; initial-value: 50%; }
+@property --my { syntax: '<percentage>'; inherits: true; initial-value: 50%; }
+
+.holo {
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease-out, box-shadow 0.2s;
+}
+.holo:not([data-active='true']) {
+  animation: holo-idle 6s ease-in-out infinite alternate; /* phones have no hover: let the foil drift on its own */
+}
+@keyframes holo-idle {
+  from { --mx: 15%; --my: 20%; }
+  to { --mx: 85%; --my: 80%; }
+}
+/* rainbow foil: diagonal spectrum that slides as the pointer moves */
+.holo-foil {
+  background: repeating-linear-gradient(115deg, #ff6fd8 0%, #ffd36b 6%, #6dffb0 12%, #6bc8ff 18%, #b28bff 24%, #ff6fd8 30%);
+  background-size: 400% 400%;
+  background-position: var(--mx) var(--my);
+  mix-blend-mode: color-dodge;
+  opacity: 0.32;
+}
+/* white glare that follows the pointer */
+.holo-glare {
+  background: radial-gradient(circle at var(--mx) var(--my), rgb(255 255 255 / 0.6), rgb(255 255 255 / 0.08) 35%, transparent 60%);
+  mix-blend-mode: overlay;
+}

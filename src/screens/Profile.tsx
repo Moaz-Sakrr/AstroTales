@@ -49,7 +49,10 @@ export default function Profile() {
               <span className={`h-2.5 w-2.5 rounded-full ${d.active ? 'bg-[#3DDC97]' : 'bg-coin'}`} aria-hidden="true" />
               {tx(d.status)}
             </li>
-            <li>{d.location.label} ({coord(d.location.lat, 'N', 'S')}, {coord(d.location.lon, 'E', 'W')})</li>
+            <li>
+              {d.location.label}
+              {d.location.lat !== undefined && d.location.lon !== undefined && ` (${coord(d.location.lat, 'N', 'S')}, ${coord(d.location.lon, 'E', 'W')})`}
+            </li>
             <li>{t.joined(d.joined)}</li>
           </ul>
 

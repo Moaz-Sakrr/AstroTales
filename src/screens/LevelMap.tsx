@@ -14,14 +14,12 @@ import { useGame, worldComplete } from '../store/progress'
 gsap.registerPlugin(useGSAP)
 const t = en.level
 
-// Level spots in % of the map, bottom → top like a candy-crush path. Secrets branch off to the side.
-const PATH = [
-  { x: 28, y: 82 },
-  { x: 70, y: 60 },
-  { x: 34, y: 36 },
-  { x: 66, y: 14 },
-]
-const SECRET_SPOT = { x: 84, y: 34 }
+// Level spots in % of the map, zigzagging bottom → top like a candy-crush path, for any number of levels.
+const ZIGZAG = [28, 70, 34, 66, 30, 68]
+const spotsFor = (n: number) => Array.from({ length: n }, (_, i) => ({ x: ZIGZAG[i % ZIGZAG.length], y: 86 - i * (72 / Math.max(n - 1, 1)) }))
+// The secret sits level with the last stop, on the other side, so it never overlaps the path.
+const secretSpotFor = (last: { x: number; y: number }) => ({ x: last.x < 50 ? 74 : 26, y: Math.max(last.y - 5, 9) })
+const PILL = 'flex min-h-11 shrink-0 items-center gap-1 rounded-full bg-black/40 px-3 font-semibold text-text backdrop-blur-sm hover:bg-black/60 focus-visible:outline-3 focus-visible:outline-fact'
 
 export default function LevelMap() {
   const root = useRef<HTMLElement>(null)
@@ -33,7 +31,9 @@ export default function LevelMap() {
 
   const levels = world.levels
   const current = levels.findIndex((d) => !done.includes(d.id)) // -1 = all done
-  const spots = levels.map((_, i) => PATH[i])
+  const spots = spotsFor(levels.length)
+  const last = spots[spots.length - 1]
+  const secretSpot = secretSpotFor(last)
   const complete = worldComplete(world.id, done)
 
   useGSAP(
@@ -72,13 +72,14 @@ export default function LevelMap() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,rgb(8_21_43/0.75)_100%)]" />
 
       <header className="relative z-10 flex items-center justify-between gap-2 p-3 sm:p-4">
-        <Button variant="ghost" className="min-h-11 px-4 text-base" onClick={() => go('space')} aria-label={t.back}>
+        {/* compact pills, not <Button>: four controls must fit a 375px phone */}
+        <button type="button" onClick={() => go('space')} aria-label={t.back} className={PILL}>
           <svg viewBox="0 0 20 20" className="h-5 w-5" aria-hidden="true"><path d="M12 4l-6 6 6 6" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" /></svg>
           <span className="hidden sm:inline">{t.back}</span>
-        </Button>
-        <h1 className="rounded-full bg-black/40 px-4 py-1.5 text-xl font-bold backdrop-blur-sm">{world.name}</h1>
+        </button>
+        <h1 className="truncate rounded-full bg-black/40 px-3 py-1.5 text-lg font-bold backdrop-blur-sm sm:px-4 sm:text-xl">{world.name}</h1>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" className="min-h-11 px-4 text-base" onClick={() => open('library')}>{t.cards}</Button>
+          <button type="button" onClick={() => open('library')} className={PILL}>{t.cards}</button>
           <CoinBadge />
         </div>
       </header>
@@ -90,8 +91,8 @@ export default function LevelMap() {
             stroke="#FFF1D6" strokeWidth="1.6" strokeDasharray="1 16" strokeLinecap="round" fill="none" vectorEffect="non-scaling-stroke" opacity="0.8"
             style={{ strokeWidth: 8 }}
           />
-          {world.secrets.length > 0 && spots[1] && (
-            <path d={`M${spots[1].x},${spots[1].y} Q${SECRET_SPOT.x + 4},${spots[1].y - 10} ${SECRET_SPOT.x},${SECRET_SPOT.y}`} stroke="#C9A7FF" fill="none" strokeDasharray="1 16" strokeLinecap="round" vectorEffect="non-scaling-stroke" style={{ strokeWidth: 6 }} opacity="0.7" />
+          {world.secrets.length > 0 && (
+            <path d={`M${last.x},${last.y} Q${(last.x + secretSpot.x) / 2},${last.y - 8} ${secretSpot.x},${secretSpot.y}`} stroke="#C9A7FF" fill="none" strokeDasharray="1 16" strokeLinecap="round" vectorEffect="non-scaling-stroke" style={{ strokeWidth: 6 }} opacity="0.7" />
           )}
         </svg>
 
@@ -110,7 +111,7 @@ export default function LevelMap() {
         {world.secrets.map((d) => {
           const unlocked = secrets.includes(d.id)
           return (
-            <div key={d.id} className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center" style={{ left: `${SECRET_SPOT.x}%`, top: `${SECRET_SPOT.y}%` }}>
+            <div key={d.id} className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center" style={{ left: `${secretSpot.x}%`, top: `${secretSpot.y}%` }}>
               <LevelButton device={d} state={done.includes(d.id) ? 'done' : unlocked ? 'current' : 'secret'} onClick={() => onSecret(d)} />
               {!unlocked && (
                 <span className="mt-1 flex items-center gap-1 rounded-full bg-[#6B4BD8] px-2.5 py-0.5 text-sm font-bold">

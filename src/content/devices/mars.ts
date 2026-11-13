@@ -45,7 +45,7 @@ export const opportunity: Device = {
     nasaPhoto('opportunity-2.jpg', 'PIA04413', "NASA artist's picture of a rover like me on Mars.", JPL),
     nasaPhoto('opportunity-1.jpg', 'PIA22222', 'My first selfie, taken with my own arm camera.', JPL),
   ],
-  card: { style: 'dust', type: 'Dust', stat: { value: '15', label: 'Years' }, power: L('Never gives up'), superpower: L('Turned 90 days into 15 years') },
+  card: { image: '/images/cards/opportunity.jpg' },
   verified: false,
 }
 
@@ -86,47 +86,171 @@ export const ingenuity: Device = {
     nasaPhoto('ingenuity-1.jpg', 'PIA24542', 'Perseverance took a selfie with me in Jezero Crater. I am the small helicopter on the left.', JPL),
     nasaPhoto('ingenuity-2.jpg', 'PIA23882', 'Me on Earth, before the trip.', JPL),
   ],
-  card: { style: 'air', type: 'Air', stat: { value: '72', label: 'Flights' }, power: L('Flies in super-thin air'), superpower: L('First flight on another planet') },
+  card: { image: '/images/cards/ingenuity.jpg' },
   verified: false,
 }
 
-export const sojourner: Device = {
-  id: 'sojourner',
+const VIKING1 = 'https://science.nasa.gov/mission/viking-1/'
+const INSIGHT = 'https://science.nasa.gov/mission/insight/'
+
+export const pathfinder: Device = {
+  id: 'pathfinder',
   world: 'mars',
-  secret: { cost: 30 },
-  name: 'Sojourner rover (Mars Pathfinder)',
-  nickname: 'Sojourner',
-  handle: 'sojourner.the.og',
+  name: 'Mars Pathfinder lander and Sojourner rover',
+  nickname: 'Pathfinder',
+  handle: 'pathfinder.went.boing',
   location: { label: 'Ares Vallis', lat: 19.13, lon: -33.22 },
   joined: 'July 1997',
-  status: L('Resting near the Pathfinder lander'),
+  status: L('Last heard from: September 27, 1997'),
   active: false,
-  bio: L('The very first rover on Mars, about the size of a microwave oven.'),
+  bio: L('I bounced onto Mars in giant airbags, then let out Sojourner, the first rover to drive on Mars.'),
   stats: [
     { value: '1st', label: L('Rover on Mars') },
+    { value: '16,500+', label: L('Lander photos') },
     { value: '1997', label: L('Landed') },
-    { value: '6', label: L('Wheels') },
   ],
   science: [
-    { text: L('Landed on Mars on July 4, 1997, with the Mars Pathfinder lander.'), source: PATHFINDER },
-    { text: L('The first rover to drive on Mars.'), source: PATHFINDER },
-    { text: L('About the size of a microwave oven.'), source: PATHFINDER },
+    { text: L('Landed in Ares Vallis on July 4, 1997, cushioned by airbags.'), source: PATHFINDER },
+    { text: L('Carried Sojourner, the first rover to drive on Mars, about the size of a microwave oven.'), source: PATHFINDER },
+    { text: L('Sent back more than 16,500 pictures from the lander and 550 from the rover.'), source: PATHFINDER },
+    { text: L('The lander was renamed the Carl Sagan Memorial Station.'), source: PATHFINDER },
   ],
   story: [
-    { kicker: L('POV: you found the OG'), line: L('Psst. Before Oppy, before Ingenuity, there was me. Tiny but brave.') },
-    { kicker: L('July 4, 1997'), line: L('My lander bounced down on airbags, then I rolled down a ramp onto Mars.') },
-    { kicker: L('Small but mighty'), line: L("I'm about as big as a microwave oven, with six wheels.") },
-    { kicker: L('Rock reporter'), line: L('I checked rocks to learn what they are made of. Quiz time?') },
+    { kicker: L('POV: you found a bouncy lander'), line: L('Boing! I landed on Mars wrapped in giant airbags, bouncing like a beach ball.') },
+    { kicker: L('July 4, 1997'), line: L('When I stopped rolling, I opened up like a flower in Ares Vallis.') },
+    { kicker: L('My little buddy'), line: L('Then my rover Sojourner rolled down a ramp. The first rover ever on Mars!') },
+    { kicker: L('Snap, snap'), line: L('Together we sent home thousands of pictures. Ready for my quiz?') },
   ],
   quiz: [
-    { statement: L('I was the first rover on Mars.'), isFact: true, why: L('1997, years before Opportunity.'), hint: L('Who came before Oppy?') },
-    { statement: L("I'm as big as a school bus."), isFact: false, why: L('More like a microwave oven!'), hint: L('Small but mighty…') },
-    { statement: L('I landed on Mars in 1997.'), isFact: true, why: L('July 4, 1997.'), hint: L('Check my stats.') },
+    { statement: L('I landed on Mars using giant airbags.'), isFact: true, why: L('The airbags let me bounce safely until I stopped.'), hint: L('Remember the beach ball?') },
+    { statement: L('Sojourner was as big as a school bus.'), isFact: false, why: L('It was about the size of a microwave oven!'), hint: L('Was my buddy big or little?') },
+    { statement: L('Sojourner was the first rover to drive on Mars.'), isFact: true, why: L('1997, years before Spirit and Opportunity.'), hint: L('Look at my stats.') },
   ],
   photos: [
-    nasaPhoto('sojourner-1.jpg', 'PIA01551', 'Just rolled off my ramp onto Mars.', JPL),
-    nasaPhoto('sojourner-2.jpg', 'PIA01121', 'My view of the Pathfinder lander.', JPL),
+    nasaPhoto('pathfinder-1.jpg', 'PIA01551', 'Sojourner just after rolling off my ramp onto Mars.', JPL),
+    nasaPhoto('pathfinder-2.jpg', 'PIA01121', 'Sojourner took this picture of me, the lander.', JPL),
   ],
-  card: { style: 'secret', type: 'Secret', stat: { value: '1997', label: 'Landed' }, power: L('Reads what rocks are made of'), superpower: L('First wheels on Mars') },
+  card: { image: '/images/cards/pathfinder.jpg' },
+  verified: false,
+}
+
+export const spirit: Device = {
+  id: 'spirit',
+  world: 'mars',
+  name: 'Mars Exploration Rover A (Spirit)',
+  nickname: 'Spirit',
+  handle: 'spirit.oppys.twin',
+  location: { label: 'Gusev Crater', lat: -14.57, lon: 175.47 },
+  joined: 'January 2004',
+  status: L('Last heard from: March 22, 2010'),
+  active: false,
+  bio: L("Opportunity's twin. I explored Gusev Crater for more than six years, even with a broken wheel."),
+  stats: [
+    { value: '90', label: L('Days planned') },
+    { value: '6+', label: L('Years worked') },
+    { value: '7.7 km', label: L('Driven') },
+  ],
+  science: [
+    { text: L('Landed in Gusev Crater on January 4, 2004.'), source: MER },
+    { text: L('Planned for 90 Mars days, kept working for more than six years.'), source: MER },
+    { text: L('Its stuck wheel scraped up silica-rich soil, a clue to ancient hot springs or steam vents.'), source: MER },
+    { text: L('Got stuck in soft soil in 2009 and was last heard from in March 2010.'), source: MER },
+  ],
+  story: [
+    { kicker: L("POV: you met Oppy's twin"), line: L("Hi! I'm Spirit. Opportunity is my twin. We landed three weeks apart.") },
+    { kicker: L('January 4, 2004'), line: L('I bounced down in Gusev Crater inside airbags, just like my twin.') },
+    { kicker: L('Lucky accident'), line: L('My broken wheel dragged and dug up bright white soil. A clue of old hot springs!') },
+    { kicker: L('Stuck'), line: L('In 2009 I got stuck in soft sand and could not get out. Quiz time?') },
+  ],
+  quiz: [
+    { statement: L('Opportunity is my twin.'), isFact: true, why: L('Two identical rovers, landed three weeks apart.'), hint: L('Read my bio.') },
+    { statement: L('I drove more than 45 kilometers.'), isFact: false, why: L('That was Oppy! I drove about 7.7 km.'), hint: L('Which twin holds the record?') },
+    { statement: L('A broken wheel helped me find clues of water.'), isFact: true, why: L('It dragged and scraped up bright, silica-rich soil.'), hint: L('Remember my lucky accident.') },
+  ],
+  photos: [nasaPhoto('spirit-1.jpg', 'PIA05040', 'My first look at Mars, right after landing. That is my deck and my deflated airbags.', JPL)],
+  card: { image: '/images/cards/spirit.jpg' },
+  verified: false,
+}
+
+export const insight: Device = {
+  id: 'insight',
+  world: 'mars',
+  name: 'InSight Mars Lander',
+  nickname: 'InSight',
+  handle: 'insight.is.listening',
+  location: { label: 'Elysium Planitia', lat: 4.5, lon: 135.62 },
+  joined: 'November 2018',
+  status: L('Went quiet in December 2022'),
+  active: false,
+  bio: L('I stayed in one place and listened to Mars shake, to learn what is deep inside the planet.'),
+  stats: [
+    { value: '1,300+', label: L('Marsquakes felt') },
+    { value: '4', label: L('Years listening') },
+    { value: '0', label: L('Wheels') },
+  ],
+  science: [
+    { text: L('Landed in Elysium Planitia on November 26, 2018.'), source: INSIGHT },
+    { text: L('Its seismometer detected more than 1,300 marsquakes.'), source: INSIGHT },
+    { text: L('Helped scientists measure the layers inside Mars, including its core.'), source: INSIGHT },
+    { text: L('The mission ended in December 2022 after dust covered its solar panels.'), source: INSIGHT },
+  ],
+  story: [
+    { kicker: L('POV: shh, listen'), line: L("Shh… hear that? I'm listening to Mars shake. I'm InSight!") },
+    { kicker: L('November 26, 2018'), line: L('I landed on a flat, quiet plain. Perfect for listening.') },
+    { kicker: L('Marsquakes'), line: L('My super-sensitive seismometer felt more than 1,300 marsquakes!') },
+    { kicker: L('Dusty ending'), line: L('Dust slowly covered my solar panels, and in 2022 I went quiet. Quiz?') },
+  ],
+  quiz: [
+    { statement: L('I felt more than 1,300 marsquakes.'), isFact: true, why: L('My seismometer was super sensitive.'), hint: L('Look at my stats.') },
+    { statement: L('I was a rover that drove all over Mars.'), isFact: false, why: L('I was a lander. I stayed in one spot and listened.'), hint: L('How many wheels do I have?') },
+    { statement: L('Dust on my solar panels ended my mission.'), isFact: true, why: L('Less sunlight meant less power, until I went quiet.'), hint: L('Remember my dusty ending.') },
+  ],
+  photos: [
+    nasaPhoto('insight-1.jpg', 'PIA22876', 'My first selfie on Mars, December 2018. Clean solar panels!', JPL),
+    nasaPhoto('insight-2.jpg', 'PIA25287', 'My last selfie, 2022. See how dusty I got?', JPL),
+  ],
+  card: { image: '/images/cards/insight.jpg' },
+  verified: false,
+}
+
+export const viking1: Device = {
+  id: 'viking1',
+  world: 'mars',
+  secret: { cost: 30 },
+  name: 'Viking 1 Lander',
+  nickname: 'Viking 1',
+  handle: 'viking1.since.76',
+  location: { label: 'Chryse Planitia', lat: 22.27, lon: -47.95 },
+  joined: 'July 1976',
+  status: L('Last heard from: November 1982'),
+  active: false,
+  bio: L('The first spacecraft to land on Mars and do its job. I took the first pictures from the surface.'),
+  stats: [
+    { value: '1976', label: L('Landed') },
+    { value: '1st', label: L('Photo from the surface') },
+    { value: '6+', label: L('Years working') },
+  ],
+  science: [
+    { text: L('Landed in Chryse Planitia on July 20, 1976.'), source: VIKING1 },
+    { text: L('The first spacecraft to land on Mars and carry out its mission.'), source: VIKING1 },
+    { text: L('Took the first pictures from the surface of Mars.'), source: VIKING1 },
+    { text: L('Kept working until November 1982.'), source: VIKING1 },
+  ],
+  story: [
+    { kicker: L('POV: you found a Mars legend'), line: L("Shh, I'm the oldest one here. I landed way back in 1976!") },
+    { kicker: L('July 20, 1976'), line: L('Exactly seven years after the first Moon landing, I touched down on Mars.') },
+    { kicker: L('Say cheese'), line: L('I took the very first photo from the surface of Mars. It showed my own foot!') },
+    { kicker: L('Life hunter'), line: L('I scooped up dirt to test it for tiny life. Quiz time?') },
+  ],
+  quiz: [
+    { statement: L('I landed on Mars on July 20, the same date as the first Moon landing.'), isFact: true, why: L('Seven years later: 1969 on the Moon, 1976 on Mars.'), hint: L('Remember my landing date.') },
+    { statement: L('My first photo was a selfie of my face.'), isFact: false, why: L('It showed my footpad on the ground.'), hint: L('What part of me was in the picture?') },
+    { statement: L('I worked on Mars for more than six years.'), isFact: true, why: L('From 1976 to 1982.'), hint: L('Look at my stats.') },
+  ],
+  photos: [
+    nasaPhoto('viking1-1.jpg', 'PIA00381', 'The first photo ever taken on the surface of Mars, July 20, 1976. That is my footpad!', JPL),
+    nasaPhoto('viking1-2.jpg', 'PIA00563', 'My first color picture of Mars.', JPL),
+  ],
+  card: { image: '/images/cards/viking1.jpg' },
   verified: false,
 }

@@ -24,8 +24,42 @@ const ICONS: Record<CardStyle, string> = {
 
 type Props = { device: Device; size?: 'lg' | 'sm'; interactive?: boolean }
 
-export default function DeviceCard({ device: d, size = 'lg', interactive = false }: Props) {
-  const s = STYLES[d.card.style]
+export default function DeviceCard(props: Props) {
+  return 'image' in props.device.card ? <HoloCard {...props} src={props.device.card.image} /> : <GeneratedCard {...props} />
+}
+
+// The design team's card art with a holographic foil + glare on top. Tilts toward the pointer when interactive.
+function HoloCard({ device: d, size = 'lg', interactive = false, src }: Props & { src: string }) {
+  const [p, setP] = useState<{ x: number; y: number } | null>(null)
+  const style = {
+    fontSize: size === 'lg' ? 16 : 10,
+    ...(p && { '--mx': `${p.x * 100}%`, '--my': `${p.y * 100}%` }),
+    transform: interactive && p ? `perspective(900px) rotateY(${(p.x - 0.5) * 18}deg) rotateX(${(0.5 - p.y) * 18}deg) scale(1.02)` : undefined,
+  } as CSSProperties
+
+  return (
+    <article
+      className="holo relative aspect-[955/1280] w-[16.25em] select-none overflow-hidden rounded-[0.7em] shadow-[0_1.2em_2.5em_rgb(0_0_0/0.45)]"
+      style={style}
+      data-active={!!p}
+      onPointerMove={(e) => {
+        const r = e.currentTarget.getBoundingClientRect()
+        setP({ x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height })
+      }}
+      onPointerLeave={() => setP(null)}
+      aria-label={`${d.nickname} card`}
+    >
+      <img src={src} alt={`${d.nickname} trading card`} className="block h-full w-full" draggable={false} />
+      <div className="holo-foil pointer-events-none absolute inset-0" />
+      <div className="holo-glare pointer-events-none absolute inset-0" />
+    </article>
+  )
+}
+
+// Fallback card drawn in code, for devices whose card art isn't ready yet.
+function GeneratedCard({ device: d, size = 'lg', interactive = false }: Props) {
+  const card = d.card as Exclude<Device['card'], { image: string }> // DeviceCard only routes art-less devices here
+  const s = STYLES[card.style]
   const [tilt, setTilt] = useState({ x: 0.5, y: 0.5 })
   const number = String(allDevices.indexOf(d) + 1).padStart(2, '0')
   const style = {
@@ -50,13 +84,13 @@ export default function DeviceCard({ device: d, size = 'lg', interactive = false
           <div>
             <h3 className="text-[1.3em] font-bold leading-none">{d.nickname}</h3>
             <span className="mt-[0.35em] inline-flex items-center gap-[0.3em] rounded-full bg-white/60 px-[0.55em] py-[0.15em] text-[0.7em] font-semibold">
-              <svg viewBox="0 0 20 20" className="h-[1.2em] w-[1.2em]" aria-hidden="true"><path d={ICONS[d.card.style]} stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
-              {d.card.type}
+              <svg viewBox="0 0 20 20" className="h-[1.2em] w-[1.2em]" aria-hidden="true"><path d={ICONS[card.style]} stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              {card.type}
             </span>
           </div>
           <p className="text-right leading-none">
-            <span className="block text-[1.5em] font-bold">{d.card.stat.value}</span>
-            <span className="text-[0.65em] font-semibold opacity-80">{d.card.stat.label}</span>
+            <span className="block text-[1.5em] font-bold">{card.stat.value}</span>
+            <span className="text-[0.65em] font-semibold opacity-80">{card.stat.label}</span>
           </p>
         </header>
 
@@ -68,8 +102,8 @@ export default function DeviceCard({ device: d, size = 'lg', interactive = false
         </p>
 
         <dl className="flex flex-1 flex-col justify-center gap-[0.4em] text-[0.72em] leading-snug">
-          <div><dt className="font-bold">Power</dt><dd>{tx(d.card.power)}</dd></div>
-          <div className="border-t border-current/20 pt-[0.4em]"><dt className="font-bold">Superpower</dt><dd>{tx(d.card.superpower)}</dd></div>
+          <div><dt className="font-bold">Power</dt><dd>{tx(card.power)}</dd></div>
+          <div className="border-t border-current/20 pt-[0.4em]"><dt className="font-bold">Superpower</dt><dd>{tx(card.superpower)}</dd></div>
         </dl>
 
         <footer className="flex items-center justify-between text-[0.62em] font-semibold opacity-80">

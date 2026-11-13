@@ -4,7 +4,8 @@ import { L, nasaPhoto } from '../l10n'
 // Moon devices. verified:false = the content team still has to check each fact against its source.
 const LM11 = 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059C'
 const APOLLO11 = 'https://www.nasa.gov/mission/apollo-11/'
-const LRV = 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1971-063C'
+const LM15 = 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1971-063C'
+const APOLLO15 = 'https://www.nasa.gov/mission/apollo-15/'
 const SURVEYOR3 = 'https://science.nasa.gov/mission/surveyor-3/'
 const TRANQUILITY = { label: 'Tranquility Base, Sea of Tranquility', lat: 0.674, lon: 23.473 }
 
@@ -86,48 +87,49 @@ export const eagle: Device = {
     nasaPhoto('eagle-1.jpg', 'as11-40-5927', 'Me on the Moon, July 1969. Gold foil and all.'),
     nasaPhoto('eagle-2.jpg', 'as11-40-5902', 'Buzz Aldrin walking near my leg.'),
   ],
-  card: { style: 'thrust', type: 'Thrust', stat: { value: '4', label: 'Legs' }, power: L('Lands softly on four legs'), superpower: L('Turns into a launch pad') },
+  card: { image: '/images/cards/eagle.jpg' },
   verified: false,
 }
 
-export const rover: Device = {
-  id: 'rover',
+export const falcon: Device = {
+  id: 'falcon',
   world: 'moon',
-  name: 'Lunar Roving Vehicle (Apollo 15)',
-  nickname: 'Rover',
-  handle: 'rover.moon.drive',
+  name: 'Apollo 15 Lunar Module (Falcon)',
+  nickname: 'Falcon',
+  handle: 'falcon.brought.a.car',
   nssdcaId: '1971-063C',
   location: { label: 'Hadley–Apennine', lat: 26.132, lon: 3.634 },
   joined: 'July 1971',
-  status: L('Parked at Hadley–Apennine'),
+  status: L('Resting at Hadley–Apennine, next to the first Moon car'),
   active: false,
-  bio: L('The first car driven on the Moon. Battery powered, folded flat for the trip, and ready to bounce.'),
+  bio: L('I carried Dave Scott and Jim Irwin to the Moon, and the first Moon car folded up on my side.'),
   stats: [
-    { value: '1st', label: L('Car on the Moon') },
-    { value: '4', label: L('Wheel motors') },
-    { value: '0', label: L('Gas stations') },
+    { value: '1st', label: L('Moon car carried') },
+    { value: '3', label: L('Moonwalks') },
+    { value: '~3', label: L('Days on the Moon') },
   ],
   science: [
-    { text: L('First driven on the Moon by the Apollo 15 crew in 1971.'), source: LRV },
-    { text: L('Ran on batteries, with an electric motor in each wheel.'), source: LRV },
-    { text: L('Traveled to the Moon folded up on the side of the lunar module.'), source: LRV },
+    { text: L('Landed at Hadley–Apennine on July 30, 1971.'), source: LM15 },
+    { text: L('Apollo 15 was the first "J mission", built for longer stays and more science.'), source: APOLLO15 },
+    { text: L('Carried the first Lunar Roving Vehicle. The astronauts drove it about 28 km.'), source: LM15 },
+    { text: L('The crew made three moonwalks, about 18.5 hours outside in total.'), source: APOLLO15 },
   ],
   story: [
-    { kicker: L('POV: you found a car on the Moon'), line: L("Vroom! Well, not really. There's no air up here, so no vroom sound.") },
-    { kicker: L('1971'), line: L('Apollo 15 astronauts unfolded me and drove me across hills and craters.') },
-    { kicker: L('My engine'), line: L('No gas for me. Batteries, and a little electric motor in each wheel.') },
-    { kicker: L('Bouncy ride'), line: L('Low gravity makes every bump a bounce. Ready for my quiz?') },
+    { kicker: L('POV: you met a car carrier'), line: L("Hey! I'm Falcon. I brought something to the Moon nobody had brought before: a car!") },
+    { kicker: L('July 30, 1971'), line: L('I landed between tall mountains and a giant canyon called Hadley Rille.') },
+    { kicker: L('Unfold and drive'), line: L('Dave Scott and Jim Irwin unfolded the rover from my side and drove off. Vroom!') },
+    { kicker: L('Long stay'), line: L('They stayed almost three days, longer than any crew before. Ready for my quiz?') },
   ],
   quiz: [
-    { statement: L('I had a motor in each of my wheels.'), isFact: true, why: L('Four wheels, four electric motors.'), hint: L('Count my motors.') },
-    { statement: L('Astronauts filled me up with gas.'), isFact: false, why: L('I ran on batteries. No gas on the Moon!'), hint: L('What did I say about my engine?') },
-    { statement: L('I rode to the Moon folded up.'), isFact: true, why: L('I was folded flat on the side of the lunar module.'), hint: L('How did a car fit in a spaceship?') },
+    { statement: L('I carried a car to the Moon.'), isFact: true, why: L('The first Lunar Roving Vehicle rode folded up on my side.'), hint: L('What did my astronauts drive?') },
+    { statement: L('The Moon car ran on gasoline.'), isFact: false, why: L('It ran on batteries, with an electric motor in each wheel.'), hint: L('Are there gas stations on the Moon?') },
+    { statement: L('My crew stayed on the Moon for about three days.'), isFact: true, why: L('Nearly 67 hours, a record at the time.'), hint: L('Look at my stats.') },
   ],
   photos: [
-    nasaPhoto('rover-1.jpg', 'as15-86-11603', 'James Irwin working by me during Apollo 15.'),
-    nasaPhoto('rover-2.jpg', 'as15-86-11602', 'Parked at Hadley–Apennine, Apollo 15.'),
+    nasaPhoto('falcon-1.jpg', 'as15-86-11603', 'Jim Irwin working at the Moon car, Apollo 15.'),
+    nasaPhoto('falcon-2.jpg', 'as15-86-11602', 'The Moon car parked at Hadley–Apennine.'),
   ],
-  card: { style: 'wheels', type: 'Wheels', stat: { value: '4', label: 'Motors' }, power: L('Drives over dust and craters'), superpower: L('Folds flat for space travel') },
+  card: { image: '/images/cards/falcon.jpg' },
   verified: false,
 }
 
@@ -169,6 +171,6 @@ export const surveyor3: Device = {
     nasaPhoto('surveyor3-2.jpg', 'as12-48-7121', 'Me in my crater.'),
     nasaPhoto('surveyor3-3.jpg', 'AS12-48-7133', 'Two US spacecraft on the Moon: me, and the Apollo 12 lander.'),
   ],
-  card: { style: 'secret', type: 'Secret', stat: { value: '1967', label: 'Landed' }, power: L('Got to the Moon first'), superpower: L('Had real astronaut visitors') },
+  card: { image: '/images/cards/surveyor3.jpg' },
   verified: false,
 }

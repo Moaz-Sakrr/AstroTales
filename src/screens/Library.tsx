@@ -1,7 +1,7 @@
 import Starfield from '../components/Starfield'
 import Button from '../components/Button'
 import DeviceCard from '../components/DeviceCard'
-import { worlds } from '../content/worlds'
+import { allDevices, worlds } from '../content/worlds'
 import { en } from '../content/i18n/en'
 import { useGame } from '../store/progress'
 
@@ -17,7 +17,7 @@ export default function Library() {
       <header className="relative z-10 mx-auto flex max-w-5xl items-center justify-between">
         <Button variant="ghost" className="min-h-11 px-4 text-base" onClick={() => go(back === 'profile' ? 'level' : back)}>{t.back}</Button>
         <h1 className="text-3xl font-bold tracking-tight">{t.title}</h1>
-        <p className="min-w-16 text-right font-semibold text-text-muted">{done.length}/{Object.values(worlds).flatMap((w) => [...w.levels, ...w.secrets]).length}</p>
+        <p className="min-w-16 text-right font-semibold text-text-muted">{allDevices.filter((d) => done.includes(d.id)).length}/{allDevices.length}</p>
       </header>
 
       {Object.values(worlds).map((w) => (

@@ -4,11 +4,12 @@ import Button from '../components/Button'
 import CoinBadge from '../components/CoinBadge'
 import { en } from '../content/i18n/en'
 import type { WorldId } from '../content/types'
+import { previousWorld, worlds } from '../content/worlds'
 import { useGame, worldComplete } from '../store/progress'
 
 const t = en.space
 type Phase = 'loading' | 'intro' | 'free' | 'flight' | 'arrived'
-const isWorld = (id: BodyId): id is WorldId => id === 'moon' || id === 'mars'
+const isWorld = (id: BodyId): id is WorldId => id in worlds
 
 export default function Space() {
   const mount = useRef<HTMLDivElement>(null)
@@ -21,12 +22,16 @@ export default function Space() {
   const [toast, setToast] = useState<string | null>(null)
   const [fading, setFading] = useState(false)
 
-  const marsOpen = worldComplete('moon', done)
-  const playable = (id: BodyId) => id === 'moon' || (id === 'mars' && marsOpen)
+  // a world opens once the one before it is finished
+  const playable = (id: BodyId) => {
+    if (!isWorld(id)) return false
+    const prev = previousWorld(id)
+    return !prev || worldComplete(prev, done)
+  }
 
   const pick = (id: BodyId) => {
     if (!isWorld(id)) return setToast(`${BODIES.find((b) => b.id === id)!.name}: ${t.later}`)
-    if (!playable(id)) return setToast(t.locked)
+    if (!playable(id)) return setToast(t.locked(worlds[previousWorld(id)!].name))
     setToast(null)
     setTarget(id)
     setPhase('flight')
@@ -83,7 +88,7 @@ export default function Space() {
                       ? 'bg-navy-900/70 text-text'
                       : 'bg-black/30 text-text-muted hover:text-text'
                 }`}
-                aria-label={isPlayable ? `${b.name}. ${t.playable}` : isWorldBody ? `${b.name}. ${t.locked}` : `${b.name}. ${t.later}`}
+                aria-label={isPlayable ? `${b.name}. ${t.playable}` : isWorldBody ? `${b.name}. ${t.locked(worlds[previousWorld(b.id as WorldId)!].name)}` : `${b.name}. ${t.later}`}
               >
                 {isWorldBody && !isPlayable && (
                   <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" aria-hidden="true">
@@ -101,7 +106,7 @@ export default function Space() {
       <header className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4">
         <p aria-live="polite" className="max-w-xs rounded-2xl bg-black/40 px-4 py-2 text-sm text-text backdrop-blur-sm sm:text-base">
           {phase === 'intro' && t.leaving}
-          {phase === 'free' && (marsOpen ? t.hintMars : t.hint)}
+          {phase === 'free' && t.hint}
           {phase === 'flight' && t.flying(worldName)}
           {phase === 'arrived' && worldName}
         </p>

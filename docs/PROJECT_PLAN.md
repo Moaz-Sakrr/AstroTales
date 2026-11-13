@@ -213,6 +213,16 @@ The challenge names the **NASA Space Science Data Coordinated Archive (NSSDCA)**
 
 ### 6.2 Device list (from the challenge resources)
 
+> **Updated 13 Nov: we ship all of them.** 14 devices, 3 worlds, each path in arrival order. Card art: `public/images/cards/<id>.jpg`.
+>
+> | World | Levels (in order) | Secret (coins) |
+> |---|---|---|
+> | 🌕 Moon | Reflecto (Apollo 11 LRRR), Eagle (Apollo 11 LM), Falcon (Apollo 15 LM + first rover) | Surveyor 3 (30) |
+> | 🔴 Mars | Pathfinder + Sojourner, Spirit, Opportunity, InSight, Ingenuity | Viking 1 (30) |
+> | ✨ Deep space | Pioneer 10, NEAR Shoemaker, Dawn | Kepler (50, legendary) |
+>
+> The table below is the original plan.
+
 **MVP = 3 Moon + 2 Mars + 1 secret place.** Everything else is stretch.
 
 | World | Device | MVP? | Why it's good for kids | NASA 3D model? | Resource link |

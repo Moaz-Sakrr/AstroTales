@@ -5,8 +5,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 // everything at once (real scale would make the planets invisible dots).
 // Textures: Solar System Scope (CC BY 4.0), based on NASA imagery. Credited on the Space screen.
 
-export type BodyId = 'mercury' | 'venus' | 'earth' | 'moon' | 'mars' | 'jupiter' | 'saturn' | 'uranus' | 'neptune'
-type Def = { id: BodyId; name: string; tex: string; r: number; dist: number; period: number; tilt: number; spin: number; atmos?: number; parent?: BodyId }
+export type BodyId = 'mercury' | 'venus' | 'earth' | 'moon' | 'mars' | 'jupiter' | 'saturn' | 'uranus' | 'neptune' | 'deep'
+type Def = { id: BodyId; name: string; tex: string; r: number; dist: number; period: number; tilt: number; spin: number; atmos?: number; parent?: BodyId; lumpy?: boolean }
 
 const YEAR = 60 // seconds for one Earth orbit on screen; other periods keep their real ratio (years)
 export const BODIES: Def[] = [
@@ -16,6 +16,8 @@ export const BODIES: Def[] = [
   // shortcut: the Moon's real month (0.075 yr) looks frantic at this speed, so it orbits slower than real.
   { id: 'moon', name: 'The Moon', tex: '2k_moon.jpg', r: 0.27, dist: 2.4, period: 0.3, tilt: 6.7, spin: 0.2, parent: 'earth' },
   { id: 'mars', name: 'Mars', tex: '2k_mars.jpg', r: 0.6, dist: 22, period: 1.88, tilt: 25.2, spin: 0.97, atmos: 0xff9e6b },
+  // 'Deep space' world: a lumpy asteroid parked in the main belt (stands in for Eros, Vesta and Ceres)
+  { id: 'deep', name: 'Deep space', tex: '2k_moon.jpg', r: 0.5, dist: 28.5, period: 4.6, tilt: 12, spin: 0.6, lumpy: true },
   { id: 'jupiter', name: 'Jupiter', tex: '2k_jupiter.jpg', r: 2.8, dist: 34, period: 11.86, tilt: 3.1, spin: 2.4 },
   { id: 'saturn', name: 'Saturn', tex: '2k_saturn.jpg', r: 2.4, dist: 46, period: 29.46, tilt: 26.7, spin: 2.2 },
   { id: 'uranus', name: 'Uranus', tex: '2k_uranus.jpg', r: 1.6, dist: 56, period: 84, tilt: 97.8, spin: 1.4, atmos: 0x9fe7f0 },
@@ -100,7 +102,7 @@ export function createSolarSystem(o: Options) {
     tilt.rotation.z = THREE.MathUtils.degToRad(b.tilt)
     anchor.add(tilt)
 
-    const mesh = new THREE.Mesh(new THREE.SphereGeometry(b.r, 64, 64), new THREE.MeshStandardMaterial({ map: tex(b.tex), roughness: 1, metalness: 0 }))
+    const mesh = new THREE.Mesh(b.lumpy ? asteroidGeometry(b.r) : new THREE.SphereGeometry(b.r, 64, 64), new THREE.MeshStandardMaterial({ map: tex(b.tex), roughness: 1, metalness: 0 }))
     mesh.userData.id = b.id
     tilt.add(mesh)
     meshes.set(b.id, mesh)
@@ -345,6 +347,22 @@ function orbitLine(radius: number) {
   return new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0x7f8fd6, transparent: true, opacity: 0.22 }))
 }
 
+// Potato-shaped rock: a sphere pushed in and out by a few overlapping waves (deterministic, no noise lib).
+function asteroidGeometry(r: number) {
+  const geo = new THREE.IcosahedronGeometry(r, 5)
+  const p = geo.attributes.position
+  const v = new THREE.Vector3()
+  const stretch = new THREE.Vector3(1.5, 0.85, 1) // elongated like Eros
+  for (let i = 0; i < p.count; i++) {
+    v.fromBufferAttribute(p, i).normalize()
+    const bump = 1 + 0.18 * Math.sin(v.x * 3.1 + 1) * Math.cos(v.y * 2.3) + 0.08 * Math.sin(v.z * 7 + v.x * 5)
+    v.multiplyScalar(r * bump).multiply(stretch)
+    p.setXYZ(i, v.x, v.y, v.z)
+  }
+  geo.computeVertexNormals()
+  return geo
+}
+
 // Main belt between Mars and Jupiter.
 function asteroidBelt() {
   const n = 2400
@@ -356,7 +374,8 @@ function asteroidBelt() {
   }
   const geo = new THREE.BufferGeometry()
   geo.setAttribute('position', new THREE.BufferAttribute(arr, 3))
-  return new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xa89f91, size: 0.09 }))
+  // the soft round glow texture keeps rocks from rendering as squares up close
+  return new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xa89f91, size: 0.12, map: glowTexture(), transparent: true, depthWrite: false }))
 }
 
 // Simple rocket pointing along +Y, with a flame cone behind it.
