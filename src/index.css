@@ -1,38 +1,124 @@
 @import "tailwindcss";
 
-/* Design tokens — docs/PROJECT_PLAN.md §8. Use as bg-space, text-coin, etc. */
+/*
+  Design system: B · Postcards from space.
+  Primitives are raw colors; semantic tokens below say what a color is FOR.
+  Components use semantic names (bg-bg, text-text, bg-cta). Illustration SVGs may use literal art colors.
+*/
 @theme {
-  --color-space: #0B1D3A;
-  --color-card: #1B2F5E;
-  --color-sky: #08152B;
-  --color-moon: #CFCFD8;
-  --color-crater: #A9AEBF;
-  --color-crater-2: #B4B8C8;
-  --color-mars: #E0703A;
-  --color-mars-dark: #B5482A;
-  --color-flag: #FF4D4D;
-  --color-coin: #FFC93C;
-  --color-fact: #2EC4B6;
+  /* primitives */
+  --color-navy-950: #08152B;
+  --color-navy-900: #0B1D3A;
+  --color-navy-700: #1B2F5E;
   --color-paper: #FFF1D6;
-  --color-text: #FFF8E7;
+  --color-ink: #1B2440;
+  --color-airmail-red: #E5484D;
+  --color-airmail-blue: #2F6FDB;
+  --color-coin: #FFC93C;
+  --color-coin-dark: #C9971F;
+  --color-teal: #2EC4B6;
+  --color-flag: #FF4D4D;
+  --color-moon: #CFCFD8;
+  --color-mars: #E0703A;
+  --color-star: #FFF8E7;
   --color-muted: #B9C4E0;
   --color-faint: #8E9BC0;
 
-  --font-sans: "Baloo 2", system-ui, sans-serif;
+  /* semantic */
+  --color-bg: var(--color-navy-900);
+  --color-surface: var(--color-navy-700);
+  --color-text: var(--color-star);
+  --color-text-muted: var(--color-muted);
+  --color-cta: var(--color-coin);
+  --color-cta-edge: var(--color-coin-dark);
+  --color-on-cta: var(--color-navy-900);
+  --color-fact: var(--color-teal);
+  --color-cap: var(--color-flag);
+
+  --font-sans: "Lexend", system-ui, sans-serif;
+  --font-hand: "Gochi Hand", "Comic Sans MS", cursive; /* the devices' own handwriting */
 }
 
 html,
 body,
 #root {
-  height: 100%;
+  min-height: 100%;
 }
 
 body {
   margin: 0;
-  background: var(--color-space);
+  background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Deep sky: nebula washes over a vertical night gradient */
+.space-sky {
+  background:
+    radial-gradient(60% 45% at 18% 8%, rgb(139 108 240 / 0.28), transparent 70%),
+    radial-gradient(40% 35% at 88% 30%, rgb(46 196 182 / 0.14), transparent 70%),
+    radial-gradient(70% 40% at 60% 105%, rgb(47 111 219 / 0.25), transparent 70%),
+    linear-gradient(180deg, var(--color-navy-950) 0%, var(--color-navy-900) 55%, #12285A 100%);
+}
+
+.milky-way {
+  background: radial-gradient(closest-side, rgb(207 226 255 / 0.12), transparent);
+  filter: blur(24px);
+}
+
+.twinkle {
+  animation: twinkle 3.2s ease-in-out infinite;
+}
+@keyframes twinkle {
+  50% { opacity: 0.25; }
+}
+
+.shooting-star {
+  position: absolute;
+  top: 14%;
+  left: 62%;
+  width: 150px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #fff, transparent);
+  opacity: 0;
+  animation: shoot 11s linear 4s infinite;
+}
+@keyframes shoot {
+  0% { transform: translate(0, 0) rotate(-18deg); opacity: 0; }
+  1% { opacity: 1; }
+  7% { transform: translate(-460px, 150px) rotate(-18deg); opacity: 0; }
+  100% { opacity: 0; }
+}
+
+.laser-pulse {
+  stroke-dasharray: 10 42;
+  animation: laser 1.1s linear infinite;
+}
+@keyframes laser {
+  to { stroke-dashoffset: -52; }
+}
+
+.glint {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: glint 2.6s ease-in-out infinite;
+}
+@keyframes glint {
+  0%, 70%, 100% { transform: scale(0); opacity: 0; }
+  80% { transform: scale(1); opacity: 1; }
+}
+
+/* Airmail envelope edge */
+.airmail {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--color-airmail-red) 0 14px,
+    var(--color-paper) 14px 22px,
+    var(--color-airmail-blue) 22px 36px,
+    var(--color-paper) 36px 44px
+  );
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -43,4 +129,5 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+  .shooting-star { display: none; }
 }
