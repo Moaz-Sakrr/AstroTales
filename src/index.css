@@ -248,3 +248,9 @@ body {
   70% { transform: translate(-3px, 2px); }
   85% { transform: translate(2px, -1px); }
 }
+
+/* the kid waiting on the level map: a slow, small float */
+@keyframes kid-idle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}

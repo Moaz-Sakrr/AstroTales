@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import Button from '../components/Button'
@@ -10,17 +10,26 @@ import type { Device } from '../content/types'
 import { en } from '../content/i18n/en'
 import { useGame, worldComplete } from '../store/progress'
 import SoundButton from '../components/SoundButton'
-import { clip, sfx } from '../audio/engine'
+import { sfx } from '../audio/engine'
+import Landing from './level/Landing'
+import { Sky, Terrain } from './level/scenery'
 
 gsap.registerPlugin(useGSAP)
 const t = en.level
 
-// Level spots in % of the map, zigzagging bottom → top like a candy-crush path, for any number of levels.
+// Level spots in % of the map, zigzagging from the near ground (bottom) up to the horizon, for any number of levels.
 const ZIGZAG = [28, 70, 34, 66, 30, 68]
-const spotsFor = (n: number) => Array.from({ length: n }, (_, i) => ({ x: ZIGZAG[i % ZIGZAG.length], y: 86 - i * (72 / Math.max(n - 1, 1)) }))
-// The secret sits beside the last stop, on the other side, so it never overlaps the path. A bit lower, not higher:
-// its stack (button + label + coin price) is taller, and higher up it would slide under the header on a phone.
-const secretSpotFor = (last: { x: number; y: number }) => ({ x: last.x < 50 ? 74 : 26, y: last.y + 6 })
+const NEAR = 90
+const FAR = 26
+type Spot = { x: number; y: number }
+const spotsFor = (n: number): Spot[] => Array.from({ length: n }, (_, i) => ({ x: ZIGZAG[i % ZIGZAG.length], y: NEAR - i * ((NEAR - FAR) / Math.max(n - 1, 1)) }))
+// The secret sits beside the last stop, on the other side. When stops are close together (Mars) it moves up towards
+// the horizon, so its taller stack (button + label + coin price) clears the stop below it.
+const secretSpotFor = (last: Spot, gap: number) => ({ x: last.x < 50 ? 74 : 26, y: last.y - Math.max(0, 22 - gap) })
+// further away (higher up the map) = drawn smaller, so the trail runs off towards the horizon
+const depth = (y: number) => 0.72 + (0.28 * (y - FAR)) / (NEAR - FAR)
+const DOTS = '#FFF1D6' // trail ahead; walked parts are gold, the way to the secret is purple
+const segment = (a: Spot, b: Spot) => `M${a.x},${a.y} C${a.x},${(a.y + b.y) / 2} ${b.x},${(a.y + b.y) / 2} ${b.x},${b.y}`
 const PILL = 'flex min-h-11 shrink-0 items-center gap-1 rounded-full bg-black/40 px-3 font-semibold text-text backdrop-blur-sm hover:bg-black/60 focus-visible:outline-3 focus-visible:outline-fact'
 
 export default function LevelMap() {
@@ -35,32 +44,31 @@ export default function LevelMap() {
   const current = levels.findIndex((d) => !done.includes(d.id)) // -1 = all done
   const spots = spotsFor(levels.length)
   const last = spots[spots.length - 1]
-  const secretSpot = secretSpotFor(last)
+  const gap = levels.length > 1 ? spots[0].y - spots[1].y : 30
+  const secretSpot = secretSpotFor(last, gap)
   const complete = worldComplete(world.id, done)
+  const trail = [
+    ...spots.slice(1).map((b, i) => ({ a: spots[i], b, color: done.includes(levels[i].id) ? '#FFC93C' : DOTS })),
+    ...(world.secrets.length ? [{ a: last, b: secretSpot, color: '#C9A7FF' }] : []),
+  ]
 
+  // the landing plays once per arrival
+  useEffect(() => {
+    if (justLanded) useGame.setState({ justLanded: false })
+  }, [justLanded])
+
+  // after the landing, the stops pop up along the trail one by one
+  const popIn = useRef(landing)
   useGSAP(
     () => {
-      if (!landing) return
-      useGame.setState({ justLanded: false })
-      const mm = gsap.matchMedia()
-      mm.add('(prefers-reduced-motion: reduce)', () => setLanding(false))
-      mm.add('(prefers-reduced-motion: no-preference)', () => {
-        gsap
-          .timeline({ onComplete: () => setLanding(false) })
-          .call(() => sfx('rumble'))
-          .from('.js-lander', { y: '-110vh', duration: 2.2, ease: 'power2.out' })
-          .to('.js-flame', { scaleY: 0, duration: 0.3 }, '-=0.3')
-          .fromTo('.js-dust', { scale: 0.2, opacity: 0.8 }, { scale: 2.2, opacity: 0, x: (i) => (i - 3) * 40, duration: 1.2, stagger: 0.03 }, '-=0.4')
-          .from('.js-touchdown', { scale: 0.6, opacity: 0, duration: 0.4, ease: 'back.out(2)' }, '<')
-          .call(() => {
-            sfx('thud')
-            if (worldId === 'moon') clip('eagleLanded', undefined, 0.5)
-          }, undefined, '<')
-          .to('.js-landing', { opacity: 0, duration: 0.6, delay: 0.6 })
-        gsap.to('.js-flame', { scaleY: 0.8, repeat: -1, yoyo: true, duration: 0.07 })
+      if (!popIn.current) return
+      gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
+        if (landing) return void gsap.set('.js-node', { opacity: 0, scale: 0.4 })
+        popIn.current = false
+        gsap.to('.js-node', { opacity: 1, scale: 1, duration: 0.5, stagger: 0.09, ease: 'back.out(2)' })
       })
     },
-    { scope: root },
+    { scope: root, dependencies: [landing] },
   )
 
   const state = (d: Device, i: number) => (done.includes(d.id) ? 'done' : i === current ? 'current' : 'locked')
@@ -82,9 +90,9 @@ export default function LevelMap() {
 
   return (
     <main ref={root} className="relative flex h-svh flex-col overflow-hidden bg-navy-950">
-      {/* the world's real surface texture, darkened so the path pops */}
-      <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${world.texture})` }} />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,rgb(8_21_43/0.75)_100%)]" />
+      {/* standing on the world: its sky above the horizon, its real surface running back to it */}
+      <Sky world={worldId} />
+      <Terrain world={worldId} className="absolute inset-x-0 bottom-0 top-[24%]" />
 
       <header className="relative z-10 flex items-center justify-between gap-2 p-3 sm:p-4">
         {/* compact pills, not <Button>: four controls must fit a 375px phone */}
@@ -101,25 +109,42 @@ export default function LevelMap() {
       </header>
 
       <div className="relative mx-auto w-full max-w-xl flex-1">
+        {/* the trail: a dark track with a dotted line, narrowing into the distance; the part you've walked turns gold */}
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full" aria-hidden="true">
-          <path
-            d={spots.map((p, i) => (i === 0 ? `M${p.x},${p.y}` : `C${spots[i - 1].x},${(spots[i - 1].y + p.y) / 2} ${p.x},${(spots[i - 1].y + p.y) / 2} ${p.x},${p.y}`)).join(' ')}
-            stroke="#FFF1D6" strokeWidth="1.6" strokeDasharray="1 16" strokeLinecap="round" fill="none" vectorEffect="non-scaling-stroke" opacity="0.8"
-            style={{ strokeWidth: 8 }}
-          />
-          {world.secrets.length > 0 && (
-            <path d={`M${last.x},${last.y} Q${(last.x + secretSpot.x) / 2},${last.y - 8} ${secretSpot.x},${secretSpot.y}`} stroke="#C9A7FF" fill="none" strokeDasharray="1 16" strokeLinecap="round" vectorEffect="non-scaling-stroke" style={{ strokeWidth: 6 }} opacity="0.7" />
-          )}
+          {trail.map(({ a, b, color }, i) => {
+            const w = 24 * depth((a.y + b.y) / 2)
+            return (
+              <g key={i} fill="none" strokeLinecap="round">
+                <path d={segment(a, b)} stroke="rgb(20 10 5 / 0.35)" strokeWidth={w} vectorEffect="non-scaling-stroke" />
+                <path d={segment(a, b)} stroke={color} strokeOpacity={color === DOTS ? 0.6 : 0.95} strokeWidth={w * 0.3} strokeDasharray={`0.1 ${w * 0.75}`} vectorEffect="non-scaling-stroke" />
+              </g>
+            )
+          })}
         </svg>
+
+        {/* our ship, parked where we landed */}
+        <div className="pointer-events-none absolute bottom-[1%] right-[3%] w-14 sm:w-16" aria-hidden="true">
+          <div className="absolute bottom-0 left-1/2 h-3 w-[150%] -translate-x-1/2 translate-y-1/2 rounded-[50%] bg-black/45 blur-[3px]" />
+          <div className="translate-y-[24.7%]">
+            <Rocket legs className="relative block w-full" />
+          </div>
+        </div>
 
         {levels.map((d, i) => {
           const s = state(d, i)
+          const p = spots[i]
           return (
-            <div key={d.id} className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center" style={{ left: `${spots[i].x}%`, top: `${spots[i].y}%` }}>
+            <div key={d.id} className="js-node absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center" style={{ left: `${p.x}%`, top: `${p.y}%` }}>
+              {/* the kid stands beside the next stop, on the side facing the middle of the map, feet level with the button */}
               {s === 'current' && (
-                <Astronaut kind={character} pose="threeq" width={44} className="absolute -left-12 bottom-6 motion-safe:animate-bounce" />
+                <Astronaut
+                  kind={character}
+                  pose="threeq"
+                  width={80}
+                  className={`pointer-events-none absolute -top-10 h-auto w-20 motion-safe:animate-[kid-idle_2.6s_ease-in-out_infinite] sm:-top-12 sm:w-24 ${p.x < 50 ? 'left-[calc(50%+24px)] -scale-x-100' : 'right-[calc(50%+24px)]'}`}
+                />
               )}
-              <LevelButton device={d} index={i + 1} state={s} onClick={() => {
+              <LevelButton device={d} index={i + 1} state={s} scale={depth(p.y)} onClick={() => {
                 if (s === 'locked') return
                 sfx('pop')
                 if (s === 'done') open('profile', d.id)
@@ -132,8 +157,8 @@ export default function LevelMap() {
         {world.secrets.map((d) => {
           const unlocked = secrets.includes(d.id)
           return (
-            <div key={d.id} className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center" style={{ left: `${secretSpot.x}%`, top: `${secretSpot.y}%` }}>
-              <LevelButton device={d} state={done.includes(d.id) ? 'done' : unlocked ? 'current' : 'secret'} onClick={() => onSecret(d)} />
+            <div key={d.id} className="js-node absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center" style={{ left: `${secretSpot.x}%`, top: `${secretSpot.y}%` }}>
+              <LevelButton device={d} state={done.includes(d.id) ? 'done' : unlocked ? 'current' : 'secret'} scale={depth(secretSpot.y)} onClick={() => onSecret(d)} />
               {!unlocked && (
                 <span className="mt-1 flex items-center gap-1 rounded-full bg-[#6B4BD8] px-2.5 py-0.5 text-sm font-bold">
                   <Coin className="h-4 w-4" /> {d.secret!.cost}
@@ -168,27 +193,20 @@ export default function LevelMap() {
         </footer>
       )}
 
-      {landing && (
-        <div className="js-landing pointer-events-none absolute inset-0 z-20 grid place-items-center">
-          <div className="js-lander relative w-28">
-            <Rocket flame legs />
-          </div>
-          {Array.from({ length: 7 }, (_, i) => (
-            <span key={i} className="js-dust absolute left-1/2 top-[62%] -ml-8 h-16 w-16 rounded-full bg-[#CFCFD8]/70 opacity-0 blur-sm" />
-          ))}
-          <p className="js-touchdown absolute top-[20%] text-5xl font-bold text-cta">{t.touchdown}</p>
-        </div>
-      )}
+      {landing && <Landing world={worldId} kind={character} onDone={() => setLanding(false)} />}
     </main>
   )
 }
 
 type LevelState = 'done' | 'current' | 'locked' | 'secret'
 
-function LevelButton({ device, index, state, onClick }: { device: Device; index?: number; state: LevelState; onClick: () => void }) {
+function LevelButton({ device, index, state, scale, onClick }: { device: Device; index?: number; state: LevelState; scale: number; onClick: () => void }) {
   const ring = { done: 'ring-cta', current: 'ring-fact', locked: 'ring-white/20', secret: 'ring-[#C9A7FF]' }[state]
   return (
     <>
+      {/* only the button shrinks with distance (towards its base, so it stays on the trail); the name stays readable */}
+      <div className="relative origin-bottom" style={{ scale: String(scale) }}>
+      <span className="absolute -bottom-2 left-1/2 h-5 w-[110%] -translate-x-1/2 rounded-[50%] bg-black/45 blur-[3px]" aria-hidden="true" />
       <button
         type="button"
         onClick={onClick}
@@ -212,7 +230,8 @@ function LevelButton({ device, index, state, onClick }: { device: Device; index?
           </span>
         )}
       </button>
-      <span className="mt-2 whitespace-nowrap rounded-full bg-black/50 px-3 py-0.5 text-sm font-semibold backdrop-blur-sm">{state === 'secret' ? en.level.secret : device.nickname}</span>
+      </div>
+      <span className="relative mt-2 whitespace-nowrap rounded-full bg-black/50 px-3 py-0.5 text-sm font-semibold backdrop-blur-sm">{state === 'secret' ? en.level.secret : device.nickname}</span>
     </>
   )
 }
