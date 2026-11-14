@@ -173,7 +173,7 @@ export function duck(on: boolean) {
 
 let ship: { stop: () => void } | null = null
 /**
- * The ship's engines while it flies through space: a deep, steady rumble with a slow "breathing" hum.
+ * The ship's engines while it flies through space (and down to a landing): a soft, slowly breathing hum over a faint rumble.
  * Fades in when the flight starts and out when the ship arrives. Calling it twice with the same value does nothing.
  */
 export function cruise(on: boolean) {
@@ -182,29 +182,32 @@ export function cruise(on: boolean) {
     const t = ctx.currentTime
     const out = ctx.createGain()
     out.gain.setValueAtTime(0.0001, t)
-    out.gain.exponentialRampToValueAtTime(0.9, t + 0.8)
+    // quiet on purpose: it plays for the whole flight, under the music (kids found the old, loud drone annoying)
+    out.gain.exponentialRampToValueAtTime(0.3, t + 1.5)
     out.connect(fxBus)
-    // rumble: low-passed noise, open enough to be heard on laptop and phone speakers
+    // faint rumble: only the deep part of some noise
     const noise = ctx.createBufferSource()
     noise.buffer = noiseBuffer(ctx)
     noise.loop = true
     const lp = ctx.createBiquadFilter()
     lp.type = 'lowpass'
-    lp.frequency.value = 520
+    lp.frequency.value = 220
     noise.connect(lp).connect(out)
-    // hum: low tones, gently swelling (an LFO on their volume). 110/165 Hz carry on small speakers that can't play 55 Hz.
+    // hum: soft sine tones (no buzzy overtones) in an open A chord, slowly swelling (an LFO on their volume).
+    // The 220/330 Hz tones carry on phone speakers that can't play the low ones.
     const hum = ctx.createGain()
-    hum.gain.value = 0.22
+    hum.gain.value = 0.15
     const lfo = ctx.createOscillator()
     const depth = ctx.createGain()
-    lfo.frequency.value = 0.35
-    depth.gain.value = 0.1
+    lfo.frequency.value = 0.2
+    depth.gain.value = 0.07
     lfo.connect(depth).connect(hum.gain)
-    const tones = [55, 110, 165].map((f) => {
+    const tones = [110, 165, 220, 330].map((f, i) => {
       const o = ctx.createOscillator()
-      o.type = 'triangle'
+      const level = ctx.createGain()
+      level.gain.value = [1, 0.7, 0.5, 0.25][i]
       o.frequency.value = f
-      o.connect(hum)
+      o.connect(level).connect(hum)
       return o
     })
     hum.connect(out)

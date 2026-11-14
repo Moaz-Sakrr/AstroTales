@@ -107,8 +107,14 @@ export const RECIPES = {
   // --- flight + games ---
   whoosh: (c: Out) => hiss(c, { f: 300, to: 2400, q: 0.8, dur: 0.7, gain: 0.3, attack: 0.25 }),
   warp: (c: Out) => {
-    tone(c, { f: 110, to: 1400, dur: 1.2, gain: 0.12, attack: 0.3 })
-    hiss(c, { f: 200, to: 4000, q: 0.6, dur: 1.2, gain: 0.18, attack: 0.4 })
+    tone(c, { f: 110, to: 1100, dur: 1.2, gain: 0.08, attack: 0.3 })
+    hiss(c, { f: 200, to: 2600, q: 0.6, dur: 1.2, gain: 0.1, attack: 0.4 })
+  },
+  // arriving on a world: a warm low swell under a bright rising G-major chime, then two tiny sparkles
+  landed: (c: Out) => {
+    tone(c, { f: 196, dur: 1.4, gain: 0.08, attack: 0.08 })
+    notes(c, [784, 988, 1175, 1568], 0.1, { dur: 1.1, gain: 0.09 })
+    notes({ ...c, t: c.t + 0.45 }, [2349, 3136], 0.08, { dur: 0.6, gain: 0.03 })
   },
   rumble: (c: Out) => {
     hiss(c, { f: 140, filter: 'lowpass', dur: 2.6, gain: 0.55, attack: 0.4 })

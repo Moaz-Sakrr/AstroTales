@@ -31,7 +31,7 @@ A clip without a `file` in `src/content/sounds.ts` falls back to its synth sound
 | Launch | ignition + liftoff | rumble / NASA "We have lift-off" + Atlas V |
 | Space | leaving Earth + flying to a world | engine rumble (`cruise`, fades out on arrival) |
 | Space | pick a world | warp; locked world = locked; planet tag = blip (NASA Sputnik) |
-| Level map | lander comes down / touchdown | rumble → thud; on the Moon then NASA "The Eagle has landed" |
+| Level map | ship comes down / touchdown | soft engine hum (`cruise`) → thud + "landed" chime (the NASA voice was removed: kids found it annoying) |
 | Level map | level tap / secret unlocked / not enough coins | pop / unlock / locked |
 | Story | next card | swipe (+ NASA quindar before the voice) |
 | Quiz | right / wrong / hint / next | ding + coin / bonk / pling / swipe |
@@ -50,7 +50,6 @@ pick the useful part. The big WAVs were cut, made mono and resampled to 16-bit 1
 |---|---|---|
 | liftoff | historical-sounds: 590320main_ringtone_apollo11_countdown.mp3 | whole file, plays from 16 s ("…Lift-off!") |
 | rocket | historical-sounds: 590329main_ringtone_SDO_launchNats.mp3 | whole file, first 8 s |
-| eagleLanded | historical-sounds: 569462main_eagle_has_landed.mp3 | whole file |
 | smallStep | historical-sounds: 590331main_ringtone_smallStep.mp3 | whole file |
 | quindar | historical-sounds: 578628main_hskquindar.mp3 | whole file, one beep at 2.42 s (0.3 s) |
 | sputnik | historical-sounds: 578626main_sputnik-beep.mp3 | whole file, first 1.2 s |

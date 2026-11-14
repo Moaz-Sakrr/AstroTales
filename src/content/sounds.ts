@@ -24,12 +24,6 @@ export const nasaClips = {
     length: 8,
     volume: 1,
   },
-  eagleLanded: {
-    file: '/audio/nasa/eagleLanded.mp3',
-    title: 'Apollo 11: The Eagle has landed',
-    source: 'https://www.nasa.gov/historical-sounds/',
-    volume: 0.9,
-  },
   smallStep: {
     file: '/audio/nasa/smallStep.mp3',
     title: "Apollo 11: That's one small step for (a) man",

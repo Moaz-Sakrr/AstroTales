@@ -7,7 +7,7 @@ import Starfield from '../../components/Starfield'
 import type { Kind } from '../../content/characters'
 import type { WorldId } from '../../content/types'
 import { en } from '../../content/i18n/en'
-import { buzz, clip, sfx, thrust } from '../../audio/engine'
+import { buzz, cruise, sfx } from '../../audio/engine'
 import { Plume } from '../launch/art'
 import { dustBall, groundBg, LOOK, Sky } from './scenery'
 
@@ -35,8 +35,8 @@ export default function Landing({ world, kind, onDone }: { world: WorldId; kind:
       const kw = el.querySelector<HTMLElement>('.js-kid')!.offsetWidth
       const landed = () => {
         sfx('thud')
+        sfx('landed', 0.15)
         buzz(120)
-        if (world === 'moon') clip('eagleLanded', undefined, 0.4)
       }
       const mm = gsap.matchMedia()
 
@@ -63,7 +63,7 @@ export default function Landing({ world, kind, onDone }: { world: WorldId; kind:
         gsap.to('.js-flicker', { scaleY: 'random(0.85, 1.12)', scaleX: 'random(0.93, 1.07)', duration: 0.07, ease: 'none', repeat: -1, repeatRefresh: true, transformOrigin: '50% 0%' })
 
         const tl = gsap.timeline({ onComplete: onDone })
-        tl.call(() => thrust(true), [], 0)
+        tl.call(() => cruise(true), [], 0)
           // 1. from orbit: the planet swells beneath us and its horizon flattens; space gives way to the planet's sky
           .to('.js-ground', { scale: 1, y: 0, duration: D, ease: 'power2.inOut' }, 0)
           .to('.js-space', { opacity: 0, duration: 1.8 }, 0.8)
@@ -90,7 +90,7 @@ export default function Landing({ world, kind, onDone }: { world: WorldId; kind:
           .to('.js-dust', { opacity: 0, duration: 1.4, stagger: 0.02 }, D + 1)
           // 4. touchdown: engine off, the legs squash, a thud and a shake
           .call(() => {
-            thrust(false)
+            cruise(false)
             landed()
           }, [], D + 0.2)
           .to('.js-plume', { scaleY: 0, opacity: 0, duration: 0.25 }, D + 0.2)
@@ -114,7 +114,7 @@ export default function Landing({ world, kind, onDone }: { world: WorldId; kind:
         // dev only: scrub it in the console, e.g. __land.pause().seek(3, false)
         if (import.meta.env.DEV) Object.assign(window, { __land: tl })
       })
-      return () => thrust(false) // never leave the engine roaring (skip, or leaving mid-landing)
+      return () => cruise(false) // never leave the engine humming (skip, or leaving mid-landing)
     },
     { scope: root },
   )
