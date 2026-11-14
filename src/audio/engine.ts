@@ -177,25 +177,25 @@ export function cruise(on: boolean) {
     const t = ctx.currentTime
     const out = ctx.createGain()
     out.gain.setValueAtTime(0.0001, t)
-    out.gain.exponentialRampToValueAtTime(0.4, t + 0.8)
+    out.gain.exponentialRampToValueAtTime(0.9, t + 0.8)
     out.connect(fxBus)
-    // rumble: low-passed noise
+    // rumble: low-passed noise, open enough to be heard on laptop and phone speakers
     const noise = ctx.createBufferSource()
     noise.buffer = noiseBuffer(ctx)
     noise.loop = true
     const lp = ctx.createBiquadFilter()
     lp.type = 'lowpass'
-    lp.frequency.value = 260
+    lp.frequency.value = 520
     noise.connect(lp).connect(out)
-    // hum: two low tones, gently swelling (an LFO on their volume)
+    // hum: low tones, gently swelling (an LFO on their volume). 110/165 Hz carry on small speakers that can't play 55 Hz.
     const hum = ctx.createGain()
-    hum.gain.value = 0.18
+    hum.gain.value = 0.22
     const lfo = ctx.createOscillator()
     const depth = ctx.createGain()
     lfo.frequency.value = 0.35
-    depth.gain.value = 0.08
+    depth.gain.value = 0.1
     lfo.connect(depth).connect(hum.gain)
-    const tones = [55, 82.5].map((f) => {
+    const tones = [55, 110, 165].map((f) => {
       const o = ctx.createOscillator()
       o.type = 'triangle'
       o.frequency.value = f
