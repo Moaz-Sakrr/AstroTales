@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, type ComponentType } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useState, type ComponentType } from 'react'
 import { useGame, type Screen } from './store/progress'
 import Landing from './screens/Landing'
 import Character from './screens/Character'
@@ -13,6 +13,8 @@ import Profile from './screens/Profile'
 import { deviceById } from './content/worlds'
 import { en } from './content/i18n/en'
 import { setMusic, trackFor } from './audio/engine'
+import IntroVideo from './components/IntroVideo'
+import { shouldPlayIntro } from './components/introSeen'
 
 // three.js is big: only download it when the kid reaches space.
 const Space = lazy(() => import('./screens/Space'))
@@ -40,8 +42,13 @@ export default function App() {
   const screen = useGame((s) => s.screen)
   const world = useGame((s) => s.world)
   const Current = screens[screen]
-  // background music follows the screen (and the world on the map + story)
-  useEffect(() => setMusic(arDevice ? null : trackFor(screen, world)), [screen, world])
+  // 'play': only the intro video is on screen; 'leave': it fades out over the freshly mounted site; 'off': gone.
+  // AR links from the QR skip it.
+  const [intro, setIntro] = useState<'play' | 'leave' | 'off'>(() => (!arDevice && shouldPlayIntro() ? 'play' : 'off'))
+  const leaveIntro = useCallback(() => setIntro('leave'), [])
+  const endIntro = useCallback(() => setIntro('off'), [])
+  // background music follows the screen (and the world on the map + story); silent while the intro plays
+  useEffect(() => setMusic(arDevice || intro === 'play' ? null : trackFor(screen, world)), [screen, world, intro])
   if (arDevice) {
     return (
       <Suspense fallback={<div className="grid min-h-svh place-items-center bg-navy-950 text-text-muted">{en.ar.loading}</div>}>
@@ -50,8 +57,13 @@ export default function App() {
     )
   }
   return (
-    <Suspense fallback={<div className="grid min-h-svh place-items-center bg-navy-950 text-text-muted">Loading space…</div>}>
-      <Current key={screen} />
-    </Suspense>
+    <>
+      {intro !== 'play' && (
+        <Suspense fallback={<div className="grid min-h-svh place-items-center bg-navy-950 text-text-muted">Loading space…</div>}>
+          <Current key={screen} />
+        </Suspense>
+      )}
+      {intro !== 'off' && <IntroVideo onLeave={leaveIntro} onDone={endIntro} />}
+    </>
   )
 }
