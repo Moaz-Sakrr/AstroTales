@@ -5,11 +5,12 @@ export type Pose = 'stand' | 'threeq' | 'point' | 'think' | 'jump'
 export type Mood = 'happy' | 'laugh' | 'surprised' | 'curious' | 'determined' | 'worried' | 'excited'
 
 // [width, height] of each cutout in px, and how tall it is drawn in a 300-unit box.
-// The sheets draw the action poses at a different scale than the turnaround, so drawn heights are set by eye
+// Each pose was rendered at its own scale, so drawn heights are set from the helmet width
 // to keep the kid the same size in every pose.
 export const POSES: Record<Kind, Record<Pose, readonly [number, number, number]>> = {
-  boy: { stand: [115, 294, 255], threeq: [115, 294, 255], point: [115, 193, 288], think: [120, 144, 190], jump: [157, 150, 215] },
-  girl: { stand: [113, 288, 255], threeq: [128, 293, 255], point: [110, 206, 235], think: [110, 155, 175], jump: [104, 172, 215] },
+  // shortcut: boy jump is still the old low-res cutout, replace it when the new render exists
+  boy: { stand: [342, 900, 255], threeq: [333, 900, 264], point: [488, 900, 245], think: [589, 900, 180], jump: [157, 150, 215] },
+  girl: { stand: [315, 900, 255], threeq: [304, 900, 272], point: [451, 900, 249], think: [595, 900, 158], jump: [831, 900, 206] },
 }
 
 export const poseSrc = (kind: Kind, pose: Pose) => `/images/characters/${kind}/${pose}.webp`
