@@ -158,6 +158,7 @@ export const en = {
       fast: 'Too fast',
       crashFast: 'Too fast! Hold Thrust longer to slow down.',
       crashRocky: 'Rocky ground! Land on the flat spot with the flag.',
+      crashSide: 'Sliding sideways! Let go of the arrows so you stop drifting, then land.',
       empty: 'Out of fuel! Try again.',
       tip: 'Tip: tap Thrust in short bursts.',
       pad: 'Flat spot',
