@@ -182,6 +182,7 @@ export const surveyor3: Device = {
     nasaPhoto('surveyor3-2.jpg', 'as12-48-7121', 'Me in my crater.'),
     nasaPhoto('surveyor3-3.jpg', 'AS12-48-7133', 'Two US spacecraft on the Moon: me, and the Apollo 12 lander.'),
   ],
+  mascot: 'surveyor3',
   card: { image: '/images/cards/surveyor3.jpg' },
   verified: false,
 }

@@ -134,6 +134,7 @@ export const pathfinder: Device = {
     nasaPhoto('pathfinder-1.jpg', 'PIA01551', 'Sojourner just after rolling off my ramp onto Mars.', JPL),
     nasaPhoto('pathfinder-2.jpg', 'PIA01121', 'Sojourner took this picture of me, the lander.', JPL),
   ],
+  mascot: 'pathfinder', // the Sojourner rover
   card: { image: '/images/cards/pathfinder.jpg' },
   verified: false,
 }
@@ -215,6 +216,7 @@ export const insight: Device = {
     nasaPhoto('insight-2.jpg', 'PIA25287', 'My last selfie, 2022. See how dusty I got?', JPL),
   ],
   model3d: '/models/insight.glb',
+  mascot: 'insight',
   card: { image: '/images/cards/insight.jpg' },
   verified: false,
 }
@@ -258,6 +260,7 @@ export const viking1: Device = {
     nasaPhoto('viking1-2.jpg', 'PIA00563', 'My first color picture of Mars.', JPL),
   ],
   model3d: '/models/viking.glb',
+  mascot: 'viking',
   card: { image: '/images/cards/viking1.jpg' },
   verified: false,
 }
