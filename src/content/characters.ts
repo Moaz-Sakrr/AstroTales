@@ -8,8 +8,7 @@ export type Mood = 'happy' | 'laugh' | 'surprised' | 'curious' | 'determined' | 
 // Each pose was rendered at its own scale, so drawn heights are set from the helmet width
 // to keep the kid the same size in every pose.
 export const POSES: Record<Kind, Record<Pose, readonly [number, number, number]>> = {
-  // shortcut: boy jump is still the old low-res cutout, replace it when the new render exists
-  boy: { stand: [342, 900, 255], threeq: [333, 900, 264], point: [488, 900, 245], think: [589, 900, 180], jump: [157, 150, 215] },
+  boy: { stand: [342, 900, 255], threeq: [333, 900, 264], point: [488, 900, 245], think: [589, 900, 180], jump: [811, 900, 212] },
   girl: { stand: [315, 900, 255], threeq: [304, 900, 272], point: [451, 900, 249], think: [595, 900, 158], jump: [831, 900, 206] },
 }
 
