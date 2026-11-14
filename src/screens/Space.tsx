@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { BODIES, createSolarSystem, type BodyId } from '../space/solarSystem'
 import Button from '../components/Button'
 import CoinBadge from '../components/CoinBadge'
+import SoundButton from '../components/SoundButton'
+import { clip, sfx } from '../audio/engine'
 import { en } from '../content/i18n/en'
 import type { WorldId } from '../content/types'
 import { previousWorld, worlds } from '../content/worlds'
@@ -30,8 +32,15 @@ export default function Space() {
   }
 
   const pick = (id: BodyId) => {
-    if (!isWorld(id)) return setToast(`${BODIES.find((b) => b.id === id)!.name}: ${t.later}`)
-    if (!playable(id)) return setToast(t.locked(worlds[previousWorld(id)!].name))
+    if (!isWorld(id)) {
+      clip('sputnik', 'blip')
+      return setToast(`${BODIES.find((b) => b.id === id)!.name}: ${t.later}`)
+    }
+    if (!playable(id)) {
+      sfx('locked')
+      return setToast(t.locked(worlds[previousWorld(id)!].name))
+    }
+    sfx('warp')
     setToast(null)
     setTarget(id)
     setPhase('flight')
@@ -125,7 +134,10 @@ export default function Space() {
           {phase === 'flight' && t.flying(worldName)}
           {phase === 'arrived' && worldName}
         </p>
-        <CoinBadge className="pointer-events-auto" />
+        <div className="pointer-events-auto flex items-center gap-2">
+          <SoundButton />
+          <CoinBadge />
+        </div>
       </header>
 
       {toast && (

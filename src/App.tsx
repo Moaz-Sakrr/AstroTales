@@ -1,4 +1,4 @@
-import { lazy, Suspense, type ComponentType } from 'react'
+import { lazy, Suspense, useEffect, type ComponentType } from 'react'
 import { useGame, type Screen } from './store/progress'
 import Landing from './screens/Landing'
 import Character from './screens/Character'
@@ -12,6 +12,7 @@ import Library from './screens/Library'
 import Profile from './screens/Profile'
 import { deviceById } from './content/worlds'
 import { en } from './content/i18n/en'
+import { setMusic, trackFor } from './audio/engine'
 
 // three.js is big: only download it when the kid reaches space.
 const Space = lazy(() => import('./screens/Space'))
@@ -37,7 +38,10 @@ const screens: Record<Screen, ComponentType> = {
 
 export default function App() {
   const screen = useGame((s) => s.screen)
+  const world = useGame((s) => s.world)
   const Current = screens[screen]
+  // background music follows the screen (and the world on the map + story)
+  useEffect(() => setMusic(arDevice ? null : trackFor(screen, world)), [screen, world])
   if (arDevice) {
     return (
       <Suspense fallback={<div className="grid min-h-svh place-items-center bg-navy-950 text-text-muted">{en.ar.loading}</div>}>

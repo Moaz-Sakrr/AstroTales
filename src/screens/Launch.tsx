@@ -6,6 +6,7 @@ import Astronaut from '../components/Astronaut'
 import Starfield from '../components/Starfield'
 import { en } from '../content/i18n/en'
 import { useGame } from '../store/progress'
+import { clip, sfx, stopClips } from '../audio/engine'
 
 gsap.registerPlugin(useGSAP)
 const t = en.launch
@@ -32,9 +33,19 @@ export default function Launch() {
           .to('.js-kid', { y: -10, repeat: 5, yoyo: true, duration: 0.13, ease: 'sine.inOut' }, 0)
           .to('.js-kid', { x: 110, y: -90, scale: 0.3, opacity: 0, duration: 0.7, ease: 'power2.in' }) // into the hatch
         // 2. countdown
-        t.countdown.forEach((n) => tl.call(() => setCount(n)).to({}, { duration: 0.75 }))
+        t.countdown.forEach((n, i) =>
+          tl.call(() => {
+            setCount(n)
+            if (i === t.countdown.length - 1) sfx('go')
+            else clip('quindar', 'beep')
+          }).to({}, { duration: 0.75 }),
+        )
         // 3. ignition: flame on, rocket shakes, smoke billows
-        tl.call(() => setCount(null))
+        tl.call(() => {
+          setCount(null)
+          clip('liftoff')
+          clip('rocket', 'rumble')
+        })
           .fromTo('.js-flame', { scaleY: 0, opacity: 0 }, { scaleY: 1, opacity: 1, duration: 0.5, ease: 'back.out(3)' })
           .to('.js-rocket', { x: '+=3', repeat: 11, yoyo: true, duration: 0.05 }, '<')
           .set('.js-puff', { scale: 0.2, opacity: 0.9 }, '<')
@@ -46,6 +57,7 @@ export default function Launch() {
           .from('.js-stars', { opacity: 0, duration: 2 }, '<0.4')
         gsap.to('.js-flame', { scaleY: 0.85, repeat: -1, yoyo: true, duration: 0.08 })
       })
+      return stopClips // a long NASA launch recording stops when we leave
     },
     { scope: root },
   )

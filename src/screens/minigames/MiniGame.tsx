@@ -9,6 +9,7 @@ import LaserPing from './LaserPing'
 import DustBuster from './DustBuster'
 import PlanetHunter from './PlanetHunter'
 import LunarLander from './LunarLander'
+import { sfx } from '../../audio/engine'
 
 export type GameProps = { playing: boolean; onWin: () => void }
 
@@ -33,7 +34,10 @@ export default function MiniGame() {
 
   return (
     <main className="relative h-svh touch-none select-none overflow-hidden bg-navy-950">
-      <Game key={round} playing={phase === 'play'} onWin={() => setPhase('won')} />
+      <Game key={round} playing={phase === 'play'} onWin={() => {
+          sfx('fanfare')
+          setPhase('won')
+        }} />
 
       <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-center justify-between gap-2 p-3">
         <p className="flex items-center gap-2 rounded-full bg-black/45 py-1 pl-1 pr-4 backdrop-blur-sm">
