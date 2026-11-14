@@ -94,6 +94,11 @@ export function sfx(name: SfxName, delay = 0) {
   RECIPES[name]({ ac: ctx, out: fxBus, t: ctx.currentTime + 0.005 + delay })
 }
 
+/** A short phone buzz for game moments. Android only (iOS Safari has no vibrate); follows the effects switch. */
+export function buzz(pattern: number | number[]) {
+  if (useSound.getState().effects) navigator.vibrate?.(pattern)
+}
+
 /**
  * Plays a NASA recording, or `fallback` while its file isn't in the repo yet.
  * Returns how long the NASA clip lasts in seconds (0 if it didn't play).

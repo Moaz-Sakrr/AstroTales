@@ -3,7 +3,7 @@ import Button from '../../components/Button'
 import { en } from '../../content/i18n/en'
 import { useRaf } from '../../hooks/useRaf'
 import type { GameProps } from './MiniGame'
-import { loopClip, sfx } from '../../audio/engine'
+import { buzz, loopClip, sfx } from '../../audio/engine'
 
 const t = en.mini.transit
 const FIRST = 2.4 // s: first transit starts
@@ -55,7 +55,7 @@ export default function PlanetHunter({ playing, onWin }: GameProps) {
   }, [])
 
   const tap = () => {
-    if (revealed) return
+    if (!playing || revealed) return
     const k = transitIndex(time.current)
     if (k < 0) {
       sfx('bonk')
@@ -67,6 +67,7 @@ export default function PlanetHunter({ playing, onWin }: GameProps) {
     const n = caughtK.current.size
     sfx('blip')
     sfx('ding', 0.1)
+    buzz(30)
     setFound(n)
     setMsg(t.nice)
     if (n >= NEED) {
@@ -157,9 +158,11 @@ export default function PlanetHunter({ playing, onWin }: GameProps) {
   }, playing)
 
   return (
-    <div className="space-sky absolute inset-0 flex flex-col items-center gap-4 px-4 pb-6 pt-20">
+    // the eyepiece and the graph are tap targets too: a much bigger "Planet!" button for small hands
+    <div className="space-sky absolute inset-0 flex flex-col items-center gap-4 px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-20">
       {/* Kepler's eyepiece: one star, the planet hidden until you've proven it's there */}
-      <div className="relative aspect-square w-[min(46vh,78vw)] shrink">
+      <div className="relative aspect-square w-[min(46svh,78vw)] shrink" onPointerDown={tap}>
+        {found > 0 && <span key={found} className="ripple pointer-events-none absolute inset-0 rounded-full border-8 border-[#3DDC97]" />}
         <svg viewBox="0 0 300 300" className="h-full w-full" aria-label={t.view}>
           <defs>
             <radialGradient id="ph-star" cx="0.5" cy="0.5" r="0.5">
@@ -189,7 +192,7 @@ export default function PlanetHunter({ playing, onWin }: GameProps) {
         <span className="absolute left-1/2 top-2 -translate-x-1/2 rounded-full bg-black/50 px-3 py-0.5 text-xs font-semibold text-text-muted">{t.view}</span>
       </div>
 
-      <div className="relative w-full max-w-3xl flex-1 rounded-2xl bg-navy-950/70 ring-1 ring-white/10">
+      <div className="relative w-full max-w-3xl flex-1 rounded-2xl bg-navy-950/70 ring-1 ring-white/10" onPointerDown={tap}>
         <span className="absolute left-3 top-2 text-xs font-semibold text-text-muted">{t.graph}</span>
         <canvas ref={graph} className="h-full min-h-28 w-full" />
       </div>

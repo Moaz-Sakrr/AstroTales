@@ -3,7 +3,7 @@ import { en } from '../../content/i18n/en'
 import { useMedia } from '../../hooks/useMedia'
 import { useRaf } from '../../hooks/useRaf'
 import type { GameProps } from './MiniGame'
-import { sfx, thrust } from '../../audio/engine'
+import { buzz, sfx, thrust } from '../../audio/engine'
 
 const t = en.mini.lander
 // World units. Gravity is weak (the Moon!) and fuel is limited, like Armstrong's real landing.
@@ -54,8 +54,8 @@ type Puff = { x: number; y: number; vx: number; vy: number; life: number }
 
 export default function LunarLander({ playing, onWin }: GameProps) {
   const wide = useMedia('(min-aspect-ratio: 1/1)')
-  const W = wide ? 1000 : 600
-  const H = wide ? 620 : 900
+  const W = wide ? 1000 : 480 // narrower world on phones = a bigger lander and pad under the thumb
+  const H = wide ? 620 : 820
   const world = useMemo(() => makeTerrain(W, H), [W, H])
   const stars = useMemo(() => Array.from({ length: 90 }, (_, i) => ({ x: (i * 137.5) % W, y: (i * 71.3) % (H * 0.6), r: 0.5 + ((i * 7) % 10) / 9 })), [W, H])
 
@@ -111,12 +111,14 @@ export default function LunarLander({ playing, onWin }: GameProps) {
         const soft = s.vy <= SAFE_VY && Math.abs(s.vx) <= SAFE_VX
         if (onPad && soft) {
           sfx('thud')
+          buzz(40)
           setMode('landed')
           setMsg('')
           spawn(s.x, s.y, 14, 70)
           setTimeout(onWin, 2000)
         } else {
           sfx('crash')
+          buzz(220)
           setMode('crashed')
           setMsg(!soft ? t.crashFast : t.crashRocky)
           setCrashes((c) => c + 1)
@@ -198,7 +200,8 @@ export default function LunarLander({ playing, onWin }: GameProps) {
 
   return (
     <div className="absolute inset-0 bg-[#02060F]">
-      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" className="absolute inset-0 h-full w-full" aria-hidden="true">
+      {/* phones: the scene stops above the control deck, so thumbs never cover the landing pad */}
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" className={`absolute inset-x-0 top-0 w-full ${wide ? 'h-full' : 'h-[calc(100%-7.5rem-env(safe-area-inset-bottom))]'}`} aria-hidden="true">
         <defs>
           <linearGradient id="ll-ground" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stopColor="#D2D3DB" />
@@ -316,7 +319,7 @@ export default function LunarLander({ playing, onWin }: GameProps) {
       </p>
 
       {/* hold-to-fire controls (also: arrow keys / WASD / Space) */}
-      <div className="absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-3 p-4 pb-6">
+      <div className={`absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-3 ${wide ? '' : 'border-t border-white/10 bg-[#070D1C]'} p-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))]`}>
         <div className="flex gap-3">
           <button type="button" aria-label={t.left} {...hold('left')} className="grid h-16 w-16 place-items-center rounded-2xl bg-white/12 text-3xl ring-2 ring-white/25 backdrop-blur-sm active:scale-95 active:bg-white/25">◀</button>
           <button type="button" aria-label={t.right} {...hold('right')} className="grid h-16 w-16 place-items-center rounded-2xl bg-white/12 text-3xl ring-2 ring-white/25 backdrop-blur-sm active:scale-95 active:bg-white/25">▶</button>

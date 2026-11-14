@@ -10,7 +10,7 @@ import DustBuster from './DustBuster'
 import PlanetHunter from './PlanetHunter'
 import LunarLander from './LunarLander'
 import StationSetup from './StationSetup'
-import { sfx } from '../../audio/engine'
+import { buzz, sfx } from '../../audio/engine'
 
 export type GameProps = { playing: boolean; onWin: () => void }
 
@@ -35,13 +35,16 @@ export default function MiniGame() {
   const Game = GAMES[kind]
 
   return (
-    <main className="relative h-svh touch-none select-none overflow-hidden bg-navy-950">
+    // no long-press menus or text selection while a finger holds a control
+    <main className="relative h-svh touch-none select-none overflow-hidden bg-navy-950 [-webkit-touch-callout:none]">
       <Game key={round} playing={phase === 'play'} onWin={() => {
           sfx('fanfare')
+          buzz([40, 60, 40, 60, 120])
           setPhase('won')
         }} />
 
-      <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-center justify-between gap-2 p-3">
+      {/* safe-area padding keeps Skip clear of the notch on landscape iPhones */}
+      <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-center justify-between gap-2 p-3 pl-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))]">
         <p className="flex min-w-0 items-center gap-2 rounded-full bg-black/45 py-1 pl-1 pr-4 backdrop-blur-sm">
           <img src={device.photos[0].src} alt="" className="h-9 w-9 rounded-full object-cover" />
           <span className="truncate font-semibold">{text.title}</span>

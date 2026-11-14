@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { en } from '../../content/i18n/en'
+import { useMedia } from '../../hooks/useMedia'
 import { useRaf } from '../../hooks/useRaf'
 import type { GameProps } from './MiniGame'
-import { clip, sfx } from '../../audio/engine'
+import { buzz, clip, sfx } from '../../audio/engine'
 
 const t = en.mini.dust
-const W = 800 // canvas works in this fixed space; CSS stretches it to the panel
-const H = 400
-const COLS = 32
-const ROWS = 16
+// The canvas works in a fixed space that CSS stretches to the panel: a wide deck on laptops, a tall one on
+// phones so the panel fills the screen and a finger-sized brush. Cells stay 25 units square in both.
+const SIZE = { wide: { W: 800, H: 400 }, tall: { W: 400, H: 600 } }
+const CELL = 25
 const BRUSH = 38
 const GOAL = 90
 
@@ -17,9 +18,13 @@ const BRUSH_GAP = 110 // ms between wipe sounds, so a fast scrub stays soft
 const DUST = ['#9E5530', '#C98250', '#D99A68', '#8A4626', '#B8693A']
 
 export default function DustBuster({ playing, onWin }: GameProps) {
+  const wide = useMedia('(min-aspect-ratio: 1/1)')
+  const { W, H } = SIZE[wide ? 'wide' : 'tall']
+  const COLS = W / CELL
+  const ROWS = H / CELL
   const dustRef = useRef<HTMLCanvasElement>(null)
   const fxRef = useRef<HTMLCanvasElement>(null)
-  const clean = useRef(new Uint8Array(COLS * ROWS))
+  const clean = useRef(new Uint8Array(0))
   const flecks = useRef<Fleck[]>([])
   const last = useRef<{ x: number; y: number } | null>(null)
   const lastBrush = useRef(0)
@@ -29,8 +34,9 @@ export default function DustBuster({ playing, onWin }: GameProps) {
   const [devilOn, setDevilOn] = useState(false)
   const [won, setWon] = useState(false)
 
-  // paint a thick, speckled layer of Mars dust
+  // paint a thick, speckled layer of Mars dust (again after a rotate: the panel changed shape)
   useEffect(() => {
+    clean.current = new Uint8Array(COLS * ROWS)
     const ctx = dustRef.current!.getContext('2d')!
     ctx.fillStyle = '#B8693A'
     ctx.fillRect(0, 0, W, H)
@@ -51,7 +57,7 @@ export default function DustBuster({ playing, onWin }: GameProps) {
       ctx.fillStyle = g
       ctx.fillRect(0, 0, W, H)
     }
-  }, [])
+  }, [W, H, COLS, ROWS])
 
   const stamp = (x: number, y: number, r: number) => {
     const ctx = dustRef.current!.getContext('2d')!
@@ -141,6 +147,7 @@ export default function DustBuster({ playing, onWin }: GameProps) {
     if (pct !== power) setPower(pct)
     if (pct >= GOAL && !won) {
       setWon(true)
+      buzz(60)
       setTimeout(onWin, 1300)
     }
   }, playing)
@@ -169,8 +176,8 @@ export default function DustBuster({ playing, onWin }: GameProps) {
       {devilOn && <p className="absolute inset-x-0 top-32 z-10 mx-auto w-fit animate-[pop_0.4s_ease-out] rounded-full bg-black/50 px-4 py-1.5 font-semibold text-cta">{t.devil}</p>}
 
       {/* Opportunity: mast camera peeking over its solar panel deck */}
-      <div className="absolute left-1/2 top-[54%] w-[min(94vw,820px)] -translate-x-1/2 -translate-y-1/2">
-        <svg viewBox="320 0 160 140" className="mx-auto -mb-1 w-[18%]" aria-hidden="true">
+      <div className={`absolute left-1/2 top-[55%] -translate-x-1/2 -translate-y-1/2 ${wide ? 'w-[min(94vw,820px,calc((100svh-150px)*2))]' : 'w-[min(86vw,44svh)]'}`}>
+        <svg viewBox="320 0 160 140" className={`mx-auto -mb-1 ${wide ? 'w-[18%]' : 'w-[30%]'}`} aria-hidden="true">
           <rect x="390" y="30" width="20" height="110" rx="6" fill="#D9DCE6" />
           <rect x="340" y="6" width="120" height="40" rx="10" fill="#E8EAF0" stroke="#8A90A6" strokeWidth="3" />
           <circle cx="372" cy="26" r="11" fill="#1B2440" />
@@ -178,7 +185,7 @@ export default function DustBuster({ playing, onWin }: GameProps) {
           <circle cx="375" cy="23" r="3.5" fill="#fff" />
           <circle cx="431" cy="23" r="3.5" fill="#fff" />
         </svg>
-        <div className={`relative aspect-[2/1] overflow-hidden rounded-2xl shadow-[0_20px_50px_rgb(0_0_0/0.4)] ring-4 ring-[#8A90A6] transition ${won ? 'ring-[#3DDC97]' : ''}`}>
+        <div className={`relative ${wide ? 'aspect-[2/1]' : 'aspect-[2/3]'} overflow-hidden rounded-2xl shadow-[0_20px_50px_rgb(0_0_0/0.4)] ring-4 ring-[#8A90A6] transition ${won ? 'ring-[#3DDC97]' : ''}`}>
           <svg viewBox={`0 0 ${W} ${H}`} className="absolute inset-0 h-full w-full" aria-hidden="true">
             <defs>
               <linearGradient id="db-cell" x1="0" y1="0" x2="1" y2="1">
@@ -192,8 +199,8 @@ export default function DustBuster({ playing, onWin }: GameProps) {
               </linearGradient>
             </defs>
             <rect width={W} height={H} fill="#2B2F45" />
-            {Array.from({ length: 8 * 4 }, (_, i) => (
-              <rect key={i} x={10 + (i % 8) * 97.5} y={10 + Math.floor(i / 8) * 97.5} width="92" height="92" rx="4" fill="url(#db-cell)" />
+            {Array.from({ length: (W / 100) * (H / 100) }, (_, i) => (
+              <rect key={i} x={10 + (i % (W / 100)) * 97.5} y={10 + Math.floor(i / (W / 100)) * 97.5} width="92" height="92" rx="4" fill="url(#db-cell)" />
             ))}
             <rect width={W} height={H} fill="url(#db-glint)" className={won ? 'animate-[pop_0.6s_ease-out]' : ''} />
           </svg>
