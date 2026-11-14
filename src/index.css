@@ -26,6 +26,7 @@
   --color-star: #FFF8E7;
   --color-muted: #B9C4E0;
   --color-faint: #8E9BC0;
+  --color-brand: #F0753A; /* logo orbit orange */
 
   /* semantic */
   --color-bg: var(--color-navy-900);

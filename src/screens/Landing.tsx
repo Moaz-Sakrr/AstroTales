@@ -79,12 +79,10 @@ export default function Landing() {
       <div className="pointer-events-none relative z-10 mx-auto flex max-w-7xl flex-col px-4 pb-6 sm:px-8 lg:min-h-svh lg:px-16">
         <header className="js-intro pointer-events-auto flex items-center justify-between gap-2 py-5">
           <div className="flex items-center gap-2">
-            <svg viewBox="0 0 32 32" className="h-8 w-8" aria-hidden="true">
-              <circle cx="16" cy="16" r="9" fill="#CFCFD8" />
-              <circle cx="13" cy="13" r="2.5" fill="#A9AEBF" />
-              <ellipse cx="16" cy="16" rx="15" ry="5" fill="none" stroke="#FFC93C" strokeWidth="2" transform="rotate(-20 16 16)" />
-            </svg>
-            <span className="text-xl font-bold tracking-tight">{t.brand}</span>
+            <img src="/brand/mark.png" alt="" className="h-9 w-auto" />
+            <span className="text-xl font-bold tracking-tight">
+              {t.brand.slice(0, 5)}<span className="text-brand">{t.brand.slice(5)}</span>
+            </span>
           </div>
           <SoundButton />
         </header>
