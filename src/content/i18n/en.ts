@@ -41,6 +41,7 @@ export const en = {
     go: 'Board the ship',
   },
   sound: { button: 'Sound settings', music: 'Music', effects: 'Sound effects' },
+  intro: { label: 'AstroTales intro video', skip: 'Skip intro', soundOn: 'Turn sound on', soundOff: 'Turn sound off' },
   launch: { countdown: ['3', '2', '1', 'Liftoff!'], skip: 'Skip' },
   space: {
     loading: 'Building the solar system…',
