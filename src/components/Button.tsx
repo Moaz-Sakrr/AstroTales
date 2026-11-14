@@ -1,6 +1,8 @@
 import type { ButtonHTMLAttributes } from 'react'
+import { sfx, type SfxName } from '../audio/engine'
 
-type Props = ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'ghost' }
+// `sound`: what a tap plays (default "tap"); null when the screen plays its own sound for this action.
+type Props = ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'ghost'; sound?: SfxName | null }
 
 const base =
   'inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 py-3 text-lg font-semibold transition focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-fact disabled:cursor-not-allowed disabled:opacity-50'
@@ -10,6 +12,16 @@ const variants = {
   ghost: 'border-2 border-white/25 bg-white/5 text-text hover:bg-white/10 active:translate-y-0.5',
 }
 
-export default function Button({ variant = 'primary', className = '', type = 'button', ...rest }: Props) {
-  return <button type={type} className={`${base} ${variants[variant]} ${className}`} {...rest} />
+export default function Button({ variant = 'primary', className = '', type = 'button', sound = 'tap', onClick, ...rest }: Props) {
+  return (
+    <button
+      type={type}
+      className={`${base} ${variants[variant]} ${className}`}
+      onClick={(e) => {
+        if (sound) sfx(sound)
+        onClick?.(e)
+      }}
+      {...rest}
+    />
+  )
 }

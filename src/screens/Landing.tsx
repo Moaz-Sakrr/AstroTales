@@ -1,13 +1,16 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import Starfield from '../components/Starfield'
 import MoonScene from '../components/MoonScene'
 import Postcard from '../components/Postcard'
+import Seismograph from '../components/Seismograph'
+import { quake, type Quake } from '../components/quake'
 import { en } from '../content/i18n/en'
 import { useMedia } from '../hooks/useMedia'
 import { useGame } from '../store/progress'
 import Button from '../components/Button'
+import SoundButton from '../components/SoundButton'
 
 gsap.registerPlugin(useGSAP)
 
@@ -17,6 +20,14 @@ export default function Landing() {
   const root = useRef<HTMLElement>(null)
   const wide = useMedia('(min-width: 1024px)')
   const go = useGame((s) => s.go)
+  const calm = useMedia('(prefers-reduced-motion: reduce)')
+  const quakes = useRef<Quake[]>([])
+  // the Moon is never perfectly still: a small natural moonquake now and then
+  useEffect(() => {
+    if (calm) return
+    const id = setInterval(() => quakes.current.push(quake(0.12 + Math.random() * 0.12, 1.4, 4, 0.3)), 6500)
+    return () => clearInterval(id)
+  }, [calm])
 
   useGSAP(
     () => {
@@ -32,8 +43,9 @@ export default function Landing() {
           .from('.js-earth', { scale: 0.5, opacity: 0, svgOrigin: '1290 300', duration: 1.6 }, 0.3)
           .from('.js-intro', { y: 24, opacity: 0, stagger: 0.12, duration: 0.9 }, 0.7)
           .from('.js-postcard', { y: 90, rotation: 9, opacity: 0, duration: 1.1, ease: 'back.out(1.4)' }, 1.2)
-          .from('.js-laser', { strokeDashoffset: (_i: number, el: Element) => Number(el.getAttribute('stroke-dasharray')), duration: 1, ease: 'power2.in' }, 2)
+          .from('.js-link', { strokeDashoffset: (_i: number, el: Element) => Number(el.getAttribute('stroke-dasharray')), duration: 1, ease: 'power2.inOut' }, 2)
           .from('.laser-pulse', { opacity: 0, duration: 0.4 }, 3)
+          .from('.js-strip', { y: 40, opacity: 0, duration: 0.8 }, 2.2)
 
         gsap.to('.js-astronaut', { y: -12, duration: 2.6, ease: 'sine.inOut', yoyo: true, repeat: -1 })
         gsap.to('.js-astro-shadow', { scale: 0.8, opacity: 0.12, svgOrigin: '958 712', duration: 2.6, ease: 'sine.inOut', yoyo: true, repeat: -1 })
@@ -64,17 +76,20 @@ export default function Landing() {
     <main ref={root} className="space-sky relative min-h-svh overflow-hidden">
       <Starfield />
 
-      <div className="relative z-10 mx-auto flex max-w-7xl flex-col px-4 pb-6 sm:px-8 lg:min-h-svh lg:px-16">
-        <header className="js-intro flex items-center gap-2 py-5">
-          <svg viewBox="0 0 32 32" className="h-8 w-8" aria-hidden="true">
-            <circle cx="16" cy="16" r="9" fill="#CFCFD8" />
-            <circle cx="13" cy="13" r="2.5" fill="#A9AEBF" />
-            <ellipse cx="16" cy="16" rx="15" ry="5" fill="none" stroke="#FFC93C" strokeWidth="2" transform="rotate(-20 16 16)" />
-          </svg>
-          <span className="text-xl font-bold tracking-tight">{t.brand}</span>
+      <div className="pointer-events-none relative z-10 mx-auto flex max-w-7xl flex-col px-4 pb-6 sm:px-8 lg:min-h-svh lg:px-16">
+        <header className="js-intro pointer-events-auto flex items-center justify-between gap-2 py-5">
+          <div className="flex items-center gap-2">
+            <svg viewBox="0 0 32 32" className="h-8 w-8" aria-hidden="true">
+              <circle cx="16" cy="16" r="9" fill="#CFCFD8" />
+              <circle cx="13" cy="13" r="2.5" fill="#A9AEBF" />
+              <ellipse cx="16" cy="16" rx="15" ry="5" fill="none" stroke="#FFC93C" strokeWidth="2" transform="rotate(-20 16 16)" />
+            </svg>
+            <span className="text-xl font-bold tracking-tight">{t.brand}</span>
+          </div>
+          <SoundButton />
         </header>
 
-        <div className="flex max-w-xl flex-col gap-5 pt-4 lg:pt-6">
+        <div className="pointer-events-auto flex max-w-xl flex-col gap-5 pt-4 lg:pt-6">
           <h1 className="js-intro text-[2.6rem] font-bold leading-[1.02] tracking-tight text-balance sm:text-6xl lg:text-7xl">
             {t.title}
           </h1>
@@ -87,9 +102,19 @@ export default function Landing() {
         </div>
       </div>
 
-      {/* Phones: scene sits under the content. Wide screens: one screen-tall backdrop behind the hero. */}
-      <div className="relative -mt-16 aspect-[580/700] w-full lg:absolute lg:inset-x-0 lg:top-0 lg:mt-0 lg:aspect-auto lg:h-svh">
-        <MoonScene wide={wide} />
+      {/* Phones: scene sits under the content, seismograph under the scene.
+          Wide screens: one screen-tall backdrop behind the hero, seismograph tape along its bottom edge. */}
+      <div className="relative -mt-16 lg:absolute lg:inset-x-0 lg:top-0 lg:mt-0 lg:h-svh">
+        <div className="aspect-[580/700] w-full lg:aspect-auto lg:h-full">
+          <MoonScene wide={wide} onTap={(amp) => quakes.current.push(quake(amp, 1.1, 6))} />
+        </div>
+        <Seismograph
+          quakes={quakes}
+          active={!calm}
+          label={`${t.rumble.strip} · ${t.rumble.listening}`}
+          className="js-strip relative mx-3 -mt-3 mb-6 lg:absolute lg:bottom-0 lg:left-[max(44%,36rem)] lg:right-0 lg:m-0 lg:rounded-none lg:rounded-tl-xl lg:ring-0"
+          canvasClassName="h-16 lg:h-[4.5rem]"
+        />
       </div>
 
       {/* What the site is about, for kids and grown-ups who scroll before they tap. */}

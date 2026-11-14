@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Starfield from '../components/Starfield'
 import Astronaut from '../components/Astronaut'
 import Button from '../components/Button'
+import { sfx } from '../audio/engine'
 import { en } from '../content/i18n/en'
 import { useGame, type Character as Kind } from '../store/progress'
 
@@ -33,7 +34,10 @@ export default function Character() {
                 kind === k ? 'border-cta bg-surface/80' : 'border-white/15 bg-surface/30 hover:border-white/40'
               }`}
             >
-              <input type="radio" name="character" value={k} checked={kind === k} onChange={() => setKind(k)} className="sr-only" />
+              <input type="radio" name="character" value={k} checked={kind === k} onChange={() => {
+                  sfx('pop')
+                  setKind(k)
+                }} className="sr-only" />
               <Astronaut kind={k} pose={kind === k ? 'jump' : 'stand'} width={150} className={`transition ${kind === k ? 'scale-105' : 'opacity-70 group-hover:opacity-100'}`} />
               <span className="mt-2 text-xl font-semibold">{t[k]}</span>
             </label>

@@ -15,6 +15,14 @@ export const en = {
       postmarkPlace: 'OCEAN OF STORMS',
       postmarkDate: '19 NOV 1969',
     },
+    // what Rumble says on the landing scene (two short lines each, drawn on a paper tag)
+    rumble: {
+      idle: ['Tap the Moon.', "I'm listening!"],
+      big: ['WHOA!', 'I felt that one!'],
+      small: ['A tiny wiggle…', 'Tap closer to me!'],
+      strip: "Rumble's seismometer",
+      listening: 'listening',
+    },
     infoTitle: 'What happens on a mission',
     steps: [
       { title: 'Fly through the real solar system', text: 'Board your ship, blast off, and see all eight planets in their real order.' },
@@ -32,6 +40,7 @@ export const en = {
     nameNote: 'Stays on this device. Never sent anywhere.',
     go: 'Board the ship',
   },
+  sound: { button: 'Sound settings', music: 'Music', effects: 'Sound effects' },
   launch: { countdown: ['3', '2', '1', 'Liftoff!'], skip: 'Skip' },
   space: {
     loading: 'Building the solar system…',

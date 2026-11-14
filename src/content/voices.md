@@ -25,6 +25,33 @@ One voice per device. One MP3 per story card: `public/audio/en/{deviceId}/{cardI
 | 2 | `rumble/2.mp3` | `[dramatic] After they left, their empty lander crashed on purpose. [excited] I felt the first moonquake ever made by people!` |
 | 3 | `rumble/3.mp3` | `[warmly] A nuclear battery kept me listening for eight years. [excited] Ready for my quiz?` |
 
+#### Rumble's mini-game — "Set up the station"
+Same Rumble voice. The spoken words match the on-screen lines in `src/content/i18n/en.ts` (`mini.station`). Files go in `public/audio/en/rumble/game/` (not played by the game yet: the game needs a small change to play them).
+
+| Moment | File | Script |
+|---|---|---|
+| How to play | `rumble/game/intro.mp3` | `[excited] Pete Conrad and Alan Bean just landed me on the Moon. [playful] Help them switch me on: give me power, test my ears, [proudly] and aim my antenna at Earth!` |
+| Fuel is stuck | `rumble/game/hammer.mp3` | `[worried] Uh-oh! My fuel is stuck in its can. [determined] Tap the can to bang it with the hammer!` |
+| Hammer hit 1 | `rumble/game/bonk-4.mp3` | `[shouts] BONK! [hopeful] It moved a little… 4 more!` |
+| Hammer hit 2 | `rumble/game/bonk-3.mp3` | `[shouts] BONK! [excited] It moved a little… 3 more!` |
+| Hammer hit 3 | `rumble/game/bonk-2.mp3` | `[shouts] BONK! [excited] It moved a little… 2 more!` |
+| Hammer hit 4 | `rumble/game/bonk-1.mp3` | `[shouts] BONK! [very excited] It moved a little… 1 more!` |
+| Fuel is free | `rumble/game/loose.mp3` | `[relieved] It's loose! [excited] Drag the hot fuel rod into my battery, the one with fins.` |
+| Fuel dropped in the wrong place | `rumble/game/miss-fuel.mp3` | `[playful] Not there! [helpful] The fuel goes in the battery with fins.` |
+| Battery on | `rumble/game/powered.mp3` | `[sighs happily] Ahh, toasty! [proudly] About 4 kg of plutonium fuel gives me about 70 watts.` |
+| Carry the seismometer | `rumble/game/seismo.mp3` | `[curious] Now carry my seismometer to the glowing spot. [whispers] It is my ears!` |
+| Seismometer in the wrong place | `rumble/game/miss-seismo.mp3` | `[politely] Put it on the glowing spot, please!` |
+| Start hopping | `rumble/game/stomp.mp3` | `[excited] Test my ears! Tap the ground to hop. [playful] Land close to me for a BIG shake.` |
+| Small shake | `rumble/game/small.mp3` | `[unimpressed] Just a tiny wiggle. [encouraging] Hop closer to me!` |
+| Big shake | `rumble/game/big.mp3` | `[gasps] WHOA! [laughs] I felt that one!` |
+| Third big shake | `rumble/game/big-done.mp3` | `[proudly] My ears work! [happy] I can feel every shake.` |
+| Aim the antenna | `rumble/game/aim.mp3` | `[determined] Last job: aim my antenna at Earth! [helpful] Drag in the sky, or use the turn buttons.` |
+| Antenna locked | `rumble/game/locked.mp3` | `[overjoyed] Earth can hear me! [proudly] Sending my science home.` |
+| Lander takes off | `rumble/game/liftoff.mp3` | `[warmly] Pete and Alan are flying back to orbit. [a little sad] Bye, Intrepid!` |
+| Empty lander falls | `rumble/game/incoming.mp3` | `[nervous, building suspense] Here comes their empty lander… [dramatic] crashing back on purpose!` |
+| Moonquake | `rumble/game/boom.mp3` | `[shouts] BOOM! [amazed] The first moonquake made by people, [laughs] and I felt ALL of it!` |
+| Mission complete | `rumble/game/win.mp3` | `[proudly] You did what Pete Conrad and Alan Bean did on November 19, 1969, [laughs] hammer and all! [dramatic] The next day their empty lander crashed back on purpose, [amazed] and I felt the first moonquake ever made by people.` |
+
 ### Eagle — `eagle`
 **Voice Design prompt:** A warm, brave, energetic teenage voice, like a fun big brother who loves adventure. Confident, friendly, full of excitement. American English.
 

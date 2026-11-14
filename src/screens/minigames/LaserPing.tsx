@@ -5,6 +5,7 @@ import { en } from '../../content/i18n/en'
 import { useMedia } from '../../hooks/useMedia'
 import { useRaf } from '../../hooks/useRaf'
 import type { GameProps } from './MiniGame'
+import { clip, sfx } from '../../audio/engine'
 
 const t = en.mini.laser
 const ONE_WAY = 1.28 // seconds: real Earth → Moon light travel time
@@ -33,6 +34,7 @@ export default function LaserPing({ playing, onWin }: GameProps) {
   const timer = useRef<HTMLSpanElement>(null)
 
   const fire = () => {
+    clip('laser', 'pew')
     time.current = 0
     setMsg('')
     setMode('flying')
@@ -40,9 +42,12 @@ export default function LaserPing({ playing, onWin }: GameProps) {
   const tryCatch = () => {
     const s = time.current
     if (s < ROUND_TRIP - WINDOW) {
+      sfx('bonk')
       setMsg(t.early(s.toFixed(2)))
       setMode('ready')
     } else {
+      sfx('ping')
+      sfx('ding', 0.15)
       setMsg(t.caught(s.toFixed(2)))
       setMode('caught')
       setTimeout(onWin, 1500)
@@ -54,6 +59,7 @@ export default function LaserPing({ playing, onWin }: GameProps) {
     time.current += dt
     const s = time.current
     if (s > ROUND_TRIP + WINDOW) {
+      sfx('bonk')
       setMsg(t.late)
       setMode('ready')
     }
@@ -172,7 +178,7 @@ export default function LaserPing({ playing, onWin }: GameProps) {
         </p>
         <p aria-live="polite" className={`min-h-7 text-center text-lg font-semibold ${mode === 'caught' ? 'text-[#3DDC97]' : 'text-cta'}`}>{msg}</p>
         {mode !== 'caught' && (
-          <Button className="min-w-56 text-xl" onClick={mode === 'ready' ? fire : tryCatch} disabled={!playing}>
+          <Button sound={null} className="min-w-56 text-xl" onClick={mode === 'ready' ? fire : tryCatch} disabled={!playing}>
             {mode === 'ready' ? t.fire : t.catch}
           </Button>
         )}

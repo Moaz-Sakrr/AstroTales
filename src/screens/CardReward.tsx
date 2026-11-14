@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import Starfield from '../components/Starfield'
@@ -9,6 +9,7 @@ import CharacterFace from '../components/CharacterFace'
 import { deviceById } from '../content/worlds'
 import { en } from '../content/i18n/en'
 import { useGame } from '../store/progress'
+import { clip, sfx, stopClips } from '../audio/engine'
 
 gsap.registerPlugin(useGSAP)
 const t = en.card
@@ -17,6 +18,23 @@ export default function CardReward() {
   const root = useRef<HTMLElement>(null)
   const device = deviceById[useGame((s) => s.deviceId)]
   const { go, open, character } = useGame.getState()
+
+  // the card is torn out of its pack, flips over, and shines (Eagle's card gets Armstrong's real words)
+  useEffect(() => {
+    const ids = [
+      setTimeout(() => sfx('rip'), 0),
+      setTimeout(() => sfx('flip'), 280),
+      setTimeout(() => {
+        sfx('sparkle')
+        sfx('fanfare')
+      }, 900),
+    ]
+    if (device.id === 'eagle') ids.push(setTimeout(() => clip('smallStep'), 1800))
+    return () => {
+      ids.forEach(clearTimeout)
+      stopClips() // Armstrong stops talking when the kid moves on
+    }
+  }, [device.id])
 
   useGSAP(
     () => {

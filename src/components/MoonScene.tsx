@@ -1,28 +1,66 @@
+import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import Astronaut from './Astronaut'
+import { en } from '../content/i18n/en'
 import { useGame } from '../store/progress'
 
-// Landing scene on a 1440×900 canvas, lit from the left.
-// Wide screens see all of it behind the text; phones see a crop around the astronaut, Reflecto and Earth.
-// Motion hooks: js-ground, js-earth, js-laser, js-astronaut, js-astro-shadow.
+// Landing scene on a 1440×900 canvas, lit from the left: the Apollo 12 site in the Ocean of Storms, November 1969.
+// Rumble (the ALSEP science station) is the star: nuclear battery, seismometer, and an antenna talking to Earth.
+// Wide screens see all of it behind the text; phones see a crop around the astronaut, Rumble and Earth.
+// Tap the ground: a ripple runs out and Rumble's seismometer feels it (onTap gets the shake size, 0..1).
+// Motion hooks: js-ground, js-earth, js-link, js-astronaut, js-astro-shadow.
 
-const LASER = { x1: 1062, y1: 728, x2: 1290, y2: 300 }
-const LASER_LEN = Math.hypot(LASER.x2 - LASER.x1, LASER.y2 - LASER.y1)
+const t = en.landing.rumble
+const EARTH = { x: 1290, y: 300, r: 64 }
+const STATION = { x: 1135, y: 742, s: 1.45 }
+const SEISMO = { x: 1285, y: 806 }
+const RTG = { x: 1020, y: 786, s: 1.35 }
+// antenna pivot on top of the sunshade, aimed at Earth
+const PIVOT = { x: STATION.x + 28 * STATION.s, y: STATION.y - 98 * STATION.s }
+const AIM = Math.atan2(EARTH.y - PIVOT.y, EARTH.x - PIVOT.x)
+const TIP = { x: PIVOT.x + Math.cos(AIM) * 58 * STATION.s, y: PIVOT.y + Math.sin(AIM) * 58 * STATION.s }
+const LINK = { x1: TIP.x + Math.cos(AIM) * 10, y1: TIP.y + Math.sin(AIM) * 10, x2: EARTH.x - Math.cos(AIM) * (EARTH.r + 4), y2: EARTH.y - Math.sin(AIM) * (EARTH.r + 4) }
+const LINK_LEN = Math.hypot(LINK.x2 - LINK.x1, LINK.y2 - LINK.y1)
+const deg = (r: number) => (r * 180) / Math.PI
 
 const CRATERS = [
-  [180, 770, 80, 16], [520, 840, 120, 24], [760, 722, 46, 9], [1110, 852, 95, 18],
-  [1395, 805, 60, 12], [940, 790, 36, 7], [300, 720, 40, 8], [1240, 800, 30, 6],
+  [180, 770, 80, 16], [520, 840, 120, 24], [760, 722, 46, 9], [1110, 856, 95, 18],
+  [1400, 862, 60, 12], [930, 800, 36, 7], [300, 720, 40, 8],
 ]
-const ROCKS = [[640, 760, 10], [1190, 830, 7], [860, 690, 6], [1420, 865, 12], [420, 825, 8], [1000, 860, 9]]
+const ROCKS = [[640, 760, 10], [1190, 836, 7], [860, 690, 6], [1430, 760, 12], [420, 825, 8], [1000, 862, 9]]
 const SURFACE = 'M0 680 C 300 640 620 660 900 648 C 1120 640 1300 630 1440 642'
 
-export default function MoonScene({ wide }: { wide: boolean }) {
+type Ripple = { id: number; x: number; y: number; big: boolean }
+
+export default function MoonScene({ wide, onTap }: { wide: boolean; onTap?: (amp: number) => void }) {
   const kind = useGame((s) => s.character)
+  const [ripples, setRipples] = useState<Ripple[]>([])
+  const [react, setReact] = useState<'idle' | 'big' | 'small'>('idle')
+  const calm = useRef(0)
+  useEffect(() => () => clearTimeout(calm.current), [])
+
+  // tap the Moon: closer to the seismometer = bigger shake
+  const tap = (e: MouseEvent<SVGSVGElement>) => {
+    const svg = e.currentTarget
+    const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(svg.getScreenCTM()!.inverse())
+    if (p.y < 650) return // that's the sky
+    const amp = Math.min(1, Math.max(0.12, 1.15 - Math.hypot(p.x - SEISMO.x, p.y - SEISMO.y) / 480))
+    const big = amp > 0.6
+    const id = e.timeStamp
+    setRipples((r) => [...r.slice(-4), { id, x: p.x, y: p.y, big }])
+    setTimeout(() => setRipples((r) => r.filter((x) => x.id !== id)), 1000)
+    setReact(big ? 'big' : 'small')
+    clearTimeout(calm.current)
+    calm.current = window.setTimeout(() => setReact('idle'), 2600)
+    onTap?.(amp)
+  }
+
   return (
     <svg
       viewBox={wide ? '0 0 1440 900' : '860 200 580 700'}
       preserveAspectRatio={wide ? 'xMidYMax slice' : 'xMidYMax meet'}
-      className="h-full w-full"
+      className="h-full w-full cursor-pointer select-none"
       aria-hidden="true"
+      onClick={tap}
     >
       <defs>
         <linearGradient id="ms-ground" x1="0" y1="0" x2="0" y2="1">
@@ -48,6 +86,16 @@ export default function MoonScene({ wide }: { wide: boolean }) {
           <stop offset="0.45" stopColor="#D9A93A" />
           <stop offset="1" stopColor="#A8741F" />
         </linearGradient>
+        <linearGradient id="ms-foil" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#F4F6FB" />
+          <stop offset="0.4" stopColor="#BFC5D3" />
+          <stop offset="0.7" stopColor="#E6E9F1" />
+          <stop offset="1" stopColor="#8E95A9" />
+        </linearGradient>
+        <radialGradient id="ms-heat">
+          <stop offset="0" stopColor="#FFB45A" stopOpacity="0.85" />
+          <stop offset="1" stopColor="#FF5A3D" stopOpacity="0" />
+        </radialGradient>
         <clipPath id="ms-earth">
           <circle r="64" />
         </clipPath>
@@ -59,7 +107,7 @@ export default function MoonScene({ wide }: { wide: boolean }) {
         </filter>
       </defs>
 
-      {/* Mars, far away */}
+      {/* Mars, far away: the next world */}
       <g transform="translate(1100 330)">
         <circle r="16" fill="#E0703A" opacity="0.3" filter="url(#ms-glow)" />
         <circle r="8" fill="#E0703A" />
@@ -68,7 +116,7 @@ export default function MoonScene({ wide }: { wide: boolean }) {
       </g>
 
       {/* Earth */}
-      <g className="js-earth" transform="translate(1290 300)">
+      <g className="js-earth" transform={`translate(${EARTH.x} ${EARTH.y})`}>
         <circle r="76" fill="#6FB8FF" opacity="0.35" filter="url(#ms-glow)" />
         <circle r="64" fill="url(#ms-ocean)" />
         <g clipPath="url(#ms-earth)">
@@ -103,55 +151,51 @@ export default function MoonScene({ wide }: { wide: boolean }) {
           </g>
         ))}
 
-        {/* Lunar Roving Vehicle */}
-        <g transform="translate(620 798)">
-          <ellipse cx="22" cy="22" rx="84" ry="8" fill="#000" opacity="0.2" />
-          <rect x="-72" y="-20" width="144" height="10" rx="3" fill="#C9CDD8" />
-          <path d="M-70,-12 Q-48,-34 -26,-12 M26,-12 Q48,-34 70,-12" stroke="#E8EAF0" strokeWidth="4" fill="none" />
-          {[-48, 48].map((cx) => (
-            <g key={cx}>
-              <circle cx={cx} cy="2" r="17" fill="#5D6378" stroke="#C9CDD8" strokeWidth="3" />
-              <circle cx={cx} cy="2" r="9" fill="none" stroke="#8A90A6" strokeWidth="2" />
-            </g>
-          ))}
-          <rect x="-22" y="-38" width="15" height="18" rx="3" fill="#3A4060" />
-          <rect x="4" y="-38" width="15" height="18" rx="3" fill="#3A4060" />
-          <line x1="-44" y1="-20" x2="-44" y2="-52" stroke="#C9CDD8" strokeWidth="3" />
-          <path d="M-66,-56 Q-44,-82 -22,-56 Z" fill="#E8EAF0" />
-          <line x1="44" y1="-20" x2="56" y2="-66" stroke="#C9CDD8" strokeWidth="2" />
+        {/* Surveyor 3, waiting in its crater since 1967 (a secret level) */}
+        <g transform="translate(760 716)">
+          <ellipse rx="46" ry="9" fill="#9298AD" />
+          <g stroke="#C9CDD8" strokeWidth="2" strokeLinecap="round">
+            <line x1="-4" y1="-14" x2="-18" y2="2" />
+            <line x1="4" y1="-14" x2="18" y2="2" />
+            <line x1="0" y1="-14" x2="2" y2="4" />
+            <line x1="0" y1="-18" x2="0" y2="-38" />
+          </g>
+          <polygon points="-8,-20 8,-20 5,-10 -5,-10" fill="#E6E9F1" stroke="#8E95A9" />
+          <rect x="-12" y="-46" width="16" height="9" fill="#2F6FDB" stroke="#BFE3FF" strokeWidth="1" transform="rotate(-12 -4 -41)" />
         </g>
 
-        {/* footprints from the lander to the astronaut */}
+        {/* boot prints from the lander past the station */}
         {Array.from({ length: 13 }, (_, i) => (
-          <rect key={i} x={1262 - i * 22} y={772 - i * 4 + (i % 2 ? 4 : -4)} width="10" height="5" rx="2.5" fill="#9298AD" />
+          <rect key={i} x={1290 - i * 24} y={694 + i * 1.6 + (i % 2 ? 4 : -4)} width="10" height="5" rx="2.5" fill="#9298AD" />
         ))}
 
-        {/* Eagle, Apollo 11 descent stage */}
-        <g transform="translate(1335 735)">
-          <ellipse cx="34" cy="12" rx="112" ry="10" fill="#000" opacity="0.22" />
+        {/* Intrepid, the Apollo 12 lander */}
+        <g transform="translate(1352 668) scale(0.78)">
+          <ellipse cx="10" cy="8" rx="128" ry="12" fill="#000" opacity="0.22" />
           <g stroke="#C9CDD8" strokeWidth="4" strokeLinecap="round">
-            <line x1="-46" y1="-34" x2="-92" y2="4" />
-            <line x1="-34" y1="-26" x2="-92" y2="4" />
-            <line x1="46" y1="-34" x2="92" y2="4" />
-            <line x1="34" y1="-26" x2="92" y2="4" />
+            <line x1="-54" y1="-52" x2="-96" y2="2" />
+            <line x1="-38" y1="-44" x2="-96" y2="2" />
+            <line x1="54" y1="-52" x2="96" y2="2" />
+            <line x1="38" y1="-44" x2="96" y2="2" />
           </g>
-          <g stroke="#C9CDD8" strokeWidth="2">
-            {[-80, -72, -64].map((x, i) => (
-              <line key={x} x1={x} y1={-4 - i * 7} x2={x + 10} y2={-4 - i * 7} />
-            ))}
-          </g>
-          <ellipse cx="-94" cy="6" rx="15" ry="4" fill="#C9CDD8" />
-          <ellipse cx="94" cy="6" rx="15" ry="4" fill="#C9CDD8" />
-          <polygon points="-14,-24 14,-24 20,-10 -20,-10" fill="#6B7186" />
-          <rect x="-56" y="-78" width="112" height="9" rx="2" fill="#C9CDD8" />
-          <rect x="-50" y="-70" width="100" height="46" rx="3" fill="url(#ms-gold)" />
-          <polyline points="-40,-60 -28,-52 -34,-40 -20,-32" stroke="#FFF2B0" strokeWidth="1.5" fill="none" opacity="0.6" />
-          <polyline points="20,-64 32,-54 26,-44 40,-34" stroke="#FFF2B0" strokeWidth="1.5" fill="none" opacity="0.5" />
-          <rect x="-14" y="-64" width="28" height="18" rx="2" fill="#2B2F45" />
+          <ellipse cx="-98" cy="4" rx="16" ry="4.5" fill="#C9CDD8" />
+          <ellipse cx="98" cy="4" rx="16" ry="4.5" fill="#C9CDD8" />
+          <polygon points="-16,-44 16,-44 22,-30 -22,-30" fill="#6B7186" />
+          <polygon points="-58,-100 58,-100 66,-90 66,-52 58,-42 -58,-42 -66,-52 -66,-90" fill="url(#ms-gold)" />
+          <polyline points="-46,-90 -32,-80 -40,-66 -24,-56" stroke="#FFF2B0" strokeWidth="1.5" fill="none" opacity="0.6" />
+          <polyline points="18,-94 30,-84 22,-72 38,-60" stroke="#FFF2B0" strokeWidth="1.5" fill="none" opacity="0.5" />
+          <polygon points="-48,-100 -54,-128 -38,-158 38,-158 54,-128 48,-100" fill="url(#ms-foil)" stroke="#7E849A" strokeWidth="1.5" />
+          <polygon points="-38,-128 -24,-148 -16,-128" fill="#1B2440" />
+          <polygon points="38,-128 24,-148 16,-128" fill="#1B2440" />
+          <rect x="-10" y="-124" width="20" height="18" rx="2" fill="#7E849A" />
+          <rect x="-60" y="-136" width="8" height="8" fill="#8E95A9" />
+          <rect x="52" y="-136" width="8" height="8" fill="#8E95A9" />
+          <line x1="30" y1="-158" x2="40" y2="-176" stroke="#C9CDD8" strokeWidth="2" />
+          <circle cx="42" cy="-180" r="7" fill="#E6E9F1" stroke="#8E95A9" />
         </g>
 
         {/* flag, with the horizontal rod Apollo flags used */}
-        <g transform="translate(1238 722)">
+        <g transform="translate(1222 664) scale(0.8)">
           <line x1="0" y1="0" x2="44" y2="7" stroke="#000" strokeWidth="3" opacity="0.18" />
           <line x1="0" y1="0" x2="0" y2="-98" stroke="#E8EAF0" strokeWidth="3" />
           <line x1="0" y1="-97" x2="54" y2="-97" stroke="#E8EAF0" strokeWidth="2" />
@@ -163,36 +207,88 @@ export default function MoonScene({ wide }: { wide: boolean }) {
           </g>
         </g>
 
+        {/* orange flat cables, like in the real Apollo 12 photos */}
+        <g fill="none" stroke="#D9772E" strokeWidth="4" opacity="0.9">
+          <path d={`M${RTG.x + 18} ${RTG.y - 6} Q ${(RTG.x + STATION.x) / 2} ${RTG.y + 18} ${STATION.x - 52} ${STATION.y - 8}`} />
+          <path d={`M${STATION.x + 52} ${STATION.y - 8} Q ${(STATION.x + SEISMO.x) / 2} ${SEISMO.y + 20} ${SEISMO.x - 32} ${SEISMO.y - 2}`} />
+        </g>
+
+        {/* Rumble: the central station, sunshade up */}
+        <g transform={`translate(${STATION.x} ${STATION.y}) scale(${STATION.s})`}>
+          <ellipse cy="4" rx="66" ry="9" fill="#000" opacity="0.2" />
+          <line x1="-30" y1="-8" x2="-34" y2="2" stroke="#8E95A9" strokeWidth="3" />
+          <line x1="30" y1="-8" x2="34" y2="2" stroke="#8E95A9" strokeWidth="3" />
+          <line x1="-36" y1="-44" x2="-36" y2="-98" stroke="#BFC5D3" strokeWidth="3" />
+          <line x1="36" y1="-44" x2="36" y2="-98" stroke="#BFC5D3" strokeWidth="3" />
+          <rect x="-42" y="-100" width="84" height="54" rx="2" fill="url(#ms-foil)" stroke="#fff" strokeWidth="1.5" />
+          <path d="M-30 -86 L-6 -60 M4 -92 L26 -66" stroke="#fff" strokeWidth="2" opacity="0.6" />
+          <rect x="-38" y="-40" width="76" height="32" rx="2" fill="url(#ms-foil)" stroke="#fff" strokeWidth="1.5" />
+          {[-22, -10, 2].map((x, i) => (
+            <circle key={x} cx={x} cy="-24" r="3.5" fill="#3DDC97" className="twinkle" style={{ animationDelay: `${i * 0.5}s` }} />
+          ))}
+        </g>
+        {/* helical antenna, aimed at Earth */}
+        <g transform={`translate(${PIVOT.x} ${PIVOT.y}) rotate(${deg(AIM) + 90}) scale(${STATION.s})`}>
+          <line x1="0" y1="0" x2="0" y2="-58" stroke="#C9CDD8" strokeWidth="4" strokeLinecap="round" />
+          {[-12, -22, -32, -42, -52].map((y) => (
+            <path key={y} d={`M-7 ${y + 4} L7 ${y - 4}`} stroke="#fff" strokeWidth="2.5" strokeLinecap="round" />
+          ))}
+        </g>
+        <circle cx={PIVOT.x} cy={PIVOT.y} r="6" fill="#8E95A9" />
+
+        {/* nuclear battery: warm all day and night */}
+        <g transform={`translate(${RTG.x} ${RTG.y}) scale(${RTG.s})`}>
+          <ellipse cy="-24" rx="56" ry="54" fill="url(#ms-heat)" className="motion-safe:animate-pulse" />
+          <ellipse cy="2" rx="40" ry="6" fill="#000" opacity="0.22" />
+          {[-30, -22, 9, 17].map((x) => (
+            <rect key={x} x={x} y="-44" width="13" height="40" rx="2" fill="#B9876A" stroke="#5D6378" />
+          ))}
+          <rect x="-13" y="-48" width="26" height="46" rx="4" fill="#7A5A4E" />
+          <ellipse cy="-48" rx="13" ry="4" fill="#FF9A3D" />
+        </g>
+
+        {/* the seismometer: Rumble's ears, on its foil skirt */}
+        <g transform={`translate(${SEISMO.x} ${SEISMO.y}) scale(1.5)`}>
+          <ellipse rx="40" ry="9" fill="url(#ms-foil)" stroke="#fff" />
+          <rect x="-12" y="-34" width="24" height="32" rx="4" fill="url(#ms-foil)" stroke="#7E849A" strokeWidth="1.5" />
+          <ellipse cy="-34" rx="12" ry="4" fill="#E6E9F1" stroke="#7E849A" />
+          <circle cy="-20" r="3" fill="#3DDC97" className="twinkle" />
+        </g>
+
+        {ripples.map((r) => (
+          <ellipse key={r.id} cx={r.x} cy={r.y} rx={r.big ? 170 : 110} ry={r.big ? 32 : 20} fill="none" stroke={r.big ? '#2EC4B6' : '#F4F6FB'} strokeWidth="5" className="ripple" />
+        ))}
+
         {/* astronaut + its shadow */}
         <ellipse className="js-astro-shadow" cx="958" cy="712" rx="44" ry="8" fill="#000" opacity="0.22" />
         <g className="js-astronaut">
           <Astronaut kind={kind} pose="point" x={870} y={458} width={170} />
         </g>
+      </g>
 
-        {/* Reflecto, Apollo 11 laser ranging retroreflector, right by the boots */}
-        <g transform="translate(1062 752)">
-          <ellipse cx="18" cy="6" rx="52" ry="6" fill="#000" opacity="0.25" />
-          <g stroke="#6B7186" strokeWidth="3">
-            <line x1="-30" y1="-6" x2="-35" y2="6" />
-            <line x1="30" y1="-6" x2="35" y2="6" />
-            <line x1="-20" y1="-10" x2="-22" y2="2" />
-            <line x1="20" y1="-10" x2="22" y2="2" />
-          </g>
-          <polygon points="-44,-6 44,-6 36,-28 -36,-28" fill="#7A8098" stroke="#4E546B" strokeWidth="2" />
-          {[0, 1].map((row) =>
-            Array.from({ length: 8 }, (_, i) => (
-              <circle key={`${row}-${i}`} cx={-31 + i * 8.9 - row * 1.4} cy={-21 + row * 8} r="3.3" fill="#CDEBFF" />
-            )),
-          )}
-          <path className="glint" d="M-10,-34 L-8,-26 L0,-24 L-8,-22 L-10,-14 L-12,-22 L-20,-24 L-12,-26Z" fill="#fff" />
+      {/* Rumble's radio link to Earth: data pulses flying home */}
+      <g>
+        <line {...LINK} className="js-link" stroke="#2EC4B6" strokeWidth="9" opacity="0.3" filter="url(#ms-soft)" strokeDasharray={LINK_LEN} />
+        <line {...LINK} className="js-link" stroke="#6BC8FF" strokeWidth="2" strokeDasharray={LINK_LEN} />
+        <line {...LINK} className="laser-pulse" stroke="#E6FBFF" strokeWidth="3" />
+        <g transform={`translate(${TIP.x} ${TIP.y}) rotate(${deg(AIM)})`} fill="none" stroke="#6BC8FF" strokeWidth="3" strokeLinecap="round">
+          {[16, 28, 40].map((r, i) => (
+            <path key={r} className="radio" style={{ animationDelay: `${i * 0.35}s` }} d={`M${r * 0.77} ${-r * 0.64} A${r} ${r} 0 0 1 ${r * 0.77} ${r * 0.64}`} />
+          ))}
         </g>
       </g>
 
-      {/* laser from Earth to Reflecto */}
-      <g className="js-laser-group">
-        <line {...LASER} className="js-laser" stroke="#FF4D4D" strokeWidth="7" opacity="0.35" filter="url(#ms-soft)" strokeDasharray={LASER_LEN} />
-        <line {...LASER} className="js-laser" stroke="#FF6B6B" strokeWidth="2" strokeDasharray={LASER_LEN} />
-        <line {...LASER} className="laser-pulse" stroke="#FFE1E1" strokeWidth="2.5" />
+      {/* Rumble talks: a paper tag over the station */}
+      <g transform="translate(1008 476)">
+        <g key={react} className="tag-pop">
+        <path d="M0 10 Q0 0 10 0 H162 Q172 0 172 10 V58 Q172 68 162 68 H106 L118 92 L88 68 H10 Q0 68 0 58Z" fill="#FFF1D6" stroke="#1B2440" strokeOpacity="0.15" />
+        <text x="86" y="29" textAnchor="middle" fontSize="21" fill="#1B2440" style={{ fontFamily: 'var(--font-hand)' }}>
+          {t[react][0]}
+        </text>
+        <text x="86" y="54" textAnchor="middle" fontSize="21" fill={react === 'big' ? '#136B63' : '#1B2440'} style={{ fontFamily: 'var(--font-hand)' }}>
+          {t[react][1]}
+        </text>
+        </g>
       </g>
     </svg>
   )

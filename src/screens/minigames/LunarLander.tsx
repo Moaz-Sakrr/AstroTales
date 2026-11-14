@@ -3,6 +3,7 @@ import { en } from '../../content/i18n/en'
 import { useMedia } from '../../hooks/useMedia'
 import { useRaf } from '../../hooks/useRaf'
 import type { GameProps } from './MiniGame'
+import { sfx, thrust } from '../../audio/engine'
 
 const t = en.mini.lander
 // World units. Gravity is weak (the Moon!) and fuel is limited, like Armstrong's real landing.
@@ -109,11 +110,13 @@ export default function LunarLander({ playing, onWin }: GameProps) {
         const onPad = s.x - FOOT >= world.pad.x0 && s.x + FOOT <= world.pad.x1
         const soft = s.vy <= SAFE_VY && Math.abs(s.vx) <= SAFE_VX
         if (onPad && soft) {
+          sfx('thud')
           setMode('landed')
           setMsg('')
           spawn(s.x, s.y, 14, 70)
           setTimeout(onWin, 2000)
         } else {
+          sfx('crash')
           setMode('crashed')
           setMsg(!soft ? t.crashFast : t.crashRocky)
           setCrashes((c) => c + 1)
@@ -127,6 +130,7 @@ export default function LunarLander({ playing, onWin }: GameProps) {
     const tilt = mode === 'crashed' ? 35 : Math.max(-14, Math.min(14, s.vx * 0.35))
     lander.current?.setAttribute('transform', `translate(${s.x} ${s.y}) rotate(${tilt})`)
     const burning = mode === 'flying' && k.up && s.fuel > 0
+    thrust(burning) // engine roar follows the flame
     flame.current?.setAttribute('transform', `translate(0 -14) scale(1 ${burning ? 0.85 + Math.random() * 0.4 : 0}) translate(0 14)`) // grow from the nozzle
     rcsL.current?.setAttribute('opacity', mode === 'flying' && k.right && s.fuel > 0 ? '0.9' : '0')
     rcsR.current?.setAttribute('opacity', mode === 'flying' && k.left && s.fuel > 0 ? '0.9' : '0')
@@ -173,6 +177,12 @@ export default function LunarLander({ playing, onWin }: GameProps) {
       removeEventListener('keyup', up)
     }
   }, [])
+
+  // the engine never keeps roaring after the game pauses or closes
+  useEffect(() => {
+    if (!playing) thrust(false)
+    return () => thrust(false)
+  }, [playing])
 
   const hold = (k: 'up' | 'left' | 'right') => ({
     onPointerDown: (e: React.PointerEvent) => {
