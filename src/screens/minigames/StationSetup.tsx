@@ -1,9 +1,9 @@
 import { Howl } from 'howler'
-import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react'
 import Astronaut from '../../components/Astronaut'
 import Seismograph from '../../components/Seismograph'
 import { quake, type Quake } from '../../components/quake'
-import type { Pose } from '../../content/characters'
+import { POSES, type Pose } from '../../content/characters'
 import { en } from '../../content/i18n/en'
 import { useMedia } from '../../hooks/useMedia'
 import { useRaf } from '../../hooks/useRaf'
@@ -51,6 +51,7 @@ function layout({ w, h, x0, y0 }: Box, stripPx: number) {
     H: h / k,
     x0: x0 / k,
     cx,
+    top,
     bot,
     horizon,
     floor: bot + A.floor,
@@ -228,7 +229,9 @@ export default function StationSetup({ playing, onWin }: GameProps) {
   }
   const hop = (to: Pt) => {
     if (stage !== 'stomp' || hopping) return
-    const land = { x: Math.min(L.W - 40, Math.max(L.x0 + 40, to.x)), y: Math.max(L.horizon + 40, Math.min(L.floor, to.y)) }
+    // keep the whole kid (half its width each side) on screen and clear of the side panel
+    const half = L.kidW / 2 + 8
+    const land = { x: Math.min(L.W - half, Math.max(L.x0 + half, to.x)), y: Math.max(L.horizon + 40, Math.min(L.floor, to.y)) }
     setHopping(true)
     setPose('jump')
     setKidOff({ x: land.x - L.cx, y: land.y - L.bot })
@@ -659,7 +662,8 @@ export default function StationSetup({ playing, onWin }: GameProps) {
         {/* the kid */}
         <g style={{ transform: `translate(${kid.x}px, ${kid.y}px)`, transition: 'transform 0.8s linear' }}>
           <ellipse rx="34" ry="7" fill="#000" opacity="0.25" />
-          <g key={hops} className={hopping ? 'kid-hop' : undefined}>
+          {/* hop no higher than the room under Rumble's speech bubble, so the kid's head never goes under it */}
+          <g key={hops} className={hopping ? 'kid-hop' : undefined} style={{ '--hop': `${Math.max(24, Math.min(120, kid.y - L.top - (L.kidW * 1.5 * POSES[kind].jump[2]) / 300 - 8))}px` } as CSSProperties}>
             <Astronaut kind={kind} pose={pose} x={-L.kidW / 2} y={-L.kidW * 1.5} width={L.kidW} />
           </g>
         </g>

@@ -138,13 +138,14 @@ export default function Story() {
       <div className="absolute inset-x-[-10%] bottom-0 h-[42%] rounded-[50%_50%_0_0/18%_18%_0_0] bg-cover bg-center shadow-[inset_0_20px_40px_rgb(0_0_0/0.4)]" style={{ backgroundImage: `url(${worlds[device.world].texture})` }} />
       <div className="absolute right-4 top-4 z-10">{close}</div>
 
-      <div className="absolute bottom-[33%] left-[10%] w-[min(18vw,200px)]">
-        <Astronaut kind={character} pose={reaction.pose} width={200} className="h-auto w-full" />
-        <CharacterFace kind={character} mood={reaction.mood} className="absolute -left-8 -top-2 h-[min(8vw,80px)] w-[min(8vw,80px)] ring-4 ring-cta" />
-      </div>
       <div className="absolute bottom-[33%] right-[12%]">{portrait('h-[min(26vw,280px)] w-[min(26vw,280px)]')}</div>
 
       <section className="absolute inset-x-0 bottom-6 mx-auto w-[min(92%,900px)] rounded-3xl bg-paper p-6 pt-8 text-ink shadow-2xl">
+        {/* the kid stands on top of the text box, clear of its name tag, however tall the box grows */}
+        <div className="absolute bottom-full left-[4%] mb-8 w-[min(18vw,200px)]">
+          <Astronaut kind={character} pose={reaction.pose} width={200} className="h-auto w-full" />
+          <CharacterFace kind={character} mood={reaction.mood} className="absolute -left-8 -top-2 h-[min(8vw,80px)] w-[min(8vw,80px)] ring-4 ring-cta" />
+        </div>
         <div className="absolute -top-5 left-6 flex items-center gap-3 rounded-full bg-navy-900 py-1.5 pl-1.5 pr-4 text-text">
           <img src={device.photos[0].src} alt="" className="h-8 w-8 rounded-full object-cover" />
           <span className="font-semibold">{device.nickname}</span>

@@ -202,7 +202,7 @@ body {
 .kid-hop { animation: kid-hop 0.8s; }
 @keyframes kid-hop {
   0% { transform: translateY(0); animation-timing-function: cubic-bezier(.2,.7,.4,1); }
-  50% { transform: translateY(-120px); animation-timing-function: cubic-bezier(.6,0,.8,.3); }
+  50% { transform: translateY(calc(-1 * var(--hop, 120px))); animation-timing-function: cubic-bezier(.6,0,.8,.3); }
   100% { transform: translateY(0); }
 }
 .ripple, .burst, .puff, .hammer-swing, .can-rattle { transform-box: fill-box; transform-origin: center; }
