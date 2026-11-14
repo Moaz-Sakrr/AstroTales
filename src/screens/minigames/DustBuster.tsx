@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { en } from '../../content/i18n/en'
 import { useRaf } from '../../hooks/useRaf'
 import type { GameProps } from './MiniGame'
+import { clip, sfx } from '../../audio/engine'
 
 const t = en.mini.dust
 const W = 800 // canvas works in this fixed space; CSS stretches it to the panel
@@ -12,6 +13,7 @@ const BRUSH = 38
 const GOAL = 90
 
 type Fleck = { x: number; y: number; vx: number; vy: number; life: number; c: string }
+const BRUSH_GAP = 110 // ms between wipe sounds, so a fast scrub stays soft
 const DUST = ['#9E5530', '#C98250', '#D99A68', '#8A4626', '#B8693A']
 
 export default function DustBuster({ playing, onWin }: GameProps) {
@@ -20,6 +22,7 @@ export default function DustBuster({ playing, onWin }: GameProps) {
   const clean = useRef(new Uint8Array(COLS * ROWS))
   const flecks = useRef<Fleck[]>([])
   const last = useRef<{ x: number; y: number } | null>(null)
+  const lastBrush = useRef(0)
   const devil = useRef<{ x: number; y: number; phase: number } | null>(null)
   const nextDevil = useRef(5)
   const [power, setPower] = useState(0)
@@ -73,6 +76,11 @@ export default function DustBuster({ playing, onWin }: GameProps) {
   }
 
   const wipeTo = (x: number, y: number) => {
+    const now = performance.now()
+    if (now - lastBrush.current > BRUSH_GAP) {
+      lastBrush.current = now
+      sfx('brush')
+    }
     const from = last.current ?? { x, y }
     const steps = Math.max(1, Math.ceil(Math.hypot(x - from.x, y - from.y) / 8))
     for (let i = 1; i <= steps; i++) stamp(from.x + ((x - from.x) * i) / steps, from.y + ((y - from.y) * i) / steps, BRUSH)
@@ -90,6 +98,7 @@ export default function DustBuster({ playing, onWin }: GameProps) {
     if (!devil.current && nextDevil.current <= 0 && !won) {
       devil.current = { x: -60, y: 80 + Math.random() * (H - 160), phase: 0 }
       setDevilOn(true)
+      clip('dustDevil', 'whoosh')
     }
     if (devil.current) {
       const d = devil.current

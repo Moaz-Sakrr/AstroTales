@@ -3,6 +3,7 @@ import Button from '../../components/Button'
 import { en } from '../../content/i18n/en'
 import { useRaf } from '../../hooks/useRaf'
 import type { GameProps } from './MiniGame'
+import { loopClip, sfx } from '../../audio/engine'
 
 const t = en.mini.transit
 const FIRST = 2.4 // s: first transit starts
@@ -56,11 +57,16 @@ export default function PlanetHunter({ playing, onWin }: GameProps) {
   const tap = () => {
     if (revealed) return
     const k = transitIndex(time.current)
-    if (k < 0) return setMsg(t.noise)
+    if (k < 0) {
+      sfx('bonk')
+      return setMsg(t.noise)
+    }
     if (caughtK.current.has(k)) return
     caughtK.current.add(k)
     caughtAt.current.push(time.current)
     const n = caughtK.current.size
+    sfx('blip')
+    sfx('ding', 0.1)
     setFound(n)
     setMsg(t.nice)
     if (n >= NEED) {
@@ -69,6 +75,9 @@ export default function PlanetHunter({ playing, onWin }: GameProps) {
       setTimeout(onWin, 3200)
     }
   }
+
+  // the star's real "song" from Kepler data hums while you watch (once the NASA file is in the repo)
+  useEffect(() => (playing ? loopClip('keplerStar', 0.3) : undefined), [playing])
 
   useEffect(() => {
     if (!playing) return
@@ -190,7 +199,7 @@ export default function PlanetHunter({ playing, onWin }: GameProps) {
           <p className="font-semibold">{t.found(found)}</p>
           <p aria-live="polite" className={`min-h-6 text-sm ${msg === t.noise ? 'text-text-muted' : 'text-[#3DDC97]'}`}>{msg}</p>
         </div>
-        <Button className="min-w-44 text-xl" onClick={tap} disabled={!playing || revealed}>
+        <Button sound={null} className="min-w-44 text-xl" onClick={tap} disabled={!playing || revealed}>
           {t.button}
         </Button>
       </div>

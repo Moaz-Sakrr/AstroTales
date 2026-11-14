@@ -8,6 +8,7 @@ import { deviceById } from '../content/worlds'
 import { tx } from '../content/l10n'
 import { en } from '../content/i18n/en'
 import { useGame } from '../store/progress'
+import { sfx } from '../audio/engine'
 
 const t = en.quiz
 const COINS_PER_ANSWER = 10
@@ -35,9 +36,14 @@ export default function Quiz() {
     if (result === 'right') return
     setDx(0)
     if (saysFact === card.isFact) {
-      if (firstTry) setEarned((e) => e + COINS_PER_ANSWER)
+      sfx('ding')
+      if (firstTry) {
+        sfx('coin', 0.18)
+        setEarned((e) => e + COINS_PER_ANSWER)
+      }
       setResult('right')
     } else {
+      sfx('bonk')
       setFirstTry(false)
       setResult('wrong')
     }
@@ -148,7 +154,7 @@ export default function Quiz() {
                 <Coin className="h-9 w-9" /> {t.coins(COINS_PER_ANSWER)}
               </p>
             )}
-            <Button className="w-full font-display text-xl font-extrabold sm:w-auto sm:min-w-64" onClick={advance}>{last ? t.finish : t.next}</Button>
+            <Button sound="swipe" className="w-full font-display text-xl font-extrabold sm:w-auto sm:min-w-64" onClick={advance}>{last ? t.finish : t.next}</Button>
           </>
         ) : (
           <>
@@ -156,7 +162,10 @@ export default function Quiz() {
               <RoundAnswer kind="cap" onClick={() => answer(false)} />
               <button
                 type="button"
-                onClick={() => setHintOpen(true)}
+                onClick={() => {
+                  sfx('pling')
+                  setHintOpen(true)
+                }}
                 disabled={showHint}
                 className="flex min-h-14 transition items-center gap-2 rounded-full border-2 border-white/25 bg-white/5 px-5 text-lg text-text hover:bg-white/10 disabled:opacity-40"
               >

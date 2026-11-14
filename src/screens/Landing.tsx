@@ -8,6 +8,7 @@ import { en } from '../content/i18n/en'
 import { useMedia } from '../hooks/useMedia'
 import { useGame } from '../store/progress'
 import Button from '../components/Button'
+import SoundButton from '../components/SoundButton'
 
 gsap.registerPlugin(useGSAP)
 
@@ -65,13 +66,16 @@ export default function Landing() {
       <Starfield />
 
       <div className="relative z-10 mx-auto flex max-w-7xl flex-col px-4 pb-6 sm:px-8 lg:min-h-svh lg:px-16">
-        <header className="js-intro flex items-center gap-2 py-5">
-          <svg viewBox="0 0 32 32" className="h-8 w-8" aria-hidden="true">
-            <circle cx="16" cy="16" r="9" fill="#CFCFD8" />
-            <circle cx="13" cy="13" r="2.5" fill="#A9AEBF" />
-            <ellipse cx="16" cy="16" rx="15" ry="5" fill="none" stroke="#FFC93C" strokeWidth="2" transform="rotate(-20 16 16)" />
-          </svg>
-          <span className="text-xl font-bold tracking-tight">{t.brand}</span>
+        <header className="js-intro flex items-center justify-between gap-2 py-5">
+          <div className="flex items-center gap-2">
+            <svg viewBox="0 0 32 32" className="h-8 w-8" aria-hidden="true">
+              <circle cx="16" cy="16" r="9" fill="#CFCFD8" />
+              <circle cx="13" cy="13" r="2.5" fill="#A9AEBF" />
+              <ellipse cx="16" cy="16" rx="15" ry="5" fill="none" stroke="#FFC93C" strokeWidth="2" transform="rotate(-20 16 16)" />
+            </svg>
+            <span className="text-xl font-bold tracking-tight">{t.brand}</span>
+          </div>
+          <SoundButton />
         </header>
 
         <div className="flex max-w-xl flex-col gap-5 pt-4 lg:pt-6">

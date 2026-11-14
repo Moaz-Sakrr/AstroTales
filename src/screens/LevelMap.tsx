@@ -9,6 +9,8 @@ import { worlds } from '../content/worlds'
 import type { Device } from '../content/types'
 import { en } from '../content/i18n/en'
 import { useGame, worldComplete } from '../store/progress'
+import SoundButton from '../components/SoundButton'
+import { clip, sfx } from '../audio/engine'
 
 gsap.registerPlugin(useGSAP)
 const t = en.level
@@ -45,10 +47,15 @@ export default function LevelMap() {
       mm.add('(prefers-reduced-motion: no-preference)', () => {
         gsap
           .timeline({ onComplete: () => setLanding(false) })
+          .call(() => sfx('rumble'))
           .from('.js-lander', { y: '-110vh', duration: 2.2, ease: 'power2.out' })
           .to('.js-flame', { scaleY: 0, duration: 0.3 }, '-=0.3')
           .fromTo('.js-dust', { scale: 0.2, opacity: 0.8 }, { scale: 2.2, opacity: 0, x: (i) => (i - 3) * 40, duration: 1.2, stagger: 0.03 }, '-=0.4')
           .from('.js-touchdown', { scale: 0.6, opacity: 0, duration: 0.4, ease: 'back.out(2)' }, '<')
+          .call(() => {
+            sfx('thud')
+            if (worldId === 'moon') clip('eagleLanded', undefined, 0.5)
+          }, undefined, '<')
           .to('.js-landing', { opacity: 0, duration: 0.6, delay: 0.6 })
         gsap.to('.js-flame', { scaleY: 0.8, repeat: -1, yoyo: true, duration: 0.07 })
       })
@@ -59,10 +66,18 @@ export default function LevelMap() {
   const state = (d: Device, i: number) => (done.includes(d.id) ? 'done' : i === current ? 'current' : 'locked')
 
   const onSecret = (d: Device) => {
-    if (secrets.includes(d.id)) return done.includes(d.id) ? open('profile', d.id) : playDevice(d.id)
+    if (secrets.includes(d.id)) {
+      sfx('pop')
+      return done.includes(d.id) ? open('profile', d.id) : playDevice(d.id)
+    }
     const cost = d.secret!.cost
-    if (!unlockSecret(d.id, cost)) setMsg(t.needCoins(cost - coins))
-    else setMsg(null)
+    if (!unlockSecret(d.id, cost)) {
+      sfx('locked')
+      setMsg(t.needCoins(cost - coins))
+    } else {
+      sfx('unlock')
+      setMsg(null)
+    }
   }
 
   return (
@@ -80,6 +95,7 @@ export default function LevelMap() {
         <h1 className="truncate rounded-full bg-black/40 px-3 py-1.5 text-lg font-bold backdrop-blur-sm sm:px-4 sm:text-xl">{world.name}</h1>
         <div className="flex items-center gap-2">
           <button type="button" onClick={() => open('library')} className={`${PILL} ${complete ? '' : 'max-md:hidden'}`}>{t.cards}</button>
+          <SoundButton />
           <CoinBadge />
         </div>
       </header>
@@ -103,7 +119,12 @@ export default function LevelMap() {
               {s === 'current' && (
                 <Astronaut kind={character} pose="threeq" width={44} className="absolute -left-12 bottom-6 motion-safe:animate-bounce" />
               )}
-              <LevelButton device={d} index={i + 1} state={s} onClick={() => (s === 'done' ? open('profile', d.id) : s === 'current' ? playDevice(d.id) : undefined)} />
+              <LevelButton device={d} index={i + 1} state={s} onClick={() => {
+                if (s === 'locked') return
+                sfx('pop')
+                if (s === 'done') open('profile', d.id)
+                else playDevice(d.id)
+              }} />
             </div>
           )
         })}

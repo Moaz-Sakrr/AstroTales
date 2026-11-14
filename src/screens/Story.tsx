@@ -11,6 +11,7 @@ import { en } from '../content/i18n/en'
 import { useMedia } from '../hooks/useMedia'
 import { useGame } from '../store/progress'
 import { useTypewriter } from './story/useTypewriter'
+import { clip, duck, sfx } from '../audio/engine'
 
 const t = en.story
 
@@ -27,17 +28,34 @@ export default function Story() {
   const { shown, done, finish } = useTypewriter(tx(card.line), msPerChar)
 
   // Play this card's voice; stretch the typing over the clip so text and voice end together.
+  // A NASA radio "quindar" beep opens the line (once its file exists), and the music ducks while the device talks.
   useEffect(() => {
     const voice = new Howl({ src: [`/audio/en/${device.id}/${i}.mp3`] })
     voice.once('load', () => setMsPerChar((voice.duration() * 1000) / tx(card.line).length))
-    voice.play()
-    return () => void voice.unload()
+    voice.on('play', () => duck(true))
+    voice.on('end', () => duck(false))
+    const lead = Math.min(clip('quindar'), 0.6)
+    const id = setTimeout(() => voice.play(), lead * 1000)
+    return () => {
+      clearTimeout(id)
+      voice.unload()
+      duck(false)
+    }
   }, [device.id, i, card])
   const reaction = REACTIONS[i % REACTIONS.length] // how the kid reacts to this card
   useEffect(() => preloadCharacter(character), [character])
 
-  const next = () => (!done ? finish() : i < device.story.length - 1 ? setI(i + 1) : go('quiz'))
-  const back = () => i > 0 && setI(i - 1)
+  const next = () => {
+    if (!done) return finish()
+    sfx('swipe')
+    if (i < device.story.length - 1) setI(i + 1)
+    else go('quiz')
+  }
+  const back = () => {
+    if (i === 0) return
+    sfx('swipe')
+    setI(i - 1)
+  }
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -137,8 +155,8 @@ export default function Story() {
         <div className="mt-3 flex items-center justify-between">
           <span className="text-sm text-ink/60">{i + 1} / {device.story.length}</span>
           <div className="flex gap-3">
-            <Button variant="ghost" className="border-ink/20 text-ink hover:bg-ink/5" onClick={back} disabled={i === 0}>{t.back}</Button>
-            <Button onClick={next}>{t.next}</Button>
+            <Button variant="ghost" sound={null} className="border-ink/20 text-ink hover:bg-ink/5" onClick={back} disabled={i === 0}>{t.back}</Button>
+            <Button sound={null} onClick={next}>{t.next}</Button>
           </div>
         </div>
       </section>

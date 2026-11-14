@@ -32,6 +32,7 @@ export const en = {
     nameNote: 'Stays on this device. Never sent anywhere.',
     go: 'Board the ship',
   },
+  sound: { button: 'Sound settings', music: 'Music', effects: 'Sound effects' },
   launch: { countdown: ['3', '2', '1', 'Liftoff!'], skip: 'Skip' },
   space: {
     loading: 'Building the solar system…',
