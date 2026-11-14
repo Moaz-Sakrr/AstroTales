@@ -88,6 +88,7 @@ export const ingenuity: Device = {
     nasaPhoto('ingenuity-1.jpg', 'PIA24542', 'Perseverance took a selfie with me in Jezero Crater. I am the small helicopter on the left.', JPL),
     nasaPhoto('ingenuity-2.jpg', 'PIA23882', 'Me on Earth, before the trip.', JPL),
   ],
+  mascot: 'ingenuity',
   model3d: '/models/ingenuity.glb',
   card: { image: '/images/cards/ingenuity.jpg' },
   verified: false,

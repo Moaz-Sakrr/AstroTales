@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Starfield from '../components/Starfield'
 import CharacterFace from '../components/CharacterFace'
+import DeviceArt from '../components/DeviceArt'
 import { preloadCharacter } from '../content/characters'
 import Button from '../components/Button'
 import { Coin } from '../components/CoinBadge'
@@ -115,7 +116,12 @@ export default function Quiz() {
             }}
           >
             {/* the photo gets most of the card, edge to edge */}
-            <img src={device.photos[0].src} alt="" draggable={false} className="h-[60%] min-h-40 w-full shrink-0 object-cover" />
+            <DeviceArt
+              device={device}
+              pose={result === 'right' ? 'happy' : result === 'wrong' ? 'surprised' : 'think'}
+              photoClass="h-[60%] min-h-40 w-full shrink-0"
+              mascotClass="h-[60%] min-h-40 w-full shrink-0 bg-navy-900 p-4"
+            />
             <div className="flex flex-1 flex-col gap-2 overflow-y-auto px-5 pb-4 pt-3 sm:px-7">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-ink/70">{t.says(device.nickname)}</span>

@@ -4,6 +4,7 @@ import Starfield from '../components/Starfield'
 import Astronaut from '../components/Astronaut'
 import Button from '../components/Button'
 import CharacterFace from '../components/CharacterFace'
+import DeviceArt, { preloadMascot, STORY_POSES } from '../components/DeviceArt'
 import { preloadCharacter, REACTIONS } from '../content/characters'
 import { deviceById, worlds } from '../content/worlds'
 import { tx } from '../content/l10n'
@@ -44,6 +45,7 @@ export default function Story() {
   }, [device.id, i, card])
   const reaction = REACTIONS[i % REACTIONS.length] // how the kid reacts to this card
   useEffect(() => preloadCharacter(character), [character])
+  useEffect(() => preloadMascot(device), [device])
 
   const next = () => {
     if (!done) return finish()
@@ -72,7 +74,7 @@ export default function Story() {
   const portrait = (cls: string) => (
     <div className={`relative ${cls}`}>
       <div className={`absolute -inset-3 rounded-full bg-cta/40 blur-xl transition-opacity duration-500 ${done ? 'opacity-30' : 'opacity-100 motion-safe:animate-pulse'}`} />
-      <img src={device.photos[0].src} alt={device.name} className="relative h-full w-full rounded-full object-cover ring-4 ring-cta" />
+      <DeviceArt device={device} pose={STORY_POSES[i % STORY_POSES.length]} alt={device.name} photoClass="relative h-full w-full rounded-full ring-4 ring-cta" mascotClass="relative h-full w-full object-bottom drop-shadow-[0_12px_18px_rgb(0_0_0/0.5)]" />
       {i === 0 && <span className="absolute -right-2 top-0 rotate-6 rounded-full bg-cap px-3 py-1 text-sm font-bold text-white">That's me!</span>}
     </div>
   )
@@ -102,7 +104,11 @@ export default function Story() {
           ))}
         </div>
         <div className="relative z-10 flex items-center justify-between px-3 pt-3">
-          <p className="font-semibold">{device.nickname} <span className="font-normal text-text-muted">@{device.handle}</span></p>
+          <p className="flex items-center gap-2 font-semibold">
+            {/* the real NASA photo stays in view next to the character art */}
+            {device.mascot && <img src={device.photos[0].src} alt="" className="h-8 w-8 rounded-full object-cover ring-2 ring-white/30" />}
+            <span>{device.nickname} <span className="font-normal text-text-muted">@{device.handle}</span></span>
+          </p>
           {close}
         </div>
         <div className="relative z-10 flex flex-1 flex-col items-center justify-center gap-4 px-6">

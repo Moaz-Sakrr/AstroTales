@@ -1,6 +1,7 @@
 import { useState, type ComponentType } from 'react'
 import Button from '../../components/Button'
 import CharacterFace from '../../components/CharacterFace'
+import DeviceArt from '../../components/DeviceArt'
 import { deviceById } from '../../content/worlds'
 import type { MiniGameId } from '../../content/types'
 import { en } from '../../content/i18n/en'
@@ -46,7 +47,7 @@ export default function MiniGame() {
       {/* safe-area padding keeps Skip clear of the notch on landscape iPhones */}
       <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-center justify-between gap-2 p-3 pl-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))]">
         <p className="flex min-w-0 items-center gap-2 rounded-full bg-black/45 py-1 pl-1 pr-4 backdrop-blur-sm">
-          <img src={device.photos[0].src} alt="" className="h-9 w-9 rounded-full object-cover" />
+          <DeviceArt device={device} pose="talk" photoClass="h-9 w-9 rounded-full" mascotClass="h-9 w-9" />
           <span className="truncate font-semibold">{text.title}</span>
         </p>
         <button
@@ -62,7 +63,7 @@ export default function MiniGame() {
         <div className="absolute inset-0 z-30 grid place-items-center bg-navy-950/55 p-4 backdrop-blur-[3px]">
           <section className="relative w-full max-w-md animate-[pop_0.45s_cubic-bezier(.2,1.4,.4,1)] rounded-3xl bg-navy-900/95 p-6 text-center shadow-2xl ring-1 ring-white/10">
             <CharacterFace kind={character} mood={phase === 'won' ? 'laugh' : 'determined'} className="absolute -top-8 right-6 h-16 w-16 ring-4 ring-cta" />
-            <img src={device.photos[0].src} alt="" className="mx-auto -mt-14 mb-3 h-20 w-20 rounded-full object-cover ring-4 ring-cta" />
+            <DeviceArt device={device} pose={phase === 'won' ? 'celebrate' : 'talk'} photoClass="mx-auto -mt-14 mb-3 h-20 w-20 rounded-full ring-4 ring-cta" mascotClass="mx-auto -mt-16 mb-2 h-24 w-24 drop-shadow-[0_8px_12px_rgb(0_0_0/0.5)]" />
             <h1 className="text-3xl font-bold tracking-tight">{phase === 'won' ? en.mini.won : text.title}</h1>
             <p className="mt-3 text-lg leading-relaxed text-text-muted">{phase === 'won' ? text.fact : text.howTo}</p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center">

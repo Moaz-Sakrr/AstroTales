@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import Button from '../components/Button'
+import DeviceArt from '../components/DeviceArt'
 import CoinBadge, { Coin } from '../components/CoinBadge'
 import Rocket from '../components/Rocket'
 import Astronaut from '../components/Astronaut'
@@ -216,7 +217,13 @@ function LevelButton({ device, index, state, scale, onClick }: { device: Device;
           state === 'current' ? 'motion-safe:animate-[pulse-ring_1.6s_ease-out_infinite]' : ''
         }`}
       >
-        <img src={device.photos[0].src} alt="" className={`h-full w-full rounded-full object-cover ${state === 'locked' || state === 'secret' ? 'opacity-40 grayscale' : ''}`} />
+        <DeviceArt
+          device={device}
+          pose={state === 'current' ? 'wave' : 'talk'}
+          photoClass={`h-full w-full rounded-full ${state === 'locked' || state === 'secret' ? 'opacity-40 grayscale' : ''}`}
+          // the character pops a little out of its bubble so wide devices (rotors, solar wings) still read at map size
+          mascotClass={`h-full w-full scale-[1.3] drop-shadow-[0_4px_6px_rgb(0_0_0/0.6)] ${state === 'locked' || state === 'secret' ? 'opacity-40 grayscale' : ''}`}
+        />
         {index && <span className="absolute -left-1 -top-1 grid h-8 w-8 place-items-center rounded-full bg-navy-700 text-sm font-bold ring-2 ring-white/30">{index}</span>}
         {(state === 'locked' || state === 'secret') && (
           <svg viewBox="0 0 16 16" className="absolute inset-0 m-auto h-8 w-8 text-white" aria-hidden="true">
