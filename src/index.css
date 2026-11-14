@@ -233,6 +233,9 @@ body {
   50% { transform: translate(3px, -1px); }
   75% { transform: translate(-2px, 0); }
 }
+/* Land the Eagle: the "land here" arrow bobs over the flat spot */
+.bob { animation: bob 0.9s ease-in-out infinite alternate; }
+@keyframes bob { to { transform: translateY(-10px); } }
 /* the whole screen shakes when the lander hits the Moon */
 .quake { animation: quake 1.8s cubic-bezier(.36,.07,.19,.97); }
 @keyframes quake {

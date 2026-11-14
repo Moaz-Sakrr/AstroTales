@@ -79,5 +79,8 @@ export const useGame = create<Progress & Session & Actions>()(
 
 // Dev only: jump around while testing, e.g. __game.setState({ screen: 'space' })
 if (import.meta.env.DEV) Object.assign(window, { __game: useGame })
+// Dev only: ?play=<deviceId> opens that device's mini-game, for testing on a phone (no console there)
+const playParam = import.meta.env.DEV && new URLSearchParams(location.search).get('play')
+if (playParam && deviceById[playParam]?.miniGame) useGame.setState({ deviceId: playParam, screen: 'mini' })
 
 export const worldComplete =(world: WorldId, done: string[]) => worlds[world].levels.every((d) => done.includes(d.id))
