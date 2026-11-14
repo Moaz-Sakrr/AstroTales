@@ -192,17 +192,18 @@ export default function PlanetHunter({ playing, onWin }: GameProps) {
         <span className="absolute left-1/2 top-2 -translate-x-1/2 rounded-full bg-black/50 px-3 py-0.5 text-xs font-semibold text-text-muted">{t.view}</span>
       </div>
 
-      <div className="relative w-full max-w-3xl flex-1 rounded-2xl bg-navy-950/70 ring-1 ring-white/10" onPointerDown={tap}>
+      {/* canvas is absolute: its retina-sized buffer (3x on iPhones) must never grow the layout and push the button off */}
+      <div className="relative min-h-28 w-full max-w-3xl flex-1 rounded-2xl bg-navy-950/70 ring-1 ring-white/10" onPointerDown={tap}>
+        <canvas ref={graph} className="absolute inset-0 h-full w-full" />
         <span className="absolute left-3 top-2 text-xs font-semibold text-text-muted">{t.graph}</span>
-        <canvas ref={graph} className="h-full min-h-28 w-full" />
       </div>
 
-      <div className="flex w-full max-w-3xl flex-wrap items-center justify-between gap-3">
-        <div>
+      <div className="flex w-full max-w-3xl items-center justify-between gap-3">
+        <div className="min-w-0">
           <p className="font-semibold">{t.found(found)}</p>
           <p aria-live="polite" className={`min-h-6 text-sm ${msg === t.noise ? 'text-text-muted' : 'text-[#3DDC97]'}`}>{msg}</p>
         </div>
-        <Button sound={null} className="min-w-44 text-xl" onClick={tap} disabled={!playing || revealed}>
+        <Button sound={null} className="shrink-0 text-xl sm:min-w-44" onClick={tap} disabled={!playing || revealed}>
           {t.button}
         </Button>
       </div>
