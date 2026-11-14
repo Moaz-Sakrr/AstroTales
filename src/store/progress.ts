@@ -47,7 +47,7 @@ export const useGame = create<Progress & Session & Actions>()(
       world: 'moon',
       travelTo: null,
       justLanded: false,
-      deviceId: 'reflecto',
+      deviceId: 'rumble',
 
       go: (screen) => set({ screen }),
       open: (screen, deviceId) => set((s) => ({ screen, back: s.screen, deviceId: deviceId ?? s.deviceId })),

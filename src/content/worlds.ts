@@ -1,5 +1,5 @@
 import type { Device, WorldId } from './types'
-import { eagle, falcon, reflecto, surveyor3 } from './devices/moon'
+import { eagle, falcon, rumble, surveyor3 } from './devices/moon'
 import { ingenuity, insight, opportunity, pathfinder, spirit, viking1 } from './devices/mars'
 import { dawn, kepler, near, pioneer10 } from './devices/deep'
 
@@ -14,7 +14,7 @@ export type World = {
 
 export const worlds: Record<WorldId, World> = {
   // levels are in the order they arrived, so the path doubles as a timeline
-  moon: { id: 'moon', name: 'The Moon', texture: '/textures/2k_moon.jpg', levels: [reflecto, eagle, falcon], secrets: [surveyor3], next: 'mars' },
+  moon: { id: 'moon', name: 'The Moon', texture: '/textures/2k_moon.jpg', levels: [rumble, eagle, falcon], secrets: [surveyor3], next: 'mars' },
   mars: { id: 'mars', name: 'Mars', texture: '/textures/2k_mars.jpg', levels: [pathfinder, spirit, opportunity, insight, ingenuity], secrets: [viking1], next: 'deep' },
   deep: { id: 'deep', name: 'Deep space', texture: '/textures/2k_stars_milky_way.jpg', levels: [pioneer10, near, dawn], secrets: [kepler] },
 }

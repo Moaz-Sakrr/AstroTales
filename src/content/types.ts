@@ -21,7 +21,7 @@ export type QuizCard = {
 
 export type Photo = { src: string; caption: L10n; credit: string; source: string }
 
-export type MiniGameId = 'laser' | 'dust' | 'transit' | 'lander'
+export type MiniGameId = 'laser' | 'dust' | 'transit' | 'lander' | 'station'
 
 export type CardStyle ='light' | 'thrust' | 'wheels' | 'dust' | 'air' | 'secret'
 

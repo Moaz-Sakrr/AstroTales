@@ -2,6 +2,8 @@ import type { Device } from '../types'
 import { L, nasaPhoto } from '../l10n'
 
 // Moon devices. verified:false = the content team still has to check each fact against its source.
+const AP12 = 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-099C'
+const HITPULL = 'https://www.nasa.gov/wp-content/uploads/static/history/alsj/UL12hitpull.html'
 const LM11 = 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059C'
 const APOLLO11 = 'https://www.nasa.gov/mission/apollo-11/'
 const LM15 = 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1971-063C'
@@ -9,45 +11,50 @@ const APOLLO15 = 'https://www.nasa.gov/mission/apollo-15/'
 const SURVEYOR3 = 'https://science.nasa.gov/mission/surveyor-3/'
 const TRANQUILITY = { label: 'Tranquility Base, Sea of Tranquility', lat: 0.674, lon: 23.473 }
 
-export const reflecto: Device = {
-  id: 'reflecto',
+export const rumble: Device = {
+  id: 'rumble',
   world: 'moon',
-  name: 'Apollo 11 Laser Ranging Retroreflector',
-  nickname: 'Reflecto',
-  handle: 'reflecto.on.moon',
-  nssdcaId: '1969-059C',
-  location: TRANQUILITY,
-  joined: 'July 1969',
-  status: L('Still working: scientists bounce lasers off me'),
-  active: true,
-  bio: L('A panel of 100 mirror prisms. I bounce laser light straight back to Earth so scientists can measure the Moon.'),
+  name: 'Apollo 12 ALSEP (Apollo Lunar Surface Experiments Package)',
+  nickname: 'Rumble',
+  handle: 'rumble.feels.moonquakes',
+  nssdcaId: '1969-099C',
+  location: { label: 'Ocean of Storms', lat: -3.0094, lon: -23.4246 },
+  joined: 'November 1969',
+  status: L('Switched off in 1977, after 8 years of listening'),
+  active: false,
+  bio: L('A science station with 6 experiments and a nuclear battery. I listened for moonquakes for 8 years.'),
   stats: [
-    { value: '100', label: L('Mirror prisms') },
-    { value: '0', label: L('Batteries needed') },
-    { value: '2.5 s', label: L('Laser round trip') },
+    { value: '6', label: L('Experiments') },
+    { value: '70 W', label: L('Nuclear battery') },
+    { value: '8 yrs', label: L('Listening to the Moon') },
   ],
   science: [
-    { text: L('Apollo 11 astronauts set me up on the Moon on July 21, 1969.'), source: LM11 },
-    { text: L('I am made of 100 corner-cube prisms. Each one sends light back the way it came.'), source: LM11 },
-    { text: L('I need no power, and scientists still use me for lunar laser ranging.'), source: APOLLO11 },
-    { text: L('A laser pulse takes about 2.5 seconds to reach me and come back.'), source: APOLLO11 },
+    { text: L('Apollo 12 astronauts Pete Conrad and Alan Bean set me up in the Ocean of Storms on November 19, 1969.'), source: AP12 },
+    { text: L('I carried 6 experiments, including a seismometer that feels moonquakes and a magnetometer that measures magnetism.'), source: AP12 },
+    { text: L('A nuclear battery with about 4 kg of plutonium fuel gave me about 70 watts of power.'), source: AP12 },
+    { text: L('My fuel got stuck in its can! Pete Conrad banged it loose with a hammer, then Alan Bean slid it into my battery.'), source: HITPULL },
+    { text: L('When the empty top of the lander crashed back onto the Moon, my seismometer felt the first moonquake ever made by people.'), source: AP12 },
+    { text: L('All the Apollo science stations were switched off on September 30, 1977.'), source: AP12 },
   ],
   story: [
-    { kicker: L('POV: you are a mirror on the Moon'), line: L("Psst… look down. I'm the shiny box right next to your boots.") },
-    { kicker: L('July 21, 1969'), line: L("Neil Armstrong and Buzz Aldrin set me up right here. I've been waiting ever since.") },
-    { kicker: L('My daily job'), line: L('Scientists on Earth shoot lasers at me. I bounce them straight back home.') },
-    { kicker: L('Your turn'), line: L("That's how they know exactly how far away the Moon is. Ready for my quiz?") },
+    { kicker: L('POV: you met a Moon listener'), line: L("Shh! Hear that? I'm Rumble. I listen to the Moon and feel every little shake.") },
+    { kicker: L('November 19, 1969'), line: L('Pete Conrad and Alan Bean set me up in the Ocean of Storms, near an old robot.') },
+    { kicker: L('My big moment'), line: L('After they left, their empty lander crashed on purpose. I felt the first moonquake ever made by people!') },
+    { kicker: L('Your turn'), line: L('A nuclear battery kept me listening for eight years. Ready for my quiz?') },
   ],
   quiz: [
-    { statement: L("I'm made of 100 little mirror prisms."), isFact: true, why: L('100 corner cubes, each sends light back the way it came.'), hint: L('Look at the stats on my profile.') },
-    { statement: L('A laser takes 2 minutes to reach me.'), isFact: false, why: L('About 1.3 seconds one way, about 2.5 seconds there and back.'), hint: L('Think: seconds or minutes?') },
-    { statement: L('Scientists still bounce lasers off me today.'), isFact: true, why: L('Still in use, and no batteries needed.'), hint: L('Check my status on my profile.') },
+    { statement: L('I felt the first moonquake made by people.'), isFact: true, why: L('The empty top of the lander crashed about 60 km away, and my seismometer felt it.'), hint: L('Remember my big moment.') },
+    { statement: L('I ran on solar panels.'), isFact: false, why: L('A nuclear battery gave me about 70 watts, day and night.'), hint: L('Look at my stats.') },
+    { statement: L('I live near another robot, Surveyor 3.'), isFact: true, why: L('Apollo 12 landed about 180 m from Surveyor 3, which got there in 1967.'), hint: L('Who was the old robot in my story?') },
   ],
   photos: [
-    nasaPhoto('reflecto-1.jpg', 'as11-40-5948', 'Buzz Aldrin by the Apollo 11 experiments. I sit behind the seismometer, left of center. Eagle waits in the back.'),
+    nasaPhoto('rumble-1.jpg', 'as12-47-6918', 'Me, all set up! The seismometer is the shiny box in front. That shadow is Pete Conrad.'),
+    nasaPhoto('rumble-2.jpg', 'as12-46-6807', 'Alan Bean carrying me, folded up in two packs, away from the lander.'),
+    nasaPhoto('rumble-3.jpg', 'as12-46-6790', 'Alan Bean taking the fuel for my nuclear battery out of the lander.'),
+    nasaPhoto('surveyor3-3.jpg', 'AS12-48-7133', 'The Apollo 12 lander, Intrepid, and Surveyor 3. I was set up a short walk from here.'),
   ],
-  card: { style: 'light', type: 'Light', stat: { value: '100', label: 'Prisms' }, power: L('Bounces any laser straight home'), superpower: L('Works for 50+ years with no batteries') },
-  miniGame: 'laser',
+  card: { style: 'light', type: 'Quake', stat: { value: '6', label: 'Experiments' }, power: L('Feels the tiniest moonquake'), superpower: L('Runs day and night on a nuclear battery') },
+  miniGame: 'station',
   verified: false,
 }
 
