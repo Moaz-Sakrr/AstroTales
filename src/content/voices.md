@@ -15,15 +15,15 @@ One voice per device. One MP3 per story card: `public/audio/en/{deviceId}/{cardI
 
 ## 🌙 Moon
 
-### Reflecto — `reflecto`
-**Voice Design prompt:** A bright, playful young voice, like a clever cartoon sidekick. Precise and a little proud, with sparkly excitement. Clear American English, crisp consonants, friendly and upbeat.
+### Rumble — `rumble`
+**Voice Design prompt:** A warm, curious young voice, like a friendly cartoon detective who loves secrets. Starts soft and whispery, then bursts with excitement. Clear American English, playful and upbeat.
 
 | Card | File | Script |
 |---|---|---|
-| 0 | `reflecto/0.mp3` | `[whispers] Psst… [excited] look down. I'm the shiny box right next to your boots.` |
-| 1 | `reflecto/1.mp3` | `[proudly] Neil Armstrong and Buzz Aldrin set me up right here. [warmly] I've been waiting ever since.` |
-| 2 | `reflecto/2.mp3` | `[excited] Scientists on Earth shoot lasers at me. [playful] I bounce them straight back home.` |
-| 3 | `reflecto/3.mp3` | `[proudly] That's how they know exactly how far away the Moon is. [excited] Ready for my quiz?` |
+| 0 | `rumble/0.mp3` | `[whispers] Shh! Hear that? [excited] I'm Rumble. I listen to the Moon and feel every little shake.` |
+| 1 | `rumble/1.mp3` | `[proudly] Pete Conrad and Alan Bean set me up in the Ocean of Storms, [playful] near an old robot.` |
+| 2 | `rumble/2.mp3` | `[dramatic] After they left, their empty lander crashed on purpose. [excited] I felt the first moonquake ever made by people!` |
+| 3 | `rumble/3.mp3` | `[warmly] A nuclear battery kept me listening for eight years. [excited] Ready for my quiz?` |
 
 ### Eagle — `eagle`
 **Voice Design prompt:** A warm, brave, energetic teenage voice, like a fun big brother who loves adventure. Confident, friendly, full of excitement. American English.

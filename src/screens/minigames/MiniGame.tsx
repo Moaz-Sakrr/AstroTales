@@ -9,6 +9,7 @@ import LaserPing from './LaserPing'
 import DustBuster from './DustBuster'
 import PlanetHunter from './PlanetHunter'
 import LunarLander from './LunarLander'
+import StationSetup from './StationSetup'
 
 export type GameProps = { playing: boolean; onWin: () => void }
 
@@ -17,6 +18,7 @@ const GAMES: Record<MiniGameId, ComponentType<GameProps>> = {
   dust: DustBuster,
   transit: PlanetHunter,
   lander: LunarLander,
+  station: StationSetup,
 }
 
 // Shared frame for every mini-game: how-to card → play → "mission complete" with the real science.
@@ -36,14 +38,14 @@ export default function MiniGame() {
       <Game key={round} playing={phase === 'play'} onWin={() => setPhase('won')} />
 
       <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-center justify-between gap-2 p-3">
-        <p className="flex items-center gap-2 rounded-full bg-black/45 py-1 pl-1 pr-4 backdrop-blur-sm">
+        <p className="flex min-w-0 items-center gap-2 rounded-full bg-black/45 py-1 pl-1 pr-4 backdrop-blur-sm">
           <img src={device.photos[0].src} alt="" className="h-9 w-9 rounded-full object-cover" />
-          <span className="font-semibold">{text.title}</span>
+          <span className="truncate font-semibold">{text.title}</span>
         </p>
         <button
           type="button"
           onClick={() => go('card')}
-          className="pointer-events-auto min-h-11 rounded-full bg-black/45 px-4 font-semibold text-text-muted backdrop-blur-sm hover:text-text focus-visible:outline-3 focus-visible:outline-fact"
+          className="pointer-events-auto min-h-11 shrink-0 whitespace-nowrap rounded-full bg-black/45 px-4 font-semibold text-text-muted backdrop-blur-sm hover:text-text focus-visible:outline-3 focus-visible:outline-fact"
         >
           {en.mini.skip}
         </button>
