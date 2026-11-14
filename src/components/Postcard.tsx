@@ -40,7 +40,8 @@ export default function Postcard({ className = '' }: { className?: string }) {
             </text>
             <text x="40" y="41" fontSize="7" fontWeight="700" fill="currentColor" textAnchor="middle">{t.postmarkDate}</text>
             {[20, 30, 40, 50].map((y) => (
-              <path key={y} d={`M70,${y} q6,-4 12,0 t12,0 t12,0 t12,0`} fill="none" stroke="currentColor" strokeWidth="1.6" />
+              // cancellation lines drawn as seismograph traces: Rumble's handwriting
+              <path key={y} d={`M70,${y} h9 l2,-3 l2,6 l2,-${y === 30 ? 11 : 5} l2,${y === 30 ? 14 : 7} l2,-6 l2,3 h27`} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
             ))}
           </svg>
 

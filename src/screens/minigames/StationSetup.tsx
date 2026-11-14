@@ -1,10 +1,15 @@
+import { Howl } from 'howler'
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
 import Astronaut from '../../components/Astronaut'
+import Seismograph from '../../components/Seismograph'
+import { quake, type Quake } from '../../components/quake'
 import type { Pose } from '../../content/characters'
 import { en } from '../../content/i18n/en'
 import { useMedia } from '../../hooks/useMedia'
 import { useRaf } from '../../hooks/useRaf'
 import { useGame } from '../../store/progress'
+import { useSound } from '../../store/sound'
+import { duck } from '../../audio/engine'
 import type { GameProps } from './MiniGame'
 
 // Apollo 12, November 19, 1969, as a 3-step mission: power (hammer the stuck fuel loose, like Pete Conrad did),
@@ -13,6 +18,7 @@ import type { GameProps } from './MiniGame'
 // Facts: NSSDCA 1969-099C, and the ALSJ "Hit and Pull for Science" page for the hammer.
 
 const t = en.mini.station
+const VO = '/audio/en/rumble/game/' // Rumble's voice for every message (ElevenLabs)
 type Stage = 'hammer' | 'fuel' | 'seismo' | 'stomp' | 'aim' | 'finale'
 type Pt = { x: number; y: number }
 
@@ -20,7 +26,6 @@ const HITS = 5 // hammer taps to free the fuel
 const STOMPS = 3 // big shakes needed
 const BIG = 0.5 // shake size that counts as big (trace units, 0..1)
 const LOCK = 6 // degrees from Earth that locks the antenna
-const SPAN = 6 // seconds of seismograph on screen
 
 // The scene is measured, not cropped: the viewBox matches the screen, and the props are arranged inside the free
 // area (below the speech bubble, above the seismograph strip). Offsets are from the center (dx) and from the
@@ -66,6 +71,7 @@ const dist = (a: Pt, b: Pt) => Math.hypot(a.x - b.x, a.y - b.y)
 // Tiny synth for feedback sounds. No files, no network; silently does nothing if audio is blocked.
 let audio: AudioContext | null = null
 function tone(freq: number, dur: number, type: OscillatorType = 'sine', vol = 0.12, slideTo?: number) {
+  if (!useSound.getState().effects) return // the sound button's effects switch
   try {
     audio ??= new AudioContext()
     const o = audio.createOscillator()
@@ -82,17 +88,6 @@ function tone(freq: number, dur: number, type: OscillatorType = 'sine', vol = 0.
   } catch {
     /* no audio: the game still works */
   }
-}
-
-type Quake = { t0: number; amp: number; tau: number; f: number; rise: number }
-// One seismometer reading: a quiet hum plus every shake so far, each ringing down on its own.
-function reading(s: number, quakes: Quake[]) {
-  let v = 0.018 * Math.sin(s * 37) + 0.012 * Math.sin(s * 91 + 1)
-  for (const q of quakes) {
-    const u = s - q.t0
-    if (u > 0) v += q.amp * (1 - Math.exp(-u / q.rise)) * Math.exp(-u / q.tau) * Math.sin(u * q.f * 6.283)
-  }
-  return v
 }
 
 export default function StationSetup({ playing, onWin }: GameProps) {
@@ -143,11 +138,9 @@ export default function StationSetup({ playing, onWin }: GameProps) {
   const [meteor, setMeteor] = useState<'off' | 'start' | 'fall' | 'boom'>('off')
 
   const svg = useRef<SVGSVGElement>(null)
-  const strip = useRef<HTMLCanvasElement>(null)
   const watt = useRef<HTMLSpanElement>(null)
   const clock = useRef(0)
   const quakes = useRef<Quake[]>([])
-  const samples = useRef<{ s: number; v: number }[]>([])
   const power = useRef(0)
   const down = useRef<Pt | null>(null)
   const keys = useRef({ left: false, right: false })
@@ -157,6 +150,31 @@ export default function StationSetup({ playing, onWin }: GameProps) {
   const later = (fn: () => void, ms: number) => void timers.current.push(window.setTimeout(fn, ms))
   useEffect(() => () => timers.current.forEach(clearTimeout), [])
 
+  // Rumble reads every message out loud; a new line cuts off the last one
+  const voice = useRef<Howl | null>(null)
+  const speak = (file: string) => {
+    voice.current?.unload()
+    voice.current = new Howl({ src: [`${VO}${file}.mp3`], onplay: () => duck(true), onend: () => duck(false) })
+    voice.current.play()
+  }
+  const talk = (file: string, text: string) => {
+    setSay(text)
+    speak(file)
+  }
+  // how-to card before play, first instruction on start, mission recap when won (playing turns false again)
+  useEffect(() => {
+    voice.current?.unload()
+    voice.current = new Howl({ src: [`${VO}${playing ? 'hammer' : finale.current ? 'win' : 'intro'}.mp3`], onplay: () => duck(true), onend: () => duck(false) })
+    voice.current.play()
+  }, [playing])
+  useEffect(
+    () => () => {
+      voice.current?.unload()
+      duck(false)
+    },
+    [],
+  )
+
   const kid = kidOff ? { x: L.cx + kidOff.x, y: L.bot + kidOff.y } : L.kid
   const angle = aimed ?? (earthDeg < -90 ? -25 : -155) // start pointing away from Earth
   const powered = rodIn
@@ -164,7 +182,7 @@ export default function StationSetup({ playing, onWin }: GameProps) {
   const off = ((angle - earthDeg + 540) % 360) - 180
   const signal = Math.max(0, 1 - Math.abs(off) / 50)
   const locked = stage === 'finale'
-  const shake = (amp: number, tau = 0.9, f = 7, rise = 0.03) => quakes.current.push({ t0: clock.current, amp, tau, f, rise })
+  const shake = (amp: number, tau = 0.9, f = 7, rise = 0.03) => quakes.current.push(quake(amp, tau, f, rise))
 
   // ---- step 1: power ----
   const hit = () => {
@@ -173,11 +191,11 @@ export default function StationSetup({ playing, onWin }: GameProps) {
     tone(1320, 0.06, 'triangle', 0.05)
     const n = hits + 1
     setHits(n)
-    if (n < HITS) return setSay(t.say.bonk(HITS - n))
+    if (n < HITS) return talk(`bonk-${HITS - n}`, t.say.bonk(HITS - n))
     tone(520, 0.25, 'sine', 0.1, 1040)
     setPose('point')
     setStage('fuel')
-    setSay(t.say.loose)
+    talk('loose', t.say.loose)
   }
   const insertRod = () => {
     if (stage !== 'fuel' || rodIn) return
@@ -186,12 +204,12 @@ export default function StationSetup({ playing, onWin }: GameProps) {
     later(() => {
       setRodIn(true)
       tone(70, 1.4, 'sawtooth', 0.08, 220)
-      setSay(t.say.powered)
+      talk('powered', t.say.powered)
     }, 450)
     later(() => {
       setStage('seismo')
       setPose('stand')
-      setSay(t.say.seismo)
+      talk('seismo', t.say.seismo)
     }, 3400)
   }
 
@@ -205,7 +223,7 @@ export default function StationSetup({ playing, onWin }: GameProps) {
       tone(660, 0.12)
       later(() => tone(990, 0.2), 120)
       setStage('stomp')
-      setSay(t.say.stomp)
+      talk('stomp', t.say.stomp)
     }, 450)
   }
   const hop = (to: Pt) => {
@@ -225,15 +243,15 @@ export default function StationSetup({ playing, onWin }: GameProps) {
       const id = clock.current
       setRipples((r) => [...r, { ...land, id, big }])
       later(() => setRipples((r) => r.filter((x) => x.id !== id)), 1000)
-      if (!big) return setSay(t.say.small)
+      if (!big) return talk('small', t.say.small)
       const n = stomps + 1
       setStomps(n)
-      setSay(n < STOMPS ? t.say.big : t.say.bigDone)
+      talk(n < STOMPS ? 'big' : 'big-done', n < STOMPS ? t.say.big : t.say.bigDone)
       if (n >= STOMPS)
         later(() => {
           setStage('aim')
           setPose('point')
-          setSay(t.say.aim)
+          talk('aim', t.say.aim)
         }, 1600)
     }, 800)
   }
@@ -258,7 +276,7 @@ export default function StationSetup({ playing, onWin }: GameProps) {
     keys.current = { left: false, right: false }
     setAngle(earthDeg)
     setPose('jump')
-    setSay(t.say.locked)
+    talk('locked', t.say.locked)
     tone(660, 0.15)
     later(() => tone(880, 0.15), 140)
     later(() => tone(1320, 0.35), 280)
@@ -267,11 +285,11 @@ export default function StationSetup({ playing, onWin }: GameProps) {
       setLaunched(true)
       shake(0.32, 1.4, 9, 0.2)
       tone(120, 2.4, 'sawtooth', 0.07, 50)
-      setSay(t.say.liftoff)
+      talk('liftoff', t.say.liftoff)
     }, 3000)
     later(() => {
       setMeteor('start')
-      setSay(t.say.incoming)
+      talk('incoming', t.say.incoming)
     }, 6400)
     later(() => setMeteor('fall'), 6460)
     later(() => {
@@ -280,7 +298,7 @@ export default function StationSetup({ playing, onWin }: GameProps) {
       shake(1.15, 6, 1.7, 0.9) // slow build, long ring: the Moon kept shaking long after the hit
       tone(70, 2, 'sawtooth', 0.22, 24)
       tone(42, 2.6, 'sine', 0.35, 20)
-      setSay(t.say.boom)
+      talk('boom', t.say.boom)
     }, 7900)
     later(onWin, 12400)
   }
@@ -325,13 +343,13 @@ export default function StationSetup({ playing, onWin }: GameProps) {
       if (tap || dist(p, rtgTop) < 85) insertRod()
       else {
         setRod(null)
-        setSay(t.say.missFuel)
+        talk('miss-fuel', t.say.missFuel)
       }
     } else if (drag === 'seismo') {
       if (tap || dist(p, L.spot) < 85) placeSeismo()
       else {
         setSeismo(null)
-        setSay(t.say.missSeismo)
+        talk('miss-seismo', t.say.missSeismo)
       }
     }
     setDrag(null)
@@ -358,90 +376,11 @@ export default function StationSetup({ playing, onWin }: GameProps) {
     onKeyDown: (e: KeyboardEvent) => (e.key === 'Enter' || e.key === ' ') && aim(angle + (k === 'right' ? 3 : -3)),
   })
 
-  // keep the seismograph canvas sharp at any size
-  useEffect(() => {
-    const c = strip.current!
-    const ro = new ResizeObserver(() => {
-      c.width = c.clientWidth * devicePixelRatio
-      c.height = c.clientHeight * devicePixelRatio
-    })
-    ro.observe(c)
-    return () => ro.disconnect()
-  }, [])
-
   useRaf((dt) => {
     clock.current += dt
-    const s = clock.current
     if (stage === 'aim' && (keys.current.left || keys.current.right)) aim(angle + (keys.current.right ? 70 : -70) * dt)
     if (powered && power.current < 70) power.current = Math.min(70, power.current + dt * 45)
     if (watt.current) watt.current.textContent = `${Math.round(power.current)} W`
-
-    samples.current.push({ s, v: live ? reading(s, quakes.current) : 0 })
-    while (samples.current.length && samples.current[0].s < s - SPAN) samples.current.shift()
-
-    // the seismograph: red ink on a strip of paper that feeds right to left
-    const c = strip.current
-    if (!c) return
-    const ctx = c.getContext('2d')!
-    const w = c.width
-    const h = c.height
-    const k = devicePixelRatio
-    const mid = h / 2
-    const amp = h * 0.42
-    const penX = w - 34 * k
-    const toX = (ts: number) => penX - ((s - ts) / SPAN) * (penX - 8 * k)
-    ctx.clearRect(0, 0, w, h)
-    ctx.fillStyle = '#FFF1D6'
-    ctx.fillRect(0, 0, w, h)
-    ctx.strokeStyle = 'rgba(184, 50, 50, 0.12)'
-    ctx.lineWidth = k
-    const step = w / 14
-    for (let x = penX - ((s * 60 * k) % step); x > 0; x -= step) {
-      ctx.beginPath()
-      ctx.moveTo(x, 0)
-      ctx.lineTo(x, h)
-      ctx.stroke()
-    }
-    for (const y of [mid - amp / 2, mid, mid + amp / 2]) {
-      ctx.beginPath()
-      ctx.moveTo(0, y)
-      ctx.lineTo(w, y)
-      ctx.stroke()
-    }
-    if (stage === 'stomp') {
-      // shake big enough to count
-      ctx.setLineDash([6 * k, 6 * k])
-      ctx.strokeStyle = 'rgba(19, 107, 99, 0.7)'
-      for (const y of [mid - amp * BIG, mid + amp * BIG]) {
-        ctx.beginPath()
-        ctx.moveTo(0, y)
-        ctx.lineTo(w, y)
-        ctx.stroke()
-      }
-      ctx.setLineDash([])
-    }
-    const pts = samples.current
-    ctx.strokeStyle = '#E5484D'
-    ctx.lineWidth = 2.2 * k
-    ctx.lineJoin = 'round'
-    ctx.beginPath()
-    pts.forEach((p, i) => {
-      const y = mid - Math.max(-1.1, Math.min(1.1, p.v)) * amp
-      if (i) ctx.lineTo(toX(p.s), y)
-      else ctx.moveTo(toX(p.s), y)
-    })
-    ctx.stroke()
-    // the pen
-    const last = pts[pts.length - 1]
-    const penY = mid - Math.max(-1.1, Math.min(1.1, last?.v ?? 0)) * amp
-    ctx.fillStyle = '#1B2440'
-    ctx.beginPath()
-    ctx.moveTo(penX, penY)
-    ctx.lineTo(penX + 18 * k, penY - 7 * k)
-    ctx.lineTo(penX + 18 * k, penY + 7 * k)
-    ctx.closePath()
-    ctx.fill()
-    ctx.fillRect(penX + 18 * k, penY - 2 * k, w, 4 * k)
   }, playing)
 
   const tip = { x: base.x + Math.cos((angle * Math.PI) / 180) * 58, y: base.y + Math.sin((angle * Math.PI) / 180) * 58 }
@@ -784,15 +723,16 @@ export default function StationSetup({ playing, onWin }: GameProps) {
       </div>
 
       {/* the seismograph strip */}
-      <div
-        className="absolute bottom-3 right-3 z-10 mx-auto max-w-3xl overflow-hidden rounded-xl shadow-[0_6px_0_rgb(0_0_0/0.35)] ring-1 ring-black/20 sm:bottom-4 short:bottom-3"
+      <Seismograph
+        quakes={quakes}
+        live={live}
+        band={stage === 'stomp' ? BIG : null}
+        active={playing}
+        label={`${t.strip} · ${live ? t.listening : t.off}`}
+        className="absolute bottom-3 right-3 z-10 mx-auto max-w-3xl sm:bottom-4 short:bottom-3"
+        canvasClassName="h-16 sm:h-24 short:h-14"
         style={{ left: box.x0 + 12 }}
-      >
-        <canvas ref={strip} className="block h-16 w-full sm:h-24 short:h-14" aria-hidden="true" />
-        <span className="absolute left-2 top-1.5 rounded bg-ink px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-paper">
-          {t.strip} · {live ? t.listening : t.off}
-        </span>
-      </div>
+      />
     </div>
   )
 }
