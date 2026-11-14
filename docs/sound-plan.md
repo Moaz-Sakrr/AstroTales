@@ -13,7 +13,7 @@ A clip without a `file` in `src/content/sounds.ts` falls back to its synth sound
   Set `file` on its entry in `src/content/sounds.ts`; the engine plays the synth fallback while `file` is missing.
 
 ## Engine
-- `src/audio/engine.ts`: one AudioContext, buses master → music / effects. `sfx(name)`, `setMusic(track)`, `duck(on)`, `thrust(on)`,
+- `src/audio/engine.ts`: one AudioContext, buses master → music / effects. `sfx(name)`, `setMusic(track)`, `duck(on)`, `thrust(on)`, `cruise(on)`,
   `clip(nasaId, fallback)` (NASA file, or the synth fallback while it's missing), `loopClip(nasaId)`, `stopClips()`.
   `<Button sound="…">` picks a button's tap sound (`null` when the screen plays its own).
 - `src/audio/synth.ts`: Web Audio effects: tap, pop, whoosh, warp, beep, go, rumble, thud, ding, coin, bonk, pling,
@@ -29,7 +29,8 @@ A clip without a `file` in `src/content/sounds.ts` falls back to its synth sound
 | Character | pick boy/girl | pop |
 | Launch | each countdown number | beep (NASA quindar when ready) |
 | Launch | ignition + liftoff | rumble / NASA "We have lift-off" + Atlas V |
-| Space | fly to a world | warp; locked world = locked; planet tag = blip (NASA Sputnik) |
+| Space | leaving Earth + flying to a world | engine rumble (`cruise`, fades out on arrival) |
+| Space | pick a world | warp; locked world = locked; planet tag = blip (NASA Sputnik) |
 | Level map | lander comes down / touchdown | rumble → thud; on the Moon then NASA "The Eagle has landed" |
 | Level map | level tap / secret unlocked / not enough coins | pop / unlock / locked |
 | Story | next card | swipe (+ NASA quindar before the voice) |

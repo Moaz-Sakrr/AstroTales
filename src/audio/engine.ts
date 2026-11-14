@@ -166,6 +166,60 @@ export function duck(on: boolean) {
   applyLevels()
 }
 
+let ship: { stop: () => void } | null = null
+/**
+ * The ship's engines while it flies through space: a deep, steady rumble with a slow "breathing" hum.
+ * Fades in when the flight starts and out when the ship arrives. Calling it twice with the same value does nothing.
+ */
+export function cruise(on: boolean) {
+  const ctx = running()
+  if (on && !ship && ctx) {
+    const t = ctx.currentTime
+    const out = ctx.createGain()
+    out.gain.setValueAtTime(0.0001, t)
+    out.gain.exponentialRampToValueAtTime(0.4, t + 0.8)
+    out.connect(fxBus)
+    // rumble: low-passed noise
+    const noise = ctx.createBufferSource()
+    noise.buffer = noiseBuffer(ctx)
+    noise.loop = true
+    const lp = ctx.createBiquadFilter()
+    lp.type = 'lowpass'
+    lp.frequency.value = 260
+    noise.connect(lp).connect(out)
+    // hum: two low tones, gently swelling (an LFO on their volume)
+    const hum = ctx.createGain()
+    hum.gain.value = 0.18
+    const lfo = ctx.createOscillator()
+    const depth = ctx.createGain()
+    lfo.frequency.value = 0.35
+    depth.gain.value = 0.08
+    lfo.connect(depth).connect(hum.gain)
+    const tones = [55, 82.5].map((f) => {
+      const o = ctx.createOscillator()
+      o.type = 'triangle'
+      o.frequency.value = f
+      o.connect(hum)
+      return o
+    })
+    hum.connect(out)
+    const nodes = [noise, lfo, ...tones]
+    nodes.forEach((n) => n.start(t))
+    ship = {
+      stop() {
+        const now = ctx.currentTime
+        out.gain.cancelScheduledValues(now)
+        out.gain.setValueAtTime(Math.max(out.gain.value, 0.0001), now)
+        out.gain.exponentialRampToValueAtTime(0.0001, now + 1.2) // engines wind down as the ship arrives
+        nodes.forEach((n) => n.stop(now + 1.3))
+      },
+    }
+  } else if (!on && ship) {
+    ship.stop()
+    ship = null
+  }
+}
+
 /** Lunar Lander engine: a looping rocket roar. Safe to call every frame; only changes start or stop it. */
 export function thrust(on: boolean) {
   const ctx = running()

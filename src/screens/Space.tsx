@@ -3,7 +3,7 @@ import { BODIES, createSolarSystem, type BodyId } from '../space/solarSystem'
 import Button from '../components/Button'
 import CoinBadge from '../components/CoinBadge'
 import SoundButton from '../components/SoundButton'
-import { clip, sfx } from '../audio/engine'
+import { clip, cruise, sfx } from '../audio/engine'
 import { en } from '../content/i18n/en'
 import type { WorldId } from '../content/types'
 import { previousWorld, worlds } from '../content/worlds'
@@ -67,6 +67,13 @@ export default function Space() {
     engine.current = sys
     return sys.dispose
   }, [])
+
+  // engines rumble while the ship is moving: leaving Earth and flying to a world
+  const moving = phase === 'intro' || phase === 'flight'
+  useEffect(() => {
+    cruise(moving)
+    return () => cruise(false)
+  }, [moving])
 
   useEffect(() => {
     if (!toast) return
