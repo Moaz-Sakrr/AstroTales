@@ -43,7 +43,7 @@ Built by **Team AstroPy** for the NASA Space Apps Challenge 2026 (Cairo), challe
     <td><img src="docs/screenshots/quiz.webp" alt="Fact or Cap? Surveyor says: I landed on the Moon before any human." /><br><b>8. Fact or Cap?</b> Swipe or tap to answer</td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/card.webp" alt="You earned Eagle's card!" /><br><b>9. Earn its card</b>, never by luck</td>
+    <td><img src="docs/screenshots/card.webp" alt="You earned Kepler's card!" /><br><b>9. Earn its card</b>, never by luck</td>
     <td><img src="docs/screenshots/profile-3d.webp" alt="Eagle's profile with stats, a 3D model and a QR code for AR" /><br><b>10. Profile</b> with NASA photos, facts, 3D and AR</td>
   </tr>
 </table>
